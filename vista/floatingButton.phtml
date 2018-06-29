@@ -1,0 +1,30 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Cachu
+ * Date: 06/abr/2017
+ * Time: 06:02 PM
+ */
+$this->idioma = Globales::getIdioma('floating');
+?>
+<div>
+    <a style="display: none;" class="floatingButton md-btn md-fab md-fab-bottom-right pos-fix btn-primary">
+        <i class="material-icons i-24 text-white">add</i>
+    </a>
+    <div class="quickMenu animated fadeInUp hidden" id="quickMenu" data-backdrop="false">
+        <div class="right" style="width: 207px">
+            <div class="box">
+                <div class="box-body" id="floatingMenu">
+                    <?php if ($_SESSION["namespace"] != "distribuidor\\"): ?>
+                        <?php foreach ($this->metadata->floating as $index => $button): ?>
+                            <div>
+                                <span style="cursor: pointer" onclick="<?= $button->onclick ?>"
+                                      class="label label-lg <?= $button->color ?>"><?= $this->idioma->btn[$index] ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
