@@ -58,7 +58,7 @@ class Globales
             $head = file_get_contents("../.git/HEAD");
             $explode = explode("/", $head);
             $version = end($explode);
-            $type = $explode[2] == $version ? $version : $explode[2];
+            $type = str_replace("\n","", $explode[2] == $version ? $version : $explode[2]);
             switch ($type) {
                 case "":
                 case "develop":
