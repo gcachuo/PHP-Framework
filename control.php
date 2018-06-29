@@ -353,10 +353,15 @@ HTML;
             $this->$stylesheet(APP_ROOT . "recursos/css/{$modulo}.css");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/css/{$modulo}.css"))
             $this->$stylesheet(HTTP_PATH_ROOT . "recursos/css/{$modulo}.css");
+        elseif(file_exists("../framework/recursos/css/{$modulo}.css"))
+            $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
+
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(APP_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js");
+        elseif(file_exists("../framework/recursos/js/{$modulo}.js"))
+            $this->$script("../framework/recursos/js/{$modulo}.js");
     }
 
     /**
@@ -442,8 +447,8 @@ HTML;
             $ruta = HTTP_PATH_ROOT;
             if (!file_exists(HTTP_PATH_ROOT . "vista/{$vista}.phtml")) {
 
-                $ruta= dirname(__FILE__). "/vista/{$vista}.phtml";
-                if (!file_exists($ruta)) {
+                $ruta= dirname(__FILE__)."/";
+                if (!file_exists($ruta. "/vista/{$vista}.phtml")) {
                     $vista = "404";
                 }
             }

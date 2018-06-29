@@ -32,8 +32,6 @@ try {
     require_once dirname(__FILE__) . "/control.php";
     require_once "conexion.php";
     require_once 'vendor/autoload.php';
-    require_once 'paypal.php';
-    require_once 'mail.php';
 
     Globales::$modulo = $_POST["modulo"] ?: $_SESSION["modulo"];
     Globales::$namespace = __NAMESPACE__ . "\\";
@@ -58,8 +56,11 @@ function autoloader($class)
         $path = APP_ROOT . "controlador/{$class}Control.php";
         if (!file_exists($path)) {
             $path = HTTP_PATH_ROOT . "controlador/{$class}Control.php";
-            if (!file_exists($path))
-                Globales::mensaje_error("No existe el archivo $path");
+            if (!file_exists($path)) {
+                $path = __DIR__ . "/controlador/{$class}Control.php";
+                if (!file_exists($path))
+                    Globales::mensaje_error("No existe el archivo $path");
+            }
         }
     }
     require_once $path;
