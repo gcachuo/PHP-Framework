@@ -160,6 +160,32 @@ function ajax(fn, post, modulo) {
     }
 }
 
+function uploadFiles(modulo, fn) {
+    var formData = new FormData();
+    var inputs = $("input[type=file]");
+    $.each(inputs, function (obj, v) {
+        $("a.btn").addClass("disabled");
+        formData.append('file', v.files[0]);
+        $.ajax({
+            url: `index.php?file=true&modulo=${modulo}&folder=archivos`,
+            data: formData,
+            type: 'POST',
+            contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+            processData: false, // NEEDED, DON'T OMIT THIS
+        }).done(function (result) {
+                $(".loader").show();
+                ajax(fn, {filename: result}, modulo);
+            }
+        ).fail(function (result) {
+                alert(result.responseText);
+                console.error(result.responseText);
+            }
+        ).always(function (result) {
+            $("a.btn").removeClass("disabled");
+        });
+    });
+}
+
 function navegar_externo(modulo, accion, post) {
 
     var form = document.createElement("form");
@@ -194,6 +220,10 @@ function navegar(modulo, accion, post) {
             location.reload(true);
         }
     );
+}
+
+function btnDownload(path) {
+    window.open(path, '_blank');
 }
 
 function aside(modulo, accion, post) {
@@ -281,7 +311,7 @@ function cargarDatatable(idioma, columnDefs, buttons, order, orderby, element) {
                 }
             },
             "columnDefs": columnDefs,
-            "dom": "<'row'<'col-xs-2'B><'col-xs-10'f>><'row'<'col-xs-12't>><'row'<'col-xs-12'p>>" /*'fBrtip'*/,
+            "dom": "<'row'<'col-xs-4'B><'col-xs-8'f>><'row'<'col-xs-12't>><'row'<'col-xs-12'p>>" /*'fBrtip'*/,
             "buttons": btns,
             "oClasses": {
                 "sFilterInput": "form-control form-control-sm p-x b-a",

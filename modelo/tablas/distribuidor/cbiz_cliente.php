@@ -86,4 +86,30 @@ MySQL;
         $registro = $this->siguiente_registro($this->consulta($sql));
         return $registro->fechaCreacion;
     }
+
+    function selectTipoSistema($token_cbiz_cliente)
+    {
+        $sql = <<<sql
+select 
+ nombre_tipo_cbiz tipo
+ from cbiz_cliente 
+ inner join tipo_cbiz tc on cbiz_cliente.id_tipo_cbiz = tc.id_tipo_cbiz
+ where token_cbiz_cliente=?;
+sql;
+
+        return $this->siguiente_registro($this->consulta($sql,['s',$token_cbiz_cliente]))->tipo;
+    }
+
+    function selectEstatusSistema($token_cbiz_cliente)
+    {
+        $sql = <<<sql
+select 
+ estatus_cbiz_cliente estatus
+ from cbiz_cliente 
+ inner join tipo_cbiz tc on cbiz_cliente.id_tipo_cbiz = tc.id_tipo_cbiz
+ where token_cbiz_cliente=?;
+sql;
+
+        return $this->siguiente_registro($this->consulta($sql,['s',$token_cbiz_cliente]))->estatus;
+    }
 }

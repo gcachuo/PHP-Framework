@@ -20,7 +20,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent">
     <link rel="apple-touch-icon"
-        <?php $ruta=HTTP_PATH_ROOT ."recursos/img/logo.png" ; if(!file_exists($ruta)) $ruta= "../framework/recursos/img/logo.png" ;?>
+        <?php $ruta = HTTP_PATH_ROOT . "recursos/img/logo.png";
+        if (!file_exists($ruta)) $ruta = "../framework/recursos/img/logo.png"; ?>
 
           href="<?= $ruta ?>">
     <meta name="apple-mobile-web-app-title" content="Flatkit">
@@ -37,7 +38,8 @@
         .text-primary {
             color: <?=$this->metadata->color->buttons->background?:'#cccb2a'?> !important;
         }
-        .b-primary{
+
+        .b-primary {
             border-color: <?=$this->metadata->color->buttons->background?:'#cccb2a'?>;
         }
 
@@ -187,7 +189,8 @@
                                    data-toggle="dropdown" role="button"
                                    aria-haspopup="true" aria-expanded="false">
                                     <span class="avatar w-32">
-                                        <?php $ruta=HTTP_PATH_ROOT ."recursos/img/user.png" ; if(!file_exists($ruta)) $ruta= "../framework/recursos/img/user.png" ;?>
+                                        <?php $ruta = HTTP_PATH_ROOT . "recursos/img/user.png";
+                                        if (!file_exists($ruta)) $ruta = "../framework/recursos/img/user.png"; ?>
                                         <img src="<?= $ruta ?>" alt="user">
                                         <i class="on b-white bottom"></i>
                                     </span>
@@ -211,7 +214,11 @@
 
                     <?php
                     $namespace = Globales::$namespace;
-                    include_once HTTP_PATH_ROOT . "vista/floatingButton.phtml"
+                    $floatingButton = HTTP_PATH_ROOT . "vista/floatingButton.phtml";
+                    if (file_exists($floatingButton))
+                        include_once $floatingButton;
+                    else
+                        include_once "../framework/vista/floatingButton.phtml";
                     ?>
                     <div class="hidden dropdown" id="divAcciones">
                         <a title="Reprogramar fecha"

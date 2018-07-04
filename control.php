@@ -120,6 +120,7 @@ HTML;
     /**
      * @property $formatoFecha
      * @return array
+     * @throws Exception
      */
     private function obtenerIdioma()
     {
@@ -189,10 +190,16 @@ HTML;
         $file = "empresa.json";
         $path = APP_ROOT . "usuario/$token/config/";
         if (!file_exists($path . $file)) {
-            $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0');
-            $json_string = json_encode($empresa);
-            mkdir($path, 0777, true);
-            file_put_contents($path . $file, $json_string);
+            $path = HTTP_PATH_ROOT ."usuario/$token/config/";
+            if(!file_exists($path.$file)) {
+                $path = "../../../admin/usuario/$token/config";
+                if(!file_exists($path.$file)) {
+                    $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0');
+                    $json_string = json_encode($empresa);
+                    mkdir($path, 0777, true);
+                    file_put_contents($path . $file, $json_string);
+                }
+            }
         }
         if (!file_exists($path . "logo.png")) {
             mkdir($path, 0777, true);
@@ -224,14 +231,19 @@ HTML;
     private function getAssets()
     {
         $plugins = "../framework/libs";
-
+        if(!file_exists($plugins))
+            $plugins = "../../../framework/libs";
         $CSSassets = "../framework/recursos/css/lib";
+        if(!file_exists($CSSassets))
+            $CSSassets = "../../../framework/recursos/css/lib";
         $JSassets = "../framework/recursos/js/lib";
+        if(!file_exists($JSassets))
+            $JSassets = "../../../framework/recursos/js/lib";
 
         $this->stylesheet("$CSSassets/animate.css");
         $this->stylesheet("$plugins/glyphicons/glyphicons.css");
         $this->stylesheet("//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
-        $this->stylesheet("https://fonts.googleapis.com/icon?family=Material+Icons");
+        $this->stylesheet("$plugins/material-design-icons/material-design-icons.css");
         $this->stylesheet("$plugins/bootstrap/dist/css/bootstrap.min.css");
         $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
         $this->stylesheet("$CSSassets/font.css");
@@ -299,8 +311,8 @@ HTML;
 
         #Override
         $this->stylesheet("$CSSassets/wrap.css");
-        if (file_exists("$CSSassets/styles.css"))
-            $this->stylesheet("$CSSassets/styles.css");
+        if (file_exists("recursos/css/lib/styles.css"))
+            $this->stylesheet("recursos/css/lib/styles.css");
         else
             $this->stylesheet("$CSSassets/styles.css");
         $this->script("$JSassets/globales.js");
@@ -353,14 +365,14 @@ HTML;
             $this->$stylesheet(APP_ROOT . "recursos/css/{$modulo}.css");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/css/{$modulo}.css"))
             $this->$stylesheet(HTTP_PATH_ROOT . "recursos/css/{$modulo}.css");
-        elseif(file_exists("../framework/recursos/css/{$modulo}.css"))
+        elseif (file_exists("../framework/recursos/css/{$modulo}.css"))
             $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
 
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(APP_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js");
-        elseif(file_exists("../framework/recursos/js/{$modulo}.js"))
+        elseif (file_exists("../framework/recursos/js/{$modulo}.js"))
             $this->$script("../framework/recursos/js/{$modulo}.js");
     }
 
@@ -447,8 +459,8 @@ HTML;
             $ruta = HTTP_PATH_ROOT;
             if (!file_exists(HTTP_PATH_ROOT . "vista/{$vista}.phtml")) {
 
-                $ruta= dirname(__FILE__)."/";
-                if (!file_exists($ruta. "/vista/{$vista}.phtml")) {
+                $ruta = dirname(__FILE__) . "/";
+                if (!file_exists($ruta . "/vista/{$vista}.phtml")) {
                     $vista = "404";
                 }
             }
@@ -463,9 +475,8 @@ HTML;
                 $ruta = dirname(__FILE__) . "/vista/wrap.phtml";
                 if (!file_exists($ruta)) {
                     $vista = "404";
-                } else $ruta = dirname(__FILE__)."/";
-            }
-            else
+                } else $ruta = dirname(__FILE__) . "/";
+            } else
                 $ruta = HTTP_PATH_ROOT;
         } else {
             $ruta = APP_ROOT;
@@ -553,7 +564,6 @@ HTML;
 
             $index = 0;
             foreach ($cells as $key => $cell) {
-                $cell = ucwords(mb_strtolower($cell));
                 if (in_array($key, $hide)) continue;
                 $explode = explode("-", $columns[$index]);
                 $type = $explode[0] ?: $columns[$index]["type"];
@@ -618,7 +628,9 @@ HTML;
 HTML;
                         break;
                     case "datetime":
-                        $cell = Globales::formato_fecha($this->idioma->formatoFecha . " h:ia", $cell);
+                        $cell = ($cell != "0000-00-00" and $cell != "")
+                            ? Globales::formato_fecha($this->idioma->formatoFecha.' H:ia', $cell)
+                            : "N/A";
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
@@ -679,7 +691,7 @@ HTML
                     : "";
             }
             $rowAcciones = !empty($acciones) ? <<<html
-<td class="tdAcciones dropdown"><a class="nav-link dropdown-acciones"><i class="material-icons md-18">more_vert</i></a><div class="dropdown-menu dropdown-menu-scale pull-right">$btnAcciones</div></td>
+<td class="tdAcciones dropdown"><a class="nav-link dropdown-acciones" data-toggle="dropdown"><i class="material-icons md-18">more_vert</i></a><div class="dropdown-menu dropdown-menu-scale pull-right">$btnAcciones</div></td>
 html
                 : ($acciones === true ? "<td class='tdAcciones'></td>" : "");
             $tabla .= <<<HTML
@@ -745,7 +757,7 @@ HTML;
         foreach ($estados as $id => $estado) {
             $selected = $idEstado == $estado['idEstado'] ? 'selected' : '';
             $listaEstados .= <<<HTML
-<option $selected value="$id">$estado</option>
+<option $selected value="$estado[idEstado]">$estado[nombreEstado]</option>
 HTML;
         }
 
@@ -783,7 +795,7 @@ HTML;
                 }
             }
             $listaCiudades .= <<<HTML
-<option $selected value="$idciu">$ciudad</option>
+<option $selected value="$ciudad[idCiudad]">$ciudad[nombreCiudad]</option>
 HTML;
         }
 
@@ -928,7 +940,7 @@ class ArchivoModelo
                 $ruta = HTTP_PATH_ROOT . "modelo/{$key}Modelo.php";
                 $namespace = "";
                 if (!file_exists($ruta)) {
-                    $ruta= dirname(__FILE__). "/modelo/{$key}Modelo.php";
+                    $ruta = dirname(__FILE__) . "/modelo/{$key}Modelo.php";
                 }
             };
             if (file_exists($ruta)) {
@@ -966,9 +978,9 @@ Class Modelo
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespace}{$key}.php";
             if (!file_exists($ruta)) {
-                $ruta= dirname(__FILE__)."/modelo/tablas/{$namespace}{$key}.php";
+                $ruta = dirname(__FILE__) . "/modelo/tablas/{$namespace}{$key}.php";
                 if (!file_exists($ruta))
-                Globales::mensaje_error("No existe el archivo. ($ruta)");
+                    Globales::mensaje_error("No existe el archivo. ($ruta)");
             }
         }
         require_once $ruta;

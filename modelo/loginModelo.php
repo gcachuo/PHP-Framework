@@ -28,6 +28,22 @@ class ModeloLogin extends Modelo
         return $token;
     }
 
+    /**
+     * @param string $token
+     * @return mixed
+     */
+    function obtenerTipoSistema($token)
+    {
+        $tipo = $this->cbiz_cliente->selectTipoSistema($token);
+        return strtolower($tipo);
+    }
+
+    function obtenerEstatusSistema($token)
+    {
+        $estatus = $this->cbiz_cliente->selectEstatusSistema($token);
+        return strtolower($estatus);
+    }
+
     function registrarCliente($nombre, $apellidoP, $apellidoM, $lada, $telefono, $correo, &$tokenCbiz, $idDistribuidor = null)
     {
         Globales::setNamespace("distribuidor");

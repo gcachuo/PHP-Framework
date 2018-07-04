@@ -147,6 +147,8 @@ class Login extends Control
 
         #Encripta la contraseña antes de mandarla al modelo
         $password = Globales::crypt_blowfish_bydinvaders($_POST["password"]);
+        unset($_POST['password']);
+        unset($_REQUEST);
 
         if (strpos($usuario, ':') != false) {
             $explode = explode(':', $usuario);
@@ -168,6 +170,15 @@ class Login extends Control
                 break;
         }
 
+        $tipo = $this->modelo->obtenerTipoSistema($token);
+        $estatus = (bool)$this->modelo->obtenerEstatusSistema($token);
+        if($token != "") {
+            if (TYPE_SYSTEM != $tipo)
+                Globales::mensaje_error('Los datos son incorrectos. Verifique la información.');
+            if (!$estatus)
+                Globales::mensaje_error('Sistema deshabilitado. Consulte al administrador.');
+        }
+
         Globales::setNamespace("");
         $usuario = isset($internal) ? $internal : $usuario;
         #Obtiene el registro del usuario con la funcion en el modelo
@@ -176,10 +187,10 @@ class Login extends Control
 
         #Si el usuario existe llena la variable de usuario en sesión con el id del usuario
         if ($usuario != null) {
-            $_SESSION[usuario] = $usuario->idUsuario;
-            $_SESSION[perfil] = $usuario->idPerfil;
-            $_SESSION[sucursal] = $usuario->idSucursal;
-        } else Globales::mensaje_error("No existe el usuario o la contraseña es incorrecta.");
+            $_SESSION['usuario'] = $usuario->idUsuario;
+            $_SESSION['perfil'] = $usuario->idPerfil;
+            $_SESSION['sucursal'] = $usuario->idSucursal;
+        } else Globales::mensaje_error("Los datos son incorrectos. Verifique la información.");
 
         return compact("cambiarPass", "usuario", "token");
     }

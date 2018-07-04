@@ -122,7 +122,8 @@ INSERT INTO
   _usuarios (id_usuario,nombre_usuario, login_usuario, password_usuario, correo_usuario, perfil_usuario,id_usuario_create)
 VALUES ($id_usuario,'$nombre_usuario', '$login_usuario', '$password_usuario', '$correo_usuario', $perfil_usuario,'$id_usuario_create')
 ON DUPLICATE KEY UPDATE 
-login_usuario='$login_usuario', 
+login_usuario='$login_usuario',
+nombre_usuario = '$nombre_usuario',
 password_usuario='$password_usuario', 
 correo_usuario='$correo_usuario', 
 perfil_usuario=$perfil_usuario,

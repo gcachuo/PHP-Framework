@@ -132,7 +132,7 @@ HTML;
 HTML;
                         continue;
                     }
-                    $nombre = ucfirst($this->idioma->acciones->{$accion['nombre']});
+                    $nombre = ucfirst($this->idioma->acciones->{mb_strtolower($accion['nombre'])});
                     $acciones .= <<<HTML
 <li class="dd-item">
     <div class="form-control box">

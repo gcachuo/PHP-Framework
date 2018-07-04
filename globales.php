@@ -53,30 +53,35 @@ class Globales
 
     static function getVersion()
     {
-        $file = "../framework/version.txt";
-        if (file_exists("../.git/HEAD")) {
-            $head = file_get_contents("../.git/HEAD");
-            $explode = explode("/", $head);
-            $version = end($explode);
-            $type = str_replace("\n","", $explode[2] == $version ? $version : $explode[2]);
-            switch ($type) {
-                case "":
-                case "develop":
-                case "feature":
-                case "master":
-                    $version = file_get_contents($file);
-                    break;
-                case "release":
-                    $version = trim(preg_replace('/\s\s+/', ' ', $version));
-                    file_put_contents($file, $version);
-                    break;
-                default:
-                    unlink($file);
-                    file_put_contents($file, $version);
-                    break;
-            }
-        } else {
+        if (file_exists(HTTP_PATH_ROOT . "release.txt")) {
+            $file = HTTP_PATH_ROOT . "release.txt";
             $version = file_get_contents($file);
+        } else {
+            $file = "../framework/version.txt";
+            if (file_exists("../.git/HEAD")) {
+                $head = file_get_contents("../.git/HEAD");
+                $explode = explode("/", $head);
+                $version = end($explode);
+                $type = str_replace("\n", "", $explode[2] == $version ? $version : $explode[2]);
+                switch ($type) {
+                    case "":
+                    case "develop":
+                    case "feature":
+                    case "master":
+                        $version = file_get_contents($file);
+                        break;
+                    case "release":
+                        $version = trim(preg_replace('/\s\s+/', ' ', $version));
+                        file_put_contents($file, $version);
+                        break;
+                    default:
+                        unlink($file);
+                        file_put_contents($file, $version);
+                        break;
+                }
+            } else {
+                $version = file_get_contents($file);
+            }
         }
         return $version;
     }
@@ -441,8 +446,9 @@ class Globales
     static function setVista()
     {
         if ($_GET['file']) {
+            $folder = !empty($_GET['folder']) ? $_GET['folder'] : "imagenes";
             $token = $_SESSION['token'];
-            $path = "usuario/$token/imagenes/$_GET[modulo]/";
+            $path = "usuario/$token/$folder/$_GET[modulo]/";
             $nombreImagen = self::subirImagenSimple($path, $_FILES["file"]);
             if ($nombreImagen != false) echo $nombreImagen;
             exit;
@@ -484,14 +490,15 @@ class Globales
             $debug = print_r($archivo, true);
             if (is_null($archivo)) Globales::mensaje_error("No se subio el archivo " . $debug);
 
-            if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
+            if (!empty($_GET['nombre']))
+                $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
             else
-                $name = $_SESSION[token] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
+                $name = $_SESSION['token'] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
             if (is_dir($carpeta) && is_writable($carpeta)) {
                 if (!move_uploaded_file($archivo['tmp_name'], $carpeta . $name)) {
-                    switch ($archivo[error]) {
+                    switch ($archivo['error']) {
                         case 1:
                             $max = ini_get('upload_max_filesize');
                             Globales::mensaje_error("El archivo excede el tamaño establecido ($max): " . $debug);

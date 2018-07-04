@@ -31,7 +31,7 @@ try {
     require_once "globales.php";
     require_once dirname(__FILE__) . "/control.php";
     require_once "conexion.php";
-    require_once 'vendor/autoload.php';
+    require_once dirname(__FILE__) . '/vendor/autoload.php';
 
     Globales::$modulo = $_POST["modulo"] ?: $_SESSION["modulo"];
     Globales::$namespace = __NAMESPACE__ . "\\";
