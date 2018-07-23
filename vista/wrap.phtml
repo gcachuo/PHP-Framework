@@ -92,8 +92,13 @@
                     <div class="navbar no-radius">
                         <!-- brand -->
                         <a class="navbar-brand" onclick="navegar('inicio')">
-                            <img src="<?= APP_ROOT . "usuario/$_SESSION[token]/config/{$this->configSistema->imagen}" ?>"
-                                 alt="Logo">
+                            <?php
+                                $path = "usuario/$_SESSION[token]/config/{$this->configSistema->imagen}";
+                            $img = file_exists(APP_ROOT . $path) ? APP_ROOT . $path :(file_exists(HTTP_PATH_ROOT . $path)? HTTP_PATH_ROOT . $path:'../framework/'.$path);
+                            if(file_exists($img)):?>
+                                <img src="<?= $img ?>"alt="Logo">
+                            <?php endif; ?>
+
                             <span class="hidden-folded inline"><?= $this->configSistema->nombre ?></span>
                         </a>
                         <div>
