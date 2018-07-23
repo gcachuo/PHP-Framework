@@ -56,7 +56,8 @@ class Globales
         if (file_exists(HTTP_PATH_ROOT . "release.txt")) {
             $file = HTTP_PATH_ROOT . "release.txt";
             $version = file_get_contents($file);
-        } else {
+        }
+        else {
             $file = "../framework/version.txt";
             if (file_exists("../.git/HEAD")) {
                 $head = file_get_contents("../.git/HEAD");
@@ -446,7 +447,7 @@ class Globales
     static function setVista()
     {
         if ($_GET['file']) {
-            $folder = !empty($_GET['folder']) ? $_GET['folder'] : "imagenes";
+            $folder=$_GET['folder']?:'imagenes';
             $token = $_SESSION['token'];
             $path = "usuario/$token/$folder/$_GET[modulo]/";
             $nombreImagen = self::subirImagenSimple($path, $_FILES["file"]);
@@ -490,15 +491,14 @@ class Globales
             $debug = print_r($archivo, true);
             if (is_null($archivo)) Globales::mensaje_error("No se subio el archivo " . $debug);
 
-            if (!empty($_GET['nombre']))
-                $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
+            if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
             else
-                $name = $_SESSION['token'] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
+                $name = $_SESSION[token] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
             if (is_dir($carpeta) && is_writable($carpeta)) {
                 if (!move_uploaded_file($archivo['tmp_name'], $carpeta . $name)) {
-                    switch ($archivo['error']) {
+                    switch ($archivo[error]) {
                         case 1:
                             $max = ini_get('upload_max_filesize');
                             Globales::mensaje_error("El archivo excede el tamaño establecido ($max): " . $debug);

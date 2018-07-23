@@ -537,7 +537,7 @@ SELECT
 FROM ciudades
 WHERE id_estado = '$id_estado'
 MySQL;
-        return $this->consulta($sql);
+        return $this->query2array($this->consulta($sql), 'nombreCiudad', 'idCiudad');
     }
 
     function selectCiudades()
@@ -549,7 +549,7 @@ SELECT
   nombre_ciudad nombreCiudad
 FROM ciudades
 MySQL;
-        return $this->consulta($sql);
+        return $this->query2array($this->consulta($sql), 'nombreCiudad', 'idCiudad');
     }
 
     public function selectEstadoFromCiudad($id_ciudad)

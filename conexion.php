@@ -177,8 +177,8 @@ abstract class Conexion
     {
         try {
 
-            if (is_null(self::$conexion->sqlstate)) {
-                self::$conexion = mysqli_connect(self::$host, self::$user, self::$pass, self::$db);
+            if (!mysqli_ping(self::$conexion)) {
+                self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
                 self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
                 if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
             }

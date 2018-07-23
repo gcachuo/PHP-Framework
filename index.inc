@@ -6,14 +6,13 @@
  * Time: 11:21 AM
  */
 try {
+    ini_set('memory_limit', '300M');
+    ini_set('max_execution_time', 300);
     ini_set("display_errors", 1);
     ini_set('log_errors', 1);
     error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
     mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));//MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-    define("HTTP_PATH_ROOT", "");
-    define("APP_NAMESPACE", "\\");
-    define("APP_ROOT", "../admin/");
-    define("TYPE_SYSTEM", "admin");
+
     date_default_timezone_set('America/Mexico_City');
     spl_autoload_register('autoloader');
     register_shutdown_function('cierre');

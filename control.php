@@ -192,13 +192,10 @@ HTML;
         if (!file_exists($path . $file)) {
             $path = HTTP_PATH_ROOT ."usuario/$token/config/";
             if(!file_exists($path.$file)) {
-                $path = "../../../admin/usuario/$token/config";
-                if(!file_exists($path.$file)) {
-                    $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0');
-                    $json_string = json_encode($empresa);
-                    mkdir($path, 0777, true);
-                    file_put_contents($path . $file, $json_string);
-                }
+                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0');
+                $json_string = json_encode($empresa);
+                mkdir($path, 0777, true);
+                file_put_contents($path . $file, $json_string);
             }
         }
         if (!file_exists($path . "logo.png")) {
@@ -787,7 +784,7 @@ HTML;
         foreach ($ciudades as $idciu => $ciudad) {
             $selected = '';
             $id = is_array($idCiudad) ? $idCiudad[0] : $idCiudad;
-            if ($ciudad['idCiudad'] == $id) {
+            if ($idciu == $id) {
                 $selected = 'selected';
                 if (is_array($idCiudad)) {
                     unset($idCiudad[0]);
@@ -795,7 +792,7 @@ HTML;
                 }
             }
             $listaCiudades .= <<<HTML
-<option $selected value="$ciudad[idCiudad]">$ciudad[nombreCiudad]</option>
+<option $selected value="$idciu">$ciudad</option>
 HTML;
         }
 
