@@ -145,11 +145,6 @@ class Login extends Control
         extract($_POST);
         if ($usuario == "" or $password == "") Globales::mensaje_error("Ingrese usuario o contraseña");
 
-        #Encripta la contraseña antes de mandarla al modelo
-        $password = Globales::crypt_blowfish_bydinvaders($_POST["password"]);
-        unset($_POST['password']);
-        unset($_REQUEST);
-
         if (strpos($usuario, ':') != false) {
             $explode = explode(':', $usuario);
             $usuario = $explode[1];
@@ -182,11 +177,17 @@ class Login extends Control
         Globales::setNamespace("");
         $usuario = isset($internal) ? $internal : $usuario;
         #Obtiene el registro del usuario con la funcion en el modelo
-        $usuario = $this->modelo->usuarios->selectUsuario($usuario, $password);
+        $usuario = $this->modelo->usuarios->selectUsuario($usuario);
+
+        #Encripta la contraseña antes de mandarla al modelo
+        $password = password_verify($_POST["password"], $usuario->pass);
+        unset($_POST['password']);
+        unset($_REQUEST);
+
         $cambiarPass = (bool)$usuario->idUserCreate;
 
         #Si el usuario existe llena la variable de usuario en sesión con el id del usuario
-        if ($usuario != null) {
+        if ($password) {
             $_SESSION['usuario'] = $usuario->idUsuario;
             $_SESSION['perfil'] = $usuario->idPerfil;
             $_SESSION['sucursal'] = $usuario->idSucursal;

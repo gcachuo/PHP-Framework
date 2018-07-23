@@ -64,7 +64,7 @@ abstract class Control
         }
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : $_SESSION['id'];
         if (isset($_POST["fn"])) {
-            $array = $this->$_POST["fn"]();
+            $array = $this->{$_POST["fn"]}();
             $json = Globales::json_encode($array);
             echo $json;
         } else {
@@ -971,11 +971,12 @@ Class Modelo
         self::getToken();
         $key = ltrim($key, "_");
         $namespace = Globales::$namespace == "\\" ? "" : Globales::$namespace;
-        $ruta = APP_ROOT . "modelo/tablas/{$namespace}{$key}.php";
+        $namespaceDir = str_replace("\\", "/", $namespace);
+        $ruta = APP_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
         if (!file_exists($ruta)) {
-            $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespace}{$key}.php";
+            $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
             if (!file_exists($ruta)) {
-                $ruta = dirname(__FILE__) . "/modelo/tablas/{$namespace}{$key}.php";
+                $ruta = dirname(__FILE__) . "/modelo/tablas/{$namespaceDir}{$key}.php";
                 if (!file_exists($ruta))
                     Globales::mensaje_error("No existe el archivo. ($ruta)");
             }

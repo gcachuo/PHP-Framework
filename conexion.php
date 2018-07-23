@@ -212,8 +212,12 @@ abstract class Conexion
                         unset($foreignTable[0]);
                         foreach ($foreignTable as $tabla) {
                             $explode = explode(" ", $tabla);
-                            $tabla = trim($explode[0], "_");
-                            $consulta = $this->multiconsulta($this->$tabla->create_table());
+                            $tabla=str_replace("`","",$explode[0]);
+                            $tabla = trim($tabla, "_");
+                            $namet="Tabla$tabla";
+                            $t=new $namet();
+                            $sql=$t->create_table();
+                            $consulta = $this->multiconsulta($sql);
                             $verificar = is_null($consulta);
                             if ($verificar) {
                                 $this->retry = false;

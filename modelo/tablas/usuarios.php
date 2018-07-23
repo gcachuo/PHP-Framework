@@ -35,7 +35,7 @@ MySQL;
         return $sql;
     }
 
-    function selectUsuario($login, $password)
+    function selectUsuario($login)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -43,11 +43,11 @@ SELECT
 id_usuario idUsuario,
 perfil_usuario idPerfil,
 id_sucursal idSucursal,
-id_usuario_create idUserCreate
+id_usuario_create idUserCreate,
+password_usuario pass
 FROM _usuarios
 WHERE
   (login_usuario = '$login' OR correo_usuario='$login')
-  AND password_usuario = '$password'
  AND estatus_usuario = TRUE 
 MySQL;
 

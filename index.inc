@@ -51,7 +51,17 @@ function autoloader($class)
             if (!file_exists($path))
                 Globales::mensaje_error("No existe el archivo $path");
         }
-    } else {
+    }
+    elseif(strpos($class, 'Tabla') !== false){
+        $class = strtolower(str_replace('Tabla', '', $class));
+        $path = APP_ROOT . "modelo/tablas/{$class}.php";
+        if (!file_exists($path)) {
+            $path = HTTP_PATH_ROOT. "modelo/tablas/{$class}.php";
+            if (!file_exists($path))
+                Globales::mensaje_error("No existe el archivo $path");
+        }
+    }
+    else {
         $path = APP_ROOT . "controlador/{$class}Control.php";
         if (!file_exists($path)) {
             $path = HTTP_PATH_ROOT . "controlador/{$class}Control.php";
