@@ -143,7 +143,7 @@ class Login extends Control
          * @var $password
          */
         extract($_POST);
-        if ($usuario == "" or $password == "") Globales::mensaje_error("Ingrese usuario o contraseña");
+            if ($usuario == "" or $password == "") Globales::mensaje_error("Ingrese usuario o contraseña");
 
         if (strpos($usuario, ':') != false) {
             $explode = explode(':', $usuario);
@@ -158,6 +158,7 @@ class Login extends Control
             case "admin":
             case "oro":
             case "clinicas":
+            case "belleza":
                 $token = $this->modelo->obtenerToken($usuario);
                 break;
             default:

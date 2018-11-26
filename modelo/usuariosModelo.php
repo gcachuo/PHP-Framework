@@ -13,10 +13,11 @@
  * @property distribuidor\TablaCbiz_Cliente cbiz_cliente
  * @property distribuidor\TablaCliente_Usuario cliente_usuario
  * @property TablaPerfiles perfiles
+ * @property TablaEspecialistas especialistas
  */
 class ModeloUsuarios extends Modelo
 {
-    function registrarUsuario($nombre, $login, $password, $correo, $perfil, $id)
+    function registrarUsuario($nombre, $login, $password, $correo, $perfil, $id,$idEspecialista)
     {
         if (empty($id)) {
             $usuario = $this->usuarios->selectUsuarioFromLogin($login);
@@ -28,10 +29,8 @@ class ModeloUsuarios extends Modelo
             if ($usuario->estatus == true or $distUsuario->estatus == true)
                 Globales::mensaje_error("El usuario ya existe");
         }
-        $this->usuarios->insertUsuario($nombre, $login, $password, $correo, $perfil, $id,1);
-
+        $this->usuarios->insertUsuario($nombre, $login, $password, $correo, $perfil, $id,1,$idEspecialista);
         Globales::setNamespace("distribuidor");
-
         $idUser = $this->_usuarios->insertUsuario(4, $nombre, $login, $password, $correo);
         $idCliente = $this->cbiz_cliente->selectIdClienteFromToken($_SESSION['token']);
         $this->cliente_usuario->insertClienteUsuario($idCliente, $idUser);

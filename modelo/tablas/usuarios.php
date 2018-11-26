@@ -21,6 +21,7 @@ CREATE TABLE `_usuarios`
     password_usuario VARCHAR(255) NOT NULL,
     correo_usuario VARCHAR(255),
     estatus_usuario BIT(1) DEFAULT b'1' NOT NULL,
+    id_especialista BIGINT(20),
     perfil_usuario BIGINT(20) DEFAULT '1' NOT NULL,
     id_usuario_create BIGINT(20) NOT NULL COMMENT 'usuario que creo el registro'/*,
     CONSTRAINT _usuarios_sucursales_id_sucursal_fk
@@ -65,7 +66,8 @@ SELECT
       nombre_usuario nombre,
       login_usuario  login,
       correo_usuario correo,
-      perfil_usuario perfil
+      perfil_usuario perfil,
+      id_especialista idEspecialista
 FROM _usuarios
 WHERE id_usuario=$id_usuario
 MySQL;
@@ -112,22 +114,23 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null)
+    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null,$id_especialista)
     {
         if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION["usuario"];
         $id_usuario = empty($id_usuario) ? 'null' : "'$id_usuario'";
         $sql = /** @lang MySQL */
             <<<MySQL
 INSERT INTO
-  _usuarios (id_usuario,nombre_usuario, login_usuario, password_usuario, correo_usuario, perfil_usuario,id_usuario_create)
-VALUES ($id_usuario,'$nombre_usuario', '$login_usuario', '$password_usuario', '$correo_usuario', $perfil_usuario,'$id_usuario_create')
+  _usuarios (id_usuario,nombre_usuario, login_usuario, password_usuario, correo_usuario, perfil_usuario,id_usuario_create,id_especialista)
+VALUES ($id_usuario,'$nombre_usuario', '$login_usuario', '$password_usuario', '$correo_usuario', $perfil_usuario,'$id_usuario_create','$id_especialista')
 ON DUPLICATE KEY UPDATE 
 login_usuario='$login_usuario',
 nombre_usuario = '$nombre_usuario',
 password_usuario='$password_usuario', 
 correo_usuario='$correo_usuario', 
 perfil_usuario=$perfil_usuario,
-id_usuario_create='$id_usuario_create'
+id_usuario_create='$id_usuario_create',
+id_especialista = '$id_especialista'
 MySQL;
         $consulta = $this->consulta($sql);
         if ($id_usuario != 'null') $id = $consulta;

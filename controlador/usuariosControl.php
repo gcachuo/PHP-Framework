@@ -12,7 +12,7 @@
  */
 class Usuarios extends Control
 {
-    protected $tablaUsuarios, $listaPerfiles, $usuario;
+    protected $tablaUsuarios, $listaPerfiles, $usuario, $listaEspecialistas;
 
     function registrarUsuario()
     {
@@ -28,7 +28,7 @@ class Usuarios extends Control
         if ($password == "") Globales::mensaje_error("Ingrese una contraseña");
         if ($repass != $password) Globales::mensaje_error("Las contraseñas no coinciden");
         $password = Globales::crypt_blowfish_bydinvaders($password);
-        $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id);
+        $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id,$_POST['especialista']);
     }
 
     function eliminarUsuario()
@@ -58,18 +58,17 @@ class Usuarios extends Control
              */
             extract($usuario);
 
-            if ($usuario['id'] != $_SESSION['usuario']) {
-                $btnEditar = <<<HTML
-<a title="{$this->idioma->btnEditar}" class="btn btn-sm btn-default" onclick="navegar('usuarios', 'nuevo', {idUsuario: $id});">
+            $btnEditar = <<<HTML
+<a title="{$this->idioma->btnEditar}" class="btn btn-sm btn-default" onclick="navegar('usuarios', 'nuevo', {idUsuario: $usuario[id]});">
     <i class="material-icons">edit</i>
 </a>
 HTML;
-                $btnEliminar = <<<HTML
-<a title="{$this->idioma->btnEliminar}" class="btn btn-sm btn-default" onclick="btnEliminarUsuario($id);">
+            $btnEliminar = <<<HTML
+<a title="{$this->idioma->btnEliminar}" class="btn btn-sm btn-default" onclick="btnEliminarUsuario($usuario[id]);">
     <i class="material-icons">delete</i>
 </a>
 HTML;
-            }
+
 
             $acciones = $btnEditar . $btnEliminar;
             $tablaUsuarios .= <<<HTML
@@ -89,6 +88,20 @@ HTML;
     {
         $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_POST["idUsuario"] ?: 'null');
         $this->listaPerfiles .= $this->generarListaPerfiles();
+        $this->generarListasEspecialistas();
+    }
+
+    function generarListasEspecialistas()
+    {
+        $especialistas = $this->modelo->especialistas->selectEspecialistas();
+        foreach($especialistas as $especialista)
+        {
+            $selected = $this->usuario->idEspecialista == $especialista['id'] ? "selected" : "";
+            $this->listaEspecialistas .= <<<HTML
+<option $selected  value="$especialista[id]">$especialista[nombre]</option>
+HTML;
+
+        }
     }
 
     function generarListaPerfiles()

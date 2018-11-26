@@ -192,7 +192,8 @@ HTML;
         if (!file_exists($path . $file)) {
             $path = HTTP_PATH_ROOT ."usuario/$token/config/";
             if(!file_exists($path.$file)) {
-                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0');
+                $path = APP_ROOT . "usuario/$token/config/";
+                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0','ordenes' => '0','ticket' =>'0');
                 $json_string = json_encode($empresa);
                 mkdir($path, 0777, true);
                 file_put_contents($path . $file, $json_string);
@@ -280,6 +281,8 @@ HTML;
         $this->script("$JSassets/ui-toggle-class.js");
 
         #$this->script("$libs/jquery/jquery-pjax/jquery.pjax.js");
+        $this->script("$plugins/jquery/FileSaver.js");
+        $this->script("$plugins/jquery/jquery.wordexport.js");
         $this->script("$JSassets/ajax.js");
 
         $this->stylesheet("$plugins/datatables/integration/bootstrap/3/dataTables.bootstrap.css");
