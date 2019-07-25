@@ -143,12 +143,18 @@ class Login extends Control
          * @var $password
          */
         extract($_POST);
-            if ($usuario == "" or $password == "") Globales::mensaje_error("Ingrese usuario o contraseña");
+        if ($usuario == "" or $password == "") Globales::mensaje_error("Ingrese usuario o contraseña");
 
+        #Encripta la contraseña antes de mandarla al modelo
+        $password = $_POST["password"];
+        unset($_POST['password']);
+        unset($_REQUEST);
+
+        $internal = null;
         if (strpos($usuario, ':') != false) {
             $explode = explode(':', $usuario);
-            $usuario = $explode[1];
-            $internal = $explode[0];
+            $usuario = $explode[0];
+            $internal = $explode[1];
         }
 
         unset($_SESSION['token']);
@@ -158,7 +164,6 @@ class Login extends Control
             case "admin":
             case "oro":
             case "clinicas":
-            case "belleza":
                 $token = $this->modelo->obtenerToken($usuario);
                 break;
             default:
@@ -168,7 +173,7 @@ class Login extends Control
 
         $tipo = $this->modelo->obtenerTipoSistema($token);
         $estatus = (bool)$this->modelo->obtenerEstatusSistema($token);
-        if($token != "") {
+        if ($token != "") {
             if (TYPE_SYSTEM != $tipo)
                 Globales::mensaje_error('Los datos son incorrectos. Verifique la información.');
             if (!$estatus)
@@ -176,23 +181,35 @@ class Login extends Control
         }
 
         Globales::setNamespace("");
-        $usuario = isset($internal) ? $internal : $usuario;
         #Obtiene el registro del usuario con la funcion en el modelo
-        $usuario = $this->modelo->usuarios->selectUsuario($usuario);
-
-        #Encripta la contraseña antes de mandarla al modelo
-        $password = password_verify($_POST["password"], $usuario->pass);
-        unset($_POST['password']);
-        unset($_REQUEST);
-
-        $cambiarPass = (bool)$usuario->idUserCreate;
+        $internal = !empty($internal) ? $this->modelo->usuarios->selectUsuario($internal) : null;
+        $user = $this->modelo->usuarios->selectUsuario($usuario);
+        $cambiarPass = (bool)$user->idUserCreate;
 
         #Si el usuario existe llena la variable de usuario en sesión con el id del usuario
-        if ($password) {
-            $_SESSION['usuario'] = $usuario->idUsuario;
-            $_SESSION['perfil'] = $usuario->idPerfil;
-            $_SESSION['sucursal'] = $usuario->idSucursal;
-        } else Globales::mensaje_error("Los datos son incorrectos. Verifique la información.");
+        if ($user != null and password_verify($password, $user->passwordUsuario)) {
+            if (!empty($internal)) {
+                Globales::admin_log(['id_usuario' => $user->idUsuario, 'mensaje' => $_POST['admin'] . ' Became User: ' . $internal->nombreUsuario . " ($internal->loginUsuario)"]);
+                $user = $internal;
+            } else {
+                Globales::admin_log(['id_usuario' => $user->idUsuario, 'mensaje' => 'Logged In']);
+            }
+            if (!empty($_POST['session_id'])) {
+                session_id($_POST['session_id']);
+                session_start();
+                $_SESSION['modulo'] = 'inicio';
+            }
+            $_SESSION['usuario'] = $user->idUsuario;
+            $_SESSION['rep'] = $user->idRep;
+            $_SESSION['perfil'] = $user->idPerfil;
+            $_SESSION['sucursal'] = $user->idSucursal;
+        } else {
+            Globales::admin_log(['id_usuario' => 1, 'mensaje' => "Login failed ($usuario)"]);
+            Globales::mensaje_error("Login failed. Invalid username or password.");
+        }
+
+        //Evitar conflictos de nombres
+        $usuario = $user;
 
         return compact("cambiarPass", "usuario", "token");
     }

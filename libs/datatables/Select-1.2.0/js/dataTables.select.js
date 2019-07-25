@@ -117,7 +117,7 @@ DataTable.select.init = function ( dt ) {
 
 	// Sort table based on selected rows. Requires Select Datatables extension
 	$.fn.dataTable.ext.order['select-checkbox'] = function ( settings, col ) {
-		return this.api().column( col, {order: 'index'} ).nodes().map( function ( td ) {
+		return this.api().column( col, {order: 'index'} ).nodes().map( function (td ) {
 			if ( settings._select.items === 'row' ) {
 				return $( td ).parent().hasClass( settings._select.className );
 			} else if ( settings._select.items === 'cell' ) {

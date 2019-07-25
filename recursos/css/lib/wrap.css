@@ -1,18 +1,37 @@
 .nombreUser {
-    font-size: 13px;
-    position: relative;
-    top: -15px;
-    float: left;
-    left: 40px;
+  font-size: 13px;
+  position: relative;
+  top: -15px;
+  float: left;
+  left: 40px;
 }
 
 .pagar {
-    text-align: center;
-    background-color: #727c86;
+  text-align: center;
+  background-color: #727c86;
 }
 
 .version {
-    opacity: 0.3;
-    font-size: 0.6rem;
-    float: right;
+  opacity: 0.3;
+  font-size: 0.6rem;
+  float: right;
+}
+
+#modal-details {
+  max-width: 500px;
+  margin: auto;
+  min-height: 500px;
+  max-height: 100vh;
+  height: fit-content;
+  /* text-align: center; */
+}
+
+#modal-details .close-modal{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
+  z-index: 9999;
 }

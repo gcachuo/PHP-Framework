@@ -13,6 +13,7 @@
  * @property string app_name
  * @property string help_link
  * @property object color
+ * @property object usuario
  */
 abstract class Control
 {
@@ -21,7 +22,7 @@ abstract class Control
     public $metadata;
     /** @var Globales $idioma */
     public $idioma;
-    public $permisos, $nombreUsuario, $vista, $error, $modulos, $tabla, $listas, $registro, $diasRestantes, $listNotifications, $numNot, $total;
+    public $permisos, $usuario, $vista, $error, $modulos, $tabla, $listas, $registro, $diasRestantes, $listNotifications, $numNot, $total;
     public $floating_button;
     public $configSistema;
     protected $acciones;
@@ -30,9 +31,9 @@ abstract class Control
     /**
      * Constructor.
      * Carga los recursos, agrega el script del modulo y genera el codigo HTML para la vista.
-     * @internal param $vista
      * @param bool $api
      * @throws Exception
+     * @internal param $vista
      */
     function __construct($api = false)
     {
@@ -41,7 +42,7 @@ abstract class Control
         $this->buildListNotificacions();
         $this->obtenerIdioma();
         $this->permisos = $this->permisosModulo();
-        $this->nombreUsuario = $this->obtenerNombreUsuario();
+        $this->usuario = $this->obtenerUsuario();
         define('MODULO', $this->control->modulos->selectIdFromNombre(explode("/", $_SESSION['modulo'])[0]) ?: 0);
         if (isset($_SESSION["post"]) and empty($_POST["post"])) {
             $_POST["post"] = $_SESSION["post"];
@@ -54,24 +55,32 @@ abstract class Control
             /*if (isset($_POST["modo"]))
                 $data = $this->$_POST["modo"]();*/
         }
-        if (isset($_POST['form']) or isset($_POST['aside'])) {
+        if (isset($_POST['form']) or isset($_POST['aside']) or isset($_POST['details'])) {
             parse_str($_POST["form"], $_POST["form"]);
             parse_str($_POST["aside"], $_POST["aside"]);
+            parse_str($_POST["details"], $_POST["details"]);
             $_POST = array_merge($_POST, $_POST["form"]);
             $_POST = array_merge($_POST, $_POST["aside"]);
+            $_POST = array_merge($_POST, $_POST["details"]);
             unset($_POST["form"]);
             unset($_POST["aside"]);
+            unset($_POST["details"]);
         }
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : $_SESSION['id'];
         if (isset($_POST["fn"])) {
+            header('Content-Type: application/json');
             $array = $this->{$_POST["fn"]}();
             $json = Globales::json_encode($array);
+            ob_end_clean();
             echo $json;
         } else {
 
             $this->obtenerDatos();
-            if (isset($_GET["aside"]) or strpos($_SESSION["modulo"], "/")) $this->cargarAside();
-            else $this->cargarPrincipal();
+            if (isset($_GET["aside"]) or strpos($_SESSION["modulo"], "/")) {
+                $this->cargarAside();
+            } else {
+                $this->cargarPrincipal();
+            }
 
             $vista = $this->setVista();
             $this->getAssets();
@@ -87,9 +96,11 @@ abstract class Control
             } else {
                 $page = $this->buildPage($vista);
             }
+            ob_end_clean();
             echo $page;
             $this->showMessage();
         }
+        session_write_close();
     }
 
     private function obtenerDiasRestantes()
@@ -118,11 +129,11 @@ HTML;
     }
 
     /**
-     * @property $formatoFecha
      * @return array
      * @throws Exception
+     * @property $formatoFecha
      */
-    private function obtenerIdioma()
+    function obtenerIdioma()
     {
         $config = Globales::getConfig();
         if (!empty($_GET["lang"])) $selectIdioma = $_GET["lang"];
@@ -135,44 +146,47 @@ HTML;
         if (is_string($idioma))
             Globales::mensaje_error("Error en el JSON de idioma: $idioma");
 
-        $modulo = Globales::$modulo;
+        $modulo = Globales::$modulo ?: $_POST['modulo'];
         if ($_GET['aside'])
             $modulo = "$modulo/$_POST[asideAccion]";
-        Globales::setIdioma($idioma);
-        $this->idioma = (object)array_merge((array)$idioma->$modulo, (array)$idioma->sistema);
+        if ($modulo) {
+            Globales::setIdioma($idioma);
+            $this->idioma = (object)array_merge((array)$idioma->$modulo, (array)$idioma->sistema);
+        }
         return (array)$idioma;
     }
 
     /**
+     * @param string|null $nombreModulo
      * @return object
      * @internal param string $modulo
      */
-    function permisosModulo()
+    function permisosModulo($nombreModulo = null)
     {
-        $nombreModulo = $_SESSION['modulo'];
-        if (!is_null($nombreModulo)) {
-            $permisos = $this->control->obtenerPermisosModulo();
-        }
+        $nombreModulo = $nombreModulo ?: $_POST['modulo'] ?: $_SESSION['modulo'];
+        $permisos = !is_null($nombreModulo) ? $this->control->obtenerPermisosModulo($nombreModulo) : [];
         return (object)$permisos;
     }
 
-    function obtenerNombreUsuario()
+    function obtenerUsuario()
     {
         $usuario = new stdClass();
-        $namespace = Globales::$namespace;
-        if (isset($_SESSION[usuario]))
+        $namespace = $_SESSION['namespace'];
+        if (isset($_SESSION['usuario'])) {
             if ($namespace == "\\")
-                $usuario = $this->control->usuarios->selectUsuarioFromId($_SESSION[usuario]);
+                $usuario = $this->control->usuarios->selectUsuarioFromId($_SESSION['usuario']);
             else
-                $usuario = $_SESSION[usuario];
-        return $usuario->nombre;
+                $usuario = $_SESSION['usuario'];
+            $usuario->nombrePerfil = $this->control->perfiles->selectNombrePerfilFromId($usuario->perfil);
+        }
+        return $usuario;
     }
 
     function obtenerDatos()
     {
         $metadata = Globales::getConfig()->metadata;
         $botones = Globales::getConfig()->floating_button;
-        foreach ($botones as $nombre => $boton) {
+        foreach ($botones ?: [] as $nombre => $boton) {
             $this->floating_button .= <<<HTML
 <div class="row">
     <span style="cursor: pointer" onclick="{$boton->onclick}" 
@@ -184,24 +198,45 @@ HTML;
         $this->cargarDatosSistema();
     }
 
+    function cargarColoresEstatus()
+    {
+        $token = Globales::getToken();
+        $file = "colores.json";
+        $path = APP_ROOT . "usuario/$token/config/";
+        if (!file_exists($path . $file)) {
+            $path = HTTP_PATH_ROOT . "usuario/$token/config/";
+            if (!file_exists($path . $file)) {
+                $empresa = array('0' => "#CCABD8", '1' => "#F8DB7A", '2' => "#7BD5F5", '3' => '#F88973', '4' => '#FF4646', '5' => '#8474A1', '6' => '#329D9C');
+                $json_string = json_encode($empresa);
+                mkdir($path, 0777, true);
+                $path = APP_ROOT . "usuario/$token/config/";
+                file_put_contents($path . $file, $json_string);
+            }
+        }
+        $datosSistema = file_get_contents($path . $file);
+        $colores = json_decode($datosSistema);
+        return $colores;
+    }
+
     function cargarDatosSistema()
     {
         $token = Globales::getToken();
         $file = "empresa.json";
         $path = APP_ROOT . "usuario/$token/config/";
         if (!file_exists($path . $file)) {
-            $path = HTTP_PATH_ROOT ."usuario/$token/config/";
-            if(!file_exists($path.$file)) {
-                $path = APP_ROOT . "usuario/$token/config/";
-                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0','ordenes' => '0','ticket' =>'0');
+            $path = HTTP_PATH_ROOT . "usuario/$token/config/";
+            if (!file_exists($path . $file)) {
+                $empresa = array('nombre' => $_SESSION['sistema'], 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0');
                 $json_string = json_encode($empresa);
+                $path = APP_ROOT . "usuario/$token/config/";
                 mkdir($path, 0777, true);
                 file_put_contents($path . $file, $json_string);
             }
         }
         if (!file_exists($path . "logo.png")) {
+            $path = APP_ROOT . "usuario/$token/config/";
             mkdir($path, 0777, true);
-            copy(HTTP_PATH_ROOT . "recursos/img/logo.png", $path . "logo.png");
+            copy(APP_ROOT . "recursos/img/logo-small.png", $path . "logo.png");
         }
         $datosSistema = file_get_contents($path . $file);
         $this->configSistema = json_decode($datosSistema);
@@ -229,13 +264,13 @@ HTML;
     private function getAssets()
     {
         $plugins = "../framework/libs";
-        if(!file_exists($plugins))
+        if (!file_exists($plugins))
             $plugins = "../../../framework/libs";
         $CSSassets = "../framework/recursos/css/lib";
-        if(!file_exists($CSSassets))
+        if (!file_exists($CSSassets))
             $CSSassets = "../../../framework/recursos/css/lib";
         $JSassets = "../framework/recursos/js/lib";
-        if(!file_exists($JSassets))
+        if (!file_exists($JSassets))
             $JSassets = "../../../framework/recursos/js/lib";
 
         $this->stylesheet("$CSSassets/animate.css");
@@ -249,6 +284,8 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js");
         $this->script("https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.js");
 
+        $this->script("$plugins/jquery/jquery.sessionTimeout.js");
+
         $this->script("$plugins/tether/dist/js/tether.min.js");
         $this->script("$plugins/bootstrap/dist/js/bootstrap.js");
         $this->script("$plugins/underscore/underscore-min.js");
@@ -258,6 +295,9 @@ HTML;
         $this->stylesheet("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.css");
         $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.js");
         $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js");
+
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js");
 
         //JQuery-UI
         $this->stylesheet("$plugins/jquery-ui/jquery-ui.css");
@@ -276,13 +316,11 @@ HTML;
         $this->script("$JSassets/ui-device.js");
         $this->script("$JSassets/ui-form.js");
         #$this->script("$scripts/ui-nav.js");
-        $this->script("$JSassets/ui-screenfull.js");
+//        $this->script("$JSassets/ui-screenfull.js");
         $this->script("$JSassets/ui-scroll-to.js");
         $this->script("$JSassets/ui-toggle-class.js");
 
         #$this->script("$libs/jquery/jquery-pjax/jquery.pjax.js");
-        $this->script("$plugins/jquery/FileSaver.js");
-        $this->script("$plugins/jquery/jquery.wordexport.js");
         $this->script("$JSassets/ajax.js");
 
         $this->stylesheet("$plugins/datatables/integration/bootstrap/3/dataTables.bootstrap.css");
@@ -572,7 +610,7 @@ HTML;
                         $accion = $explode[1];
                         $onclick = "btn" . ucfirst($accion) . "($id)";
                         $button = $this->permisos->{$accion} ? <<<HTML
-<a onclick="$onclick" class="btn btn-default">$cell</a>
+<a onclick="$onclick" class="btn btn-outline b-primary text-primary b-2x">$cell</a>
 HTML
                             : $cell;
                         $rows .= <<<HTML
@@ -629,7 +667,7 @@ HTML;
                         break;
                     case "datetime":
                         $cell = ($cell != "0000-00-00" and $cell != "")
-                            ? Globales::formato_fecha($this->idioma->formatoFecha.' H:ia', $cell)
+                            ? Globales::formato_fecha($this->idioma->formatoFecha . ' H:ia', $cell)
                             : "N/A";
                         $rows .= <<<HTML
 <td>$cell</td>
@@ -675,20 +713,22 @@ HTML;
                 $index++;
             }
             $btnAcciones = "";
-            foreach ($acciones as $icono => $accion) {
-                if (is_array($accion)) continue;
-                $code = true;
-                foreach ($acciones["conditions"][$accion] as $column => $condition) {
-                    $code = (($cells[$column] == $condition[0]) == $condition[1]);
-                }
-                $accion = htmlentities($accion);
-                $permiso = $this->permisos->{strtolower($accion)};
-                $title = $this->idioma->acciones->{strtolower($accion)};
-                $onclick = "btn" . ucfirst($accion) . "($id)";
-                $btnAcciones .= ($permiso and $code) ? <<<HTML
+            if (!empty($acciones)) {
+                foreach ($acciones as $icono => $accion) {
+                    if (is_array($accion)) continue;
+                    $code = true;
+                    foreach ($acciones["conditions"][$accion] as $column => $condition) {
+                        $code = (($cells[$column] == $condition[0]) == $condition[1]);
+                    }
+                    $accion = htmlentities($accion);
+                    $permiso = $this->permisos->{strtolower($accion)};
+                    $title = $this->idioma->acciones->{strtolower($accion)};
+                    $onclick = "btn" . ucfirst($accion) . "($id)";
+                    $btnAcciones .= ($permiso and $code) ? <<<HTML
 <a onclick="$onclick" title="$title" class="dropdown-item"><i class="material-icons">$icono</i></a>
 HTML
-                    : "";
+                        : "";
+                }
             }
             $rowAcciones = !empty($acciones) ? <<<html
 <td class="tdAcciones dropdown"><a class="nav-link dropdown-acciones" data-toggle="dropdown"><i class="material-icons md-18">more_vert</i></a><div class="dropdown-menu dropdown-menu-scale pull-right">$btnAcciones</div></td>
@@ -720,6 +760,7 @@ HTML;
 
     protected function buildLista($lista, $default = null, $disallowed = [])
     {
+        asort($lista);
         $html = "";
         foreach ($lista as $key => $item) {
             $disabled = (in_array($key, $disallowed)) ? "disabled" : "";
@@ -757,7 +798,7 @@ HTML;
         foreach ($estados as $id => $estado) {
             $selected = $idEstado == $estado['idEstado'] ? 'selected' : '';
             $listaEstados .= <<<HTML
-<option $selected value="$estado[idEstado]">$estado[nombreEstado]</option>
+<option $selected value="$id">$estado</option>
 HTML;
         }
 
@@ -973,19 +1014,18 @@ Class Modelo
     {
         self::getToken();
         $key = ltrim($key, "_");
-        $namespace = Globales::$namespace == "\\" ? "" : Globales::$namespace;
-        $namespaceDir = str_replace("\\", "/", $namespace);
-        $ruta = APP_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
+        $namespace = Globales::$namespace == "\\" ? "" : str_replace('\\', '/', Globales::$namespace);
+        $ruta = APP_ROOT . "modelo/tablas/{$namespace}{$key}.php";
         if (!file_exists($ruta)) {
-            $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
+            $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespace}{$key}.php";
             if (!file_exists($ruta)) {
-                $ruta = dirname(__FILE__) . "/modelo/tablas/{$namespaceDir}{$key}.php";
+                $ruta = dirname(__FILE__) . "/modelo/tablas/{$namespace}{$key}.php";
                 if (!file_exists($ruta))
                     Globales::mensaje_error("No existe el archivo. ($ruta)");
             }
         }
         require_once $ruta;
-        $modelo = "{$namespace}Tabla{$key}";
+        $modelo = str_replace('/', '\\', "{$namespace}Tabla{$key}");
         $tabla = new $modelo(self::$token);
 
         return $tabla;

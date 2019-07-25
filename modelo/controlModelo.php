@@ -19,6 +19,7 @@
  * @property TablaDistribuidor distribuidor
  * @property TablaEstados estados
  * @property TablaPeriodo periodo
+ * @property TablaPerfiles perfiles
  */
 class ModeloControl extends Modelo
 {
@@ -38,15 +39,16 @@ class ModeloControl extends Modelo
     }
 
     /**
+     * @param $modulo
      * @return object
      */
-    function obtenerPermisosModulo()
+    function obtenerPermisosModulo($modulo)
     {
         $perfil = $this->usuarios->selectPerfil($_SESSION['usuario']);
         if ($perfil == 0)
-            $acciones = $this->acciones->selectAccionesModulo($_SESSION['modulo']);
+            $acciones = $this->acciones->selectAccionesModulo($modulo);
         else
-            $acciones = $this->perfiles_acciones->selectAccionesFromModuloAndPerfil($_SESSION['modulo'], $perfil);
+            $acciones = $this->perfiles_acciones->selectAccionesFromModuloAndPerfil($modulo, $perfil);
 
         $origlength = array_count_values($acciones);
         foreach ($acciones as $accion => $value) {

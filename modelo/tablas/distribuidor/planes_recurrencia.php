@@ -30,7 +30,7 @@ SELECT
   modo_paypal             modo,
   paypal_cancelurl        cancelURL,
   paypal_returnurl        returnURL
-FROM e11_cbizcontrol.planes_recurrencia
+FROM planes_recurrencia
 MySQL;
         return $this->consulta($sql);
     }
@@ -38,7 +38,7 @@ MySQL;
     function selectIdFromPaypal($id_paypal_billing)
     {
         $sql = <<<MySQL
-select id_plan idPlan from e11_cbizcontrol.planes_recurrencia where id_paypal_billing='$id_paypal_billing'
+select id_plan idPlan from planes_recurrencia where id_paypal_billing='$id_paypal_billing'
 MySQL;
         $registro = $this->siguiente_registro($this->consulta($sql));
         $idPlan = $registro->idPlan;
@@ -48,7 +48,7 @@ MySQL;
     function selectPlanFromId($id_plan)
     {
         $sql = <<<MySQL
-select id_paypal_billing idPaypal from e11_cbizcontrol.planes_recurrencia where id_plan='$id_plan'
+select id_paypal_billing idPaypal from planes_recurrencia where id_plan='$id_plan'
 MySQL;
         return $this->siguiente_registro($this->consulta($sql))->idPaypal;
     }
@@ -56,7 +56,7 @@ MySQL;
     function updateIdPaypalBilling($id_plan, $id_paypal_billing)
     {
         $sql = <<<MySQL
-update e11_cbizcontrol.planes_recurrencia set id_paypal_billing='$id_paypal_billing'
+update planes_recurrencia set id_paypal_billing='$id_paypal_billing'
 where id_plan='$id_plan'
 MySQL;
         $this->consulta($sql);

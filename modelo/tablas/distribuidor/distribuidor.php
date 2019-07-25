@@ -24,7 +24,7 @@ select
   id_distribuidor     idUsuario,
   nombre_distribuidor nombre,
   perfil_distribuidor perfil
-from e11_cbizcontrol.distribuidor
+from distribuidor
 where token_distribuidor = '$token_distribuidor' 
       and password_distribuidor = '$password_distribuidor'
 MySQL;
@@ -45,7 +45,7 @@ select
   correo_distribuidor correo,
   perfil_distribuidor perfil,
   id_padre            idPartner
-from e11_cbizcontrol.distribuidor
+from distribuidor
 where id_distribuidor='$id_distribuidor'
 MySQL;
         return $this->siguiente_registro($this->consulta($sql));
@@ -58,7 +58,7 @@ MySQL;
     function selectIdDistribuidorFromToken($token_distribuidor)
     {
         $sql = <<<MySQL
-select id_distribuidor idDistribuidor from e11_cbizcontrol.distribuidor where token_distribuidor='$token_distribuidor'
+select id_distribuidor idDistribuidor from distribuidor where token_distribuidor='$token_distribuidor'
 MySQL;
         $registro = $this->siguiente_registro($this->consulta($sql));
         $idDistribuidor = $registro->idDistribuidor;
@@ -75,8 +75,8 @@ SELECT
   d1.nombre_distribuidor nombreDistribuidor,
   d2.nombre_distribuidor nombrePartner,
   d1.correo_distribuidor correoDistribuidor
-FROM e11_cbizcontrol.distribuidor d1
-  INNER JOIN e11_cbizcontrol.distribuidor d2 ON d2.id_distribuidor = d1.id_padre
+FROM distribuidor d1
+  INNER JOIN distribuidor d2 ON d2.id_distribuidor = d1.id_padre
 WHERE d1.estatus_distribuidor = 1;
 MySQL;
 
@@ -91,7 +91,7 @@ SELECT
   token_distribuidor  tokenDistribuidor,
   nombre_distribuidor nombreDistribuidor,
   correo_distribuidor correoDistribuidor
-FROM e11_cbizcontrol.distribuidor
+FROM distribuidor
 WHERE (estatus_distribuidor = 1 OR id_distribuidor=1)
       AND perfil_distribuidor < 2;
 MySQL;
@@ -107,7 +107,7 @@ SELECT
   token_distribuidor  tokenDistribuidor,
   nombre_distribuidor nombreDistribuidor,
   correo_distribuidor correoDistribuidor
-FROM e11_cbizcontrol.distribuidor
+FROM distribuidor
 WHERE (estatus_distribuidor = 1 OR id_distribuidor=1)
       AND perfil_distribuidor < 2
       and id_distribuidor='$id_distribuidor';
@@ -120,7 +120,7 @@ MySQL;
     {
         $now = date('Y-m-d H:i:s');
         $sql = <<<MySQL
-insert into e11_cbizcontrol.distribuidor(id_padre, token_distribuidor, password_distribuidor, nombre_distribuidor, correo_distribuidor, perfil_distribuidor,fecha_distribuidor,id_usuario) values('$id_padre', '$token_distribuidor', '$password_distribuidor', '$nombre_distribuidor', '$correo_distribuidor', '$perfil_distribuidor','$now',1); 
+insert into distribuidor(id_padre, token_distribuidor, password_distribuidor, nombre_distribuidor, correo_distribuidor, perfil_distribuidor,fecha_distribuidor,id_usuario) values('$id_padre', '$token_distribuidor', '$password_distribuidor', '$nombre_distribuidor', '$correo_distribuidor', '$perfil_distribuidor','$now',1); 
 MySQL;
         $this->consulta($sql);
     }

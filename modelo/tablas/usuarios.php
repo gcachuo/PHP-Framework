@@ -21,8 +21,8 @@ CREATE TABLE `_usuarios`
     password_usuario VARCHAR(255) NOT NULL,
     correo_usuario VARCHAR(255),
     estatus_usuario BIT(1) DEFAULT b'1' NOT NULL,
-    id_especialista BIGINT(20),
     perfil_usuario BIGINT(20) DEFAULT '1' NOT NULL,
+    id_representative BIGINT(20),
     id_usuario_create BIGINT(20) NOT NULL COMMENT 'usuario que creo el registro'/*,
     CONSTRAINT _usuarios_sucursales_id_sucursal_fk
     FOREIGN KEY (id_sucursal)
@@ -45,7 +45,10 @@ id_usuario idUsuario,
 perfil_usuario idPerfil,
 id_sucursal idSucursal,
 id_usuario_create idUserCreate,
-password_usuario pass
+password_usuario passwordUsuario,
+id_representative idRep,
+       nombre_usuario nombreUsuario,
+       login_usuario loginUsuario
 FROM _usuarios
 WHERE
   (login_usuario = '$login' OR correo_usuario='$login')
@@ -67,7 +70,7 @@ SELECT
       login_usuario  login,
       correo_usuario correo,
       perfil_usuario perfil,
-      id_especialista idEspecialista
+      id_representative rep
 FROM _usuarios
 WHERE id_usuario=$id_usuario
 MySQL;
@@ -105,24 +108,41 @@ SELECT
   u.id_usuario   id,
   nombre_usuario nombre,
   login_usuario  login,
-  nombre_perfil  perfil
+  nombre_perfil  perfil,
+  name_representative rep
 FROM _usuarios u
   JOIN _perfiles ON id_perfil = perfil_usuario
+  LEFT JOIN representatives r ON r.id_representative = u.id_representative
 WHERE estatus_usuario = TRUE
       AND if($_SESSION[perfil] = 0, 0 = 0, perfil_usuario > 0)
 MySQL;
         return $this->consulta($sql);
     }
 
-    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null,$id_especialista)
+    function selectListaRegistros()
+    {
+        $sql = /** @lang MySQL */
+            <<<MySQL
+SELECT
+  u.id_usuario   id,
+  nombre_usuario nombre
+FROM _usuarios u
+WHERE estatus_usuario = TRUE
+  and id_usuario>2
+      AND if($_SESSION[perfil] = 0, 0 = 0, perfil_usuario > 0)
+MySQL;
+        return $this->query2array($this->consulta($sql), 'nombre');
+    }
+
+    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null, $id_representative)
     {
         if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION["usuario"];
         $id_usuario = empty($id_usuario) ? 'null' : "'$id_usuario'";
         $sql = /** @lang MySQL */
             <<<MySQL
 INSERT INTO
-  _usuarios (id_usuario,nombre_usuario, login_usuario, password_usuario, correo_usuario, perfil_usuario,id_usuario_create,id_especialista)
-VALUES ($id_usuario,'$nombre_usuario', '$login_usuario', '$password_usuario', '$correo_usuario', $perfil_usuario,'$id_usuario_create','$id_especialista')
+  _usuarios (id_usuario,nombre_usuario, login_usuario, password_usuario, correo_usuario, perfil_usuario,id_usuario_create,id_representative)
+VALUES ($id_usuario,'$nombre_usuario', '$login_usuario', '$password_usuario', '$correo_usuario', $perfil_usuario,'$id_usuario_create','$id_representative')
 ON DUPLICATE KEY UPDATE 
 login_usuario='$login_usuario',
 nombre_usuario = '$nombre_usuario',
@@ -130,7 +150,8 @@ password_usuario='$password_usuario',
 correo_usuario='$correo_usuario', 
 perfil_usuario=$perfil_usuario,
 id_usuario_create='$id_usuario_create',
-id_especialista = '$id_especialista'
+id_representative = '$id_representative',
+estatus_usuario=true
 MySQL;
         $consulta = $this->consulta($sql);
         if ($id_usuario != 'null') $id = $consulta;

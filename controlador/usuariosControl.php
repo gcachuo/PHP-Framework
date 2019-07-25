@@ -12,7 +12,8 @@
  */
 class Usuarios extends Control
 {
-    protected $tablaUsuarios, $listaPerfiles, $usuario, $listaEspecialistas;
+    public $usuario;
+    protected $tablaUsuarios, $listaPerfiles, $listaReps;
 
     function registrarUsuario()
     {
@@ -21,6 +22,7 @@ class Usuarios extends Control
         $usuario = $_POST['usuario'];
         $password = $_POST['password'];
         $repass = $_POST['repass'];
+        $representative = $_POST['reps'];
 
         if ($nombre == "") Globales::mensaje_error("Ingrese un nombre");
         if ($usuario == "") Globales::mensaje_error("Ingrese un usuario");
@@ -28,7 +30,7 @@ class Usuarios extends Control
         if ($password == "") Globales::mensaje_error("Ingrese una contraseña");
         if ($repass != $password) Globales::mensaje_error("Las contraseñas no coinciden");
         $password = Globales::crypt_blowfish_bydinvaders($password);
-        $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id,$_POST['especialista']);
+        $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id,$representative);
     }
 
     function eliminarUsuario()
@@ -54,27 +56,30 @@ class Usuarios extends Control
              * @var $id
              * @var $nombre
              * @var $login
+             * @var $rep
              * @var $perfil
              */
             extract($usuario);
 
-            $btnEditar = <<<HTML
-<a title="{$this->idioma->btnEditar}" class="btn btn-sm btn-default" onclick="navegar('usuarios', 'nuevo', {idUsuario: $usuario[id]});">
+            if ($usuario['id'] != $_SESSION['usuario']) {
+                $btnEditar = <<<HTML
+<a title="{$this->idioma->btnEditar}" class="btn btn-sm btn-default" onclick="navegar('usuarios', 'nuevo', {idUsuario: $id});">
     <i class="material-icons">edit</i>
 </a>
 HTML;
-            $btnEliminar = <<<HTML
-<a title="{$this->idioma->btnEliminar}" class="btn btn-sm btn-default" onclick="btnEliminarUsuario($usuario[id]);">
+                $btnEliminar = <<<HTML
+<a title="{$this->idioma->btnEliminar}" class="btn btn-sm btn-default" onclick="btnEliminarUsuario($id);">
     <i class="material-icons">delete</i>
 </a>
 HTML;
-
+            }
 
             $acciones = $btnEditar . $btnEliminar;
             $tablaUsuarios .= <<<HTML
 <tr>
     <td>$nombre</td>
     <td>$login</td>
+    <td>$rep</td>
     <td>$perfil</td>
     <td class="tdAcciones">$acciones</td>
 </tr>
@@ -88,22 +93,22 @@ HTML;
     {
         $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_POST["idUsuario"] ?: 'null');
         $this->listaPerfiles .= $this->generarListaPerfiles();
-        $this->generarListasEspecialistas();
+        $this->generarListaReps();
+
     }
 
-    function generarListasEspecialistas()
+    function generarListaReps()
     {
-        $especialistas = $this->modelo->especialistas->selectEspecialistas();
-        foreach($especialistas as $especialista)
+        $reps = $this->modelo->representatives->selectRegistros();
+        foreach($reps as $rep)
         {
-            $selected = $this->usuario->idEspecialista == $especialista['id'] ? "selected" : "";
-            $this->listaEspecialistas .= <<<HTML
-<option $selected  value="$especialista[id]">$especialista[nombre]</option>
+            $selected = $this->usuario->rep == $rep['id'] ? "selected" : "";
+            $this->listaReps .= <<<HTML
+<option $selected value="$rep[id]">$rep[name]</option>
 HTML;
 
         }
     }
-
     function generarListaPerfiles()
     {
         $listaPerfiles = "";

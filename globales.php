@@ -56,8 +56,7 @@ class Globales
         if (file_exists(HTTP_PATH_ROOT . "release.txt")) {
             $file = HTTP_PATH_ROOT . "release.txt";
             $version = file_get_contents($file);
-        }
-        else {
+        } else {
             $file = "../framework/version.txt";
             if (file_exists("../.git/HEAD")) {
                 $head = file_get_contents("../.git/HEAD");
@@ -153,17 +152,27 @@ class Globales
     static function json_encode($array)
     {
         $json = json_encode($array);
-        $error = json_last_error();
-        switch ($error) {
+        $error_code = json_last_error();
+        switch ($error_code) {
             case 0:
                 //No Error
                 break;
             case 5:
                 //Malformed UTF-8 characters, possibly incorrectly encoded
                 array_walk_recursive($array, function (&$item) {
-                    $item = utf8_encode($item);
+                    if (!is_object($item)) {
+                        $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                        $encoding = mb_detect_encoding($item);
+                    } else {
+                        $item = array_map(function ($item2) {
+                            return mb_convert_encoding($item2, 'UTF-8', 'UTF-8');
+                        }, (array)$item);
+                    }
                 });
                 $json = json_encode($array);
+                if (!$json) {
+                    throw new Exception(json_last_error_msg(), $error_code);
+                }
                 break;
             default:
                 $json = json_last_error_msg();
@@ -200,27 +209,61 @@ class Globales
     }
 
     /** @var Exception $ex */
-    static function mostrar_exception($ex)
+    static function mostrar_exception($ex, $api = false)
     {
         ini_set('log_errors', 1);
-        $token = $_SESSION[token];
+        $token = $_SESSION['token'];
         ini_set('error_log', "script_errors_$token.log");
         $trace = $ex->getTrace();
-        $error = addslashes($token . " " . $_SESSION[modulo] . " " . $trace[2][file] . " " . $trace[2][line] . " " . $ex->getMessage());
+
+        if ($trace[0]['function'] == 'mensaje_error') {
+            unset($trace[0]);
+            $trace = array_values($trace);
+        }
+
+        $error = addslashes($token . " " . $_SESSION['modulo'] . " " . $trace[0]['file'] . " " . $trace[0]['line'] . " " . $ex->getMessage());
         $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
         error_log($error);
-        if (isset($_POST[fn]) or $_GET[aside]) {
+
+        http_response_code(500);
+        if ($api) {
+            self::error_log(['message' => $ex->getMessage(), 'file' => $trace[0]['file'], 'line' => $trace[0]['line'], 'code' => $ex->getCode()]);
+            die(self::json_encode(['estatus' => 'error', 'code' => http_response_code(), 'response' => [], 'error' => [
+                'message' => $ex->getMessage(),
+                'code' => $ex->getCode(),
+                'file' => $ex->getFile(),
+                'line' => $ex->getLine(),
+                'trace' => $ex->getTrace()
+            ]]));
+        } else if (isset($_POST['fn']) or $_GET['aside']) {
+            self::error_log(['message' => $ex->getMessage(), 'file' => $trace[0]['file'], 'line' => $trace[0]['line'], 'code' => $ex->getCode()]);
             echo $ex->getMessage();
         } else {
-            /*session_unset();
-             $_SESSION[modulo] = "login";*/
+            self::error_log(['message' => $ex->getMessage(), 'file' => $trace[0]['file'], 'line' => $trace[0]['line'], 'code' => 500]);
             ?>
             <script>alert('Error. Contacte al desarrollador. ');
                 console.error("<?= $error ?>");</script>
             <?php
             include "vista/error.phtml";
         }
-        http_response_code($ex->getCode());
+    }
+
+    static function error_log($options)
+    {
+        $mysql = new TablaErrores();
+        $id_error = $mysql->insertError($options['message'], $options['file'], $options['line'], $options['code']);
+        if ($options['code'] !== 200) {
+            self::admin_log(['id_usuario' => $_SESSION['usuario'] ?: 1, 'mensaje' => "Error Ocurred. (ID: $id_error, CODE: $options[code])"]);
+        }
+    }
+
+    /**
+     * @param array $options id_usuario,mensaje
+     */
+    static function admin_log($options)
+    {
+        $mysql = new TablaAdmin_Log();
+        $mysql->insertLog($options['id_usuario'], $options['mensaje']);
     }
 
     /**
@@ -230,7 +273,7 @@ class Globales
     static function crypt_blowfish_bydinvaders($password)
     {
         $salt = '$2a$%02d$' . $password;
-        return crypt($password, $salt);
+        return password_hash($password, CRYPT_BLOWFISH);
     }
 
     static function array2json($array)
@@ -245,6 +288,7 @@ class Globales
      * @param string $interval
      * @param string $format
      * @return string
+     * @throws Exception
      */
     static function datetime_add($datetime, $time_add, $interval, $format)
     {
@@ -309,9 +353,9 @@ class Globales
     }
 
     /**
-     * @deprecated
      * @param mysqli_result $consulta
      * @return object
+     * @deprecated
      */
     static function query2object($consulta)
     {
@@ -327,9 +371,9 @@ class Globales
     }
 
     /**
-     * @deprecated
      * @param mysqli_result $consulta
      * @return object
+     * @deprecated
      */
     static function query2twoLevelObject($consulta)
     {
@@ -346,11 +390,11 @@ class Globales
     }
 
     /**
-     * @deprecated usar formato_fecha2
      * @param string $formato
      * @param string $fecha
      * @return string
      * @throws Exception
+     * @deprecated usar formato_fecha2
      */
     static function formato_fecha($formato, $fecha)
     {
@@ -447,7 +491,7 @@ class Globales
     static function setVista()
     {
         if ($_GET['file']) {
-            $folder=$_GET['folder']?:'imagenes';
+            $folder = $_GET['folder'] ?: 'imagenes';
             $token = $_SESSION['token'];
             $path = "usuario/$token/$folder/$_GET[modulo]/";
             $nombreImagen = self::subirImagenSimple($path, $_FILES["file"]);
@@ -493,12 +537,12 @@ class Globales
 
             if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
             else
-                $name = $_SESSION[token] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
+                $name = $_SESSION['token'] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
             if (is_dir($carpeta) && is_writable($carpeta)) {
                 if (!move_uploaded_file($archivo['tmp_name'], $carpeta . $name)) {
-                    switch ($archivo[error]) {
+                    switch ($archivo['error']) {
                         case 1:
                             $max = ini_get('upload_max_filesize');
                             Globales::mensaje_error("El archivo excede el tamaño establecido ($max): " . $debug);
@@ -530,16 +574,18 @@ class Globales
     {
         if (empty($_SESSION['token'])) {
             $config = self::getConfig();
-            self::setToken($config->conexion->default_database);
+            self::setToken(getenv('DATABASE') ?: $config->conexion->prefix . $config->conexion->default_database);
         }
         return self::$token;
     }
 
     public static function getConfig()
     {
-        $ruta = APP_ROOT . "config.json";
+        $env = file_exists(APP_ROOT . "config.dev.json") ? "dev" : "prod";
+
+        $ruta = APP_ROOT . "config.$env.json";
         if (!file_exists($ruta)) {
-            $ruta = HTTP_PATH_ROOT . "config.json";
+            $ruta = HTTP_PATH_ROOT . "config.$env.json";
             if (!file_exists($ruta))
                 Globales::mensaje_error("No existe el archivo de configuración $ruta");
         }
@@ -576,7 +622,7 @@ class Globales
 
         if ($_SESSION["namespace"] != self::$namespace) {
             session_unset();
-            $_SESSION[modulo] = "login";
+            $_SESSION['modulo'] = "login";
             $_SESSION["namespace"] = self::$namespace;
             header("Refresh:0");
             exit;
@@ -611,7 +657,7 @@ HTML;
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
 
-            date_default_timezone_set('America/Mexico_City');
+            date_default_timezone_set('America/Los_Angeles');
             $mpdf = new mPDF();
             $mpdf->debug = false;
             if ($watermark != false) {
@@ -652,5 +698,11 @@ HTML;
     static function setNamespace($namespace)
     {
         self::$namespace = $namespace . "\\";
+    }
+
+    static function printDOBFormat($dob)
+    {
+        $date = explode("-", $dob);
+        return date("m/d/Y", strtotime($dob));
     }
 }

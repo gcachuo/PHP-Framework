@@ -16,7 +16,7 @@ class TablaCliente extends cbizcontrol
     {
         $sql = /** @lang MySQL */
             <<<MySQL
-INSERT INTO e11_cbizcontrol.cliente (id_distribuidor, nombre_comercial_cliente, lada_cliente, telefono_cliente, fecha_cliente, id_usuario,id_ciudad)
+INSERT INTO cliente (id_distribuidor, nombre_comercial_cliente, lada_cliente, telefono_cliente, fecha_cliente, id_usuario,id_ciudad)
 VALUES ('$id_distribuidor', '$nombre_comercial_cliente', '$lada_cliente', '$telefono_cliente', '$fecha_cliente', '$id_usuario',462);
 MySQL;
 
@@ -39,12 +39,12 @@ SELECT
   id_paypal_token                                    paypalToken,
   estatus_suscripcion                                estatusSuscripcion,
   estatus_cbiz_cliente                               estatusCbiz
-FROM e11_cbizcontrol.cliente c
-  INNER JOIN e11_cbizcontrol.cbiz_cliente cc ON c.id_cliente = cc.id_cliente
-  LEFT JOIN e11_cbizcontrol.suscripciones s ON s.id_cliente = c.id_cliente
-  INNER JOIN e11_cbizcontrol.contacto_cliente cont ON c.id_cliente = cont.id_cliente
-  LEFT JOIN e11_cbizcontrol.distribuidor d ON c.id_distribuidor = d.id_distribuidor
-  LEFT JOIN e11_cbizcontrol.distribuidor d2 ON d.id_padre = d2.id_distribuidor
+FROM cliente c
+  INNER JOIN cbiz_cliente cc ON c.id_cliente = cc.id_cliente
+  LEFT JOIN suscripciones s ON s.id_cliente = c.id_cliente
+  INNER JOIN contacto_cliente cont ON c.id_cliente = cont.id_cliente
+  LEFT JOIN distribuidor d ON c.id_distribuidor = d.id_distribuidor
+  LEFT JOIN distribuidor d2 ON d.id_padre = d2.id_distribuidor
 WHERE
 if('$id_distribuidor'=1,c.id_distribuidor<>0,
   (c.id_distribuidor='$id_distribuidor' or d.id_padre='$id_distribuidor'))
@@ -59,7 +59,7 @@ MySQL;
     function selectIdDistribuidorFromId($id_cliente)
     {
         $sql = <<<MySQL
-select id_distribuidor idDistribuidor from e11_cbizcontrol.cliente WHERE id_cliente='$id_cliente';
+select id_distribuidor idDistribuidor from cliente WHERE id_cliente='$id_cliente';
 MySQL;
         $registro = $this->siguiente_registro($this->consulta($sql));
         $idDistribuidor = $registro->idDistribuidor;
@@ -75,7 +75,7 @@ select
   rfc_cliente              rfcCliente,
   api_key_factucare        apiKey,
   estatus_cliente          estatusCliente
-from e11_cbizcontrol.cliente
+from cliente
 where id_cliente = '$id_cliente'
 MySQL;
         return $this->siguiente_registro($this->consulta($sql));
@@ -92,9 +92,9 @@ SELECT
   @db := concat('e11_', token_cbiz_cliente),
   nombre_comercial_cliente,
   correo_contacto_cliente
-FROM e11_cbizcontrol.cliente c
-  LEFT JOIN e11_cbizcontrol.cbiz_cliente cc ON c.id_cliente = cc.id_cliente
-  LEFT JOIN e11_cbizcontrol.contacto_cliente cont ON c.id_cliente = cont.id_cliente
+FROM cliente c
+  LEFT JOIN cbiz_cliente cc ON c.id_cliente = cc.id_cliente
+  LEFT JOIN contacto_cliente cont ON c.id_cliente = cont.id_cliente
 WHERE id_tipo_cbiz = 4 AND estatus_cbiz_cliente = 0 and c.id_cliente='$id_cliente'
 LIMIT 1;
 
@@ -113,7 +113,7 @@ SELECT
   @db db,
   '20' status;
 
-DELETE FROM e11_cbizcontrol.cbiz_cliente
+DELETE FROM cbiz_cliente
 WHERE id_cliente = @idCliente;
 
 SELECT
@@ -121,7 +121,7 @@ SELECT
   @db db,
   '40' status;
 
-DELETE FROM e11_cbizcontrol.contacto_cliente
+DELETE FROM contacto_cliente
 WHERE id_cliente = @idCliente;
 
 SELECT
@@ -129,7 +129,7 @@ SELECT
   @db db,
   '60' status;
 
-DELETE FROM e11_cbizcontrol.cliente_usuario
+DELETE FROM cliente_usuario
 WHERE id_cliente = @idCliente;
 
 SELECT
@@ -137,7 +137,7 @@ SELECT
   @db db,
   '80' status;
 
-DELETE FROM e11_cbizcontrol.cliente
+DELETE FROM cliente
 WHERE id_cliente = @idCliente;
 
 SELECT

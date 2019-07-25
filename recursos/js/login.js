@@ -12,13 +12,16 @@ $(function () {
 });
 
 function btnIniciarSesion() {
-    ajax('iniciarSesion');
+    $.ajaxSetup({cache: false});
+    $.get('getsession.php', function (data) {
+        const session_id = data;
+        request('iniciarSesion', {session_id}, 'login');
+    });
 }
 
-function iniciarSesion(result) {
-    if (result.cambiarPass) {
+function iniciarSesion(data) {
+    if (data.cambiarPass) {
         aside("miperfil", "miperfil");
-    }
-    else
+    } else
         navegar('inicio');
 }

@@ -297,6 +297,21 @@ a.navbar-item,
     right: 89px;;
 }
 
+.bottom-150 .material-icons {
+    font-size: xx-large;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.bottom-150 {
+    bottom: 20px;
+    right: 150px;;
+}
+
 .floatingButton {
     bottom: 20px;
 }
@@ -446,7 +461,7 @@ a.btn.btn-sm.btn-default {
     padding: 2px;
 }
 
-.text-link{
+.text-link {
     color: #1e88e5 !important;
 }
 
@@ -662,7 +677,7 @@ div.loading-invisible {
 
 @media (min-width: 992px) {
     .app-aside:not(.hide) ~ .app-content {
-        margin-left: 16rem;
+        margin-left: 3rem;
     }
 }
 
@@ -697,7 +712,7 @@ div.loading-invisible {
     margin-left: -15px;
 }
 
-.col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col,
+.col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col,
 .col-auto {
     position: relative;
     width: 100%;
@@ -938,7 +953,7 @@ a.label:not([onclick]), a.label:hover:not([onclick]) {
     cursor: default;
 }
 
-.div-backgroud:focus{
+.div-backgroud:focus {
     box-shadow: #0bb69f;
     background-color: #0bb69f;
     border-width: 3px;
@@ -952,7 +967,9 @@ a.label:not([onclick]), a.label:hover:not([onclick]) {
     height: 20px;
 }
 
-.switch input {display:none;}
+.switch input {
+    display: none;
+}
 
 .slider {
     position: absolute;
@@ -999,4 +1016,61 @@ input:checked + .slider:before {
 
 .slider.round:before {
     border-radius: 50%;
+}
+
+.navside .navbar {
+    background: #FFF;
+    border-bottom: #c0ca33 3px solid;
+    height: 70px;
+    min-height: 0;
+}
+
+.app-header {
+    border-bottom: #c0ca33 3px solid;
+    height: 70px;
+    display: grid;
+    align-items: center;
+}
+
+.navside .nav {
+    padding-top: 10px;
+}
+
+#aside .navside .hide-scroll[flex]{
+    width: 19rem;
+}
+
+.nav-fold {
+    min-height: 40px;
+}
+
+.navside span.navbar-brand {
+    position: absolute;
+    bottom: 4px;
+    left: 54px;
+}
+
+.app-aside {
+    width: 54px;
+    overflow: hidden;
+    transition: width 0.5s;
+}
+
+.app-aside:hover {
+    width: 255px;
+}
+
+@keyframes appaside {
+    from {
+        width: 54px;
+    }
+    to {
+        width: 255px;
+    }
+}
+
+@media (max-width: 991px) {
+    .app-aside.modal {
+        width: 100%;
+    }
 }

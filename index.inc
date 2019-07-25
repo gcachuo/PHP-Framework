@@ -6,6 +6,12 @@
  * Time: 11:21 AM
  */
 try {
+    if (isset($_REQUEST['eraseCache'])) {
+        unset($_COOKIE);
+        header("Cache-Control: no-cache, must-revalidate");
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+    }
+    setcookie('XDEBUG_SESSION', 'PHPSTORM');
     ini_set('memory_limit', '300M');
     ini_set('max_execution_time', 300);
     ini_set("display_errors", 1);
@@ -13,12 +19,13 @@ try {
     error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
     mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));//MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    date_default_timezone_set('America/Mexico_City');
+    date_default_timezone_set(TIMEZONE);
     spl_autoload_register('autoloader');
     register_shutdown_function('cierre');
+    set_exception_handler('exception_handler');
     session_start();
 
-    if(isset($_REQUEST["lang"]))
+    if (isset($_REQUEST["lang"]))
         header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 
     if ($_SESSION['modulo'] != 'login' and ($_REQUEST["s"] == "1" or TYPE_SYSTEM != $_SESSION['sistema'])) {
@@ -31,6 +38,10 @@ try {
     require_once dirname(__FILE__) . "/control.php";
     require_once "conexion.php";
     require_once dirname(__FILE__) . '/vendor/autoload.php';
+
+    if (!empty($_POST['vista']) && $_POST['vista'] !== $_SESSION['modulo']) {
+        Globales::admin_log(['id_usuario' => $_SESSION['usuario'] ?: 1, 'mensaje' => 'Navigate: ' . $_POST['vista']]);
+    }
 
     Globales::$modulo = $_POST["modulo"] ?: $_SESSION["modulo"];
     Globales::$namespace = __NAMESPACE__ . "\\";
@@ -51,17 +62,15 @@ function autoloader($class)
             if (!file_exists($path))
                 Globales::mensaje_error("No existe el archivo $path");
         }
-    }
-    elseif(strpos($class, 'Tabla') !== false){
+    } elseif (strpos($class, 'Tabla') !== false) {
         $class = strtolower(str_replace('Tabla', '', $class));
         $path = APP_ROOT . "modelo/tablas/{$class}.php";
         if (!file_exists($path)) {
-            $path = HTTP_PATH_ROOT. "modelo/tablas/{$class}.php";
+            $path = HTTP_PATH_ROOT . "modelo/tablas/{$class}.php";
             if (!file_exists($path))
                 Globales::mensaje_error("No existe el archivo $path");
         }
-    }
-    else {
+    } else {
         $path = APP_ROOT . "controlador/{$class}Control.php";
         if (!file_exists($path)) {
             $path = HTTP_PATH_ROOT . "controlador/{$class}Control.php";
@@ -79,15 +88,16 @@ function cierre()
 {
     $error = error_get_last();
     if ($error['type'] === E_ERROR) {
+        ob_end_clean();
         // fatal error has occured
-        echo <<<HTML
-Ha ocurrido un error. Contacte al desarrollador.<br>    
-<br>        
-file: $error[file]<br>
-line: $error[line]<br>
-message: $error[message]
-HTML;
+        die(<<<HTML
+Ha ocurrido un error. Contacte al desarrollador.
 
+file: $error[file]
+line: $error[line]
+message: $error[message]
+HTML
+        );
     } elseif ($error['type'] !== E_NOTICE and !isset($_POST['fn'])) {
         $file = addslashes($error['file']);
         $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
@@ -98,4 +108,9 @@ console.log('[$error[type]][$file][$error[line]] $message');
 HTML;
 
     }
+}
+
+function exception_handler($exception)
+{
+    Globales::mostrar_exception($exception);
 }

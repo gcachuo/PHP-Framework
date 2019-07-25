@@ -16,9 +16,9 @@ abstract class Tabla extends Conexion
     {
         mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));
         $config = Globales::getConfig()->conexion;
-        $token = $_SESSION['token'] ?: $config->default_database;
+        $token = $_SESSION['token'] ?: getenv('DATABASE') ?: $config->prefix . $config->default_database;
         Conexion::$host = $config->host;
-        Conexion::$db = "{$config->prefix}$token";
+        Conexion::$db = $token;
         Conexion::$user = $config->user;
         Conexion::$pass = $config->password;
         Globales::setToken($token);
@@ -42,10 +42,14 @@ abstract class Tabla extends Conexion
         $tabla = strtolower($tabla);
         $consulta = null;
         $metadata = Globales::getConfig()->conexion;
-        $create_table =
-            str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS",
-                str_replace($tabla, "temp_" . $tabla,
-                    $this->create_table()));
+
+        $create_table = preg_replace("/_?($tabla)/i", 'temp_$1', $this->create_table());
+        preg_match_all('/create table (.*)/i', $create_table, $matches, PREG_SET_ORDER, 0);
+        $temp_tabla = $matches[0][1];
+        $create_table = preg_replace('/(create table)/i', '$1 if not exists', $create_table);
+
+        $this->consulta("drop table if exists `$temp_tabla`;");
+
         $consulta_create = $this->multiconsulta($create_table);
         $verificar = !is_null($consulta_create);
         if (!$verificar)
@@ -59,7 +63,7 @@ SELECT
   COLUMN_COMMENT comment,
   IS_NULLABLE    nullable
 FROM information_schema.COLUMNS c1
-WHERE c1.table_name = 'temp_$tabla'
+WHERE c1.table_name = '$temp_tabla'
       AND c1.table_schema = '{$metadata->prefix}$_SESSION[token]'
       AND COLUMN_NAME NOT IN (
   SELECT column_name
@@ -73,17 +77,20 @@ MySQL;
             $columna['defaultColumna'] = strpos($columna['tipo'], "varchar") === false ? $columna['defaultColumna'] : "'$columna[defaultColumna]'";
             $default = !is_null($columna['defaultColumna']) ? "DEFAULT $columna[defaultColumna]" : "";
             $notnull = $columna['nullable'] == "YES" ? "" : "NOT NULL";
+            preg_match_all('/create table (.*)/i', $this->create_table(), $matches, PREG_SET_ORDER, 0);
+            $tabla = $matches[0][1];
             $sql = /** @lang MySQL */
                 <<<MySQL
 ALTER TABLE $tabla
-  ADD $columna[columna] $columna[tipo] $default
+  ADD column $columna[columna] $columna[tipo] $default
 COMMENT '$columna[comment]' $notnull;
 MySQL;
             $consulta = $this->consulta($sql);
         }
-        $drop = "drop table temp_$tabla;";
+        $error = self::$queryError;
+        $drop = "drop table $temp_tabla;";
         $this->consulta($drop);
-        return $consulta;
+        return true;
     }
 
     /**
@@ -101,7 +108,7 @@ class cbizcontrol extends Conexion
     {
         mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));
         $config = Globales::getConfig()->conexion;
-        Conexion::$db = "e11_cbizcontrol";
+        Conexion::$db = getenv('DBCONTROL') ?: $config->prefix . $config->control_database;
         Conexion::$host = $config->host;
         Conexion::$user = $config->user;
         Conexion::$pass = $config->password;
@@ -120,6 +127,12 @@ abstract class Conexion
     private static $mysqli;
     private $retry;
     private $error = false;
+    static $queryError;
+
+    function getConexion()
+    {
+        return self::$conexion;
+    }
 
     /**
      * @param string $sql
@@ -138,26 +151,35 @@ abstract class Conexion
                     //Necesario para ejecutar $stmt->fullQuery
                     $stmt = $this->error ? mysqli_prepare(self::$conexion, $sql) : self::$mysqli->prepare($sql);
                     /* use call_user_func_array, as $stmt->bind_param('s', $param); does not accept params array */
+                    $array = [];
                     foreach ($params as $k => &$param) {
                         $array[] =& $param;
                     }
                     call_user_func_array(array($stmt, 'bind_param'), $array);
                     $execute = $stmt->execute();
-                    $fullQuery = $stmt->fullQuery;
                     /** @var string $fullQuery Debug */
+                    $fullQuery = $stmt->fullQuery;
                     $resultado = $stmt->get_result();
-                    if ($execute)
+                    $stmt->store_result();
+                    if ($execute) {
                         if (is_bool($resultado) and !$resultado) {
                             $resultado = $stmt->insert_id;
                         }
+                    }
+                    $stmt->close();
+                    $this->retry = false;
+                    return $resultado;
                 } else {
                     $resultado = mysqli_query(self::$conexion, $sql);
+                    self::$queryError = mysqli_error(self::$conexion);
 
                     if (is_bool($resultado) and $resultado != false) {
                         $resultado = mysqli_insert_id(self::$conexion);
                     }
+                    $this->desconectar();
+                    $this->retry = false;
+                    return $resultado;
                 }
-                $this->retry = false;
             } catch (mysqli_sql_exception $ex) {
                 switch ($ex->getCode()) {
                     case 2002:
@@ -169,21 +191,20 @@ abstract class Conexion
                 }
             }
         }
-        $this->desconectar();
-        return $resultado;
     }
 
     protected function conectar()
     {
         try {
 
-            if (!mysqli_ping(self::$conexion)) {
-                self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
-                self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
-                if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
+            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
+            if (!mysqli_select_db(self::$conexion, self::$db)) {
+                die("Uh oh, couldn't select database " . self::$db);
             }
+            self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
+            if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
-            Globales::mensaje_error($ex->getMessage());
+            Globales::mensaje_error($ex->getMessage(), $ex->getCode());
         }
     }
 
@@ -194,14 +215,18 @@ abstract class Conexion
      */
     private function handleErrors($ex, $sql)
     {
+        $config = Globales::getConfig();
         $code = $ex->getCode();
         $message = $ex->getMessage();
         $trace = $ex->getTrace();
+
+        Globales::error_log(['message' => $message, 'file' => $trace[2]['file'], 'line' => $trace[2]['line'], 'code' => $code]);
+
         /** @var Tabla $this */
         switch ($code) {
             case 1005:
                 $this->retry = false;
-                $token = strtolower($_SESSION[token]);
+                $token = strtolower($_SESSION['token']);
                 $message = str_replace("'", "", str_replace("Can't create table 'e11_$token.", "", $message));
                 $explode = explode(" (errno: ", $message);
                 $table = $explode[0];
@@ -212,26 +237,22 @@ abstract class Conexion
                         unset($foreignTable[0]);
                         foreach ($foreignTable as $tabla) {
                             $explode = explode(" ", $tabla);
-                            $tabla=str_replace("`","",$explode[0]);
-                            $tabla = trim($tabla, "_");
-                            $namet="Tabla$tabla";
-                            $t=new $namet();
-                            $sql=$t->create_table();
-                            $consulta = $this->multiconsulta($sql);
+                            $tabla = trim($explode[0], "_");
+                            $consulta = $this->multiconsulta($this->$tabla->create_table());
                             $verificar = is_null($consulta);
                             if ($verificar) {
                                 $this->retry = false;
-                                Globales::mensaje_error("No se creo la tabla $tabla");
+                                Globales::mensaje_error("[FK] No se creo la tabla $tabla", 150);
                             }
                         }
                         break;
                 }
-                Globales::mensaje_error("No se creo la tabla $table [ForeignKey]", 200, $sql);
+                Globales::mensaje_error("[FK] No se creo la tabla $table", 150, $sql);
                 break;
             case 1146:
                 /** @var Tabla $table */
-                $token = strtolower($_SESSION[token]);
-                $table = trim(str_replace("Table 'e11_$token.", "", str_replace("' doesn't exist", "", $message)), "_");
+                $table = preg_replace('/Table \'.*\.(.*)\' doesn\'t exist/m', '$1', $message);
+                $table = trim($table, "_");
 
                 //Linea para evitar recursividad infinita
                 $recursive = strpos($sql, "CREATE TABLE") !== false ? true : false;
@@ -241,10 +262,9 @@ abstract class Conexion
                 }
                 $modelo = new Modelo();
                 $consulta = $this->multiconsulta($modelo->$table->create_table());
-                $verificar = is_null($consulta);
-                if ($verificar) {
+                if (!$consulta) {
                     $this->retry = false;
-                    Globales::mensaje_error("No se creo la tabla $table");
+                    Globales::mensaje_error("Error $code: No se creo la tabla $table", $code);
                 } else $this->retry = true;
                 break;
             case 1054:
@@ -252,34 +272,44 @@ abstract class Conexion
                 /** @var Tabla $this */
                 $consulta = $this->modify_table($table);
                 if (is_null($consulta)) {
-                    Globales::mensaje_error("Error $code. $message");
+                    Globales::mensaje_error("Error $code. $message", $code);
                 }
                 $this->retry = false;
                 break;
             case 1060:
                 $this->retry = false;
                 break;
+            case 1062:
+                $this->retry = false;
+                break;
             case 1064:
                 /** Error de sintaxis */
                 $this->retry = false;
-                Globales::mensaje_error("Error 1064. Contacte al desarrollador. [{$trace[2]['class']}][{$trace[2]['function']}]");
+                Globales::mensaje_error("[{$trace[2]['class']}][{$trace[2]['function']}] $message", 1064);
                 break;
             case 2002:
                 /** Error de conexion */
                 $this->retry = true;
-                Globales::mensaje_error("[2002] Verifique su conexion.");
+                Globales::mensaje_error("[2002] Verifique su conexion.", 2002);
                 break;
             case 2006:
                 $this->retry = true;
                 mysqli_ping(self::$conexion);
-                Globales::mensaje_error('Error 2006. Intente de nuevo. [MySQL Server Has Gone Away]');
+                Globales::mensaje_error('Error 2006. Intente de nuevo. [MySQL Server Has Gone Away]', 2006);
                 break;
             case 2014:
                 $this->error = true;
                 break;
+            case 1055:
+                $this->retry = true;
+                $sql = <<<sql
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+sql;
+                $this->consulta($sql);
+                break;
             default:
                 $this->retry = false;
-                Globales::mensaje_error("Error $code. $message");
+                Globales::mensaje_error("Error $code. $message", $code);
                 break;
         }
     }
@@ -338,11 +368,20 @@ abstract class Conexion
 
     /**
      * @param mysqli_result $consulta
+     * @param int $type
+     * @param bool $index
      * @return array
      */
-    protected function query2multiarray($consulta)
+    protected function query2multiarray($consulta, $type = MYSQLI_ASSOC, $index = false)
     {
-        $results = mysqli_fetch_all($consulta, MYSQLI_ASSOC);
+        $results = mysqli_fetch_all($consulta, $type);
+        if ($index) {
+            $new = [];
+            foreach ($results as $key => $result) {
+                $new[$result[$index]] = $result;
+            }
+            return $new;
+        }
         return $results;
     }
 }

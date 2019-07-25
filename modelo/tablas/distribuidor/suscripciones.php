@@ -14,7 +14,7 @@ class TablaSuscripciones extends \cbizcontrol
     function insertToken($id_paypal_token, $id_cliente)
     {
         $sql = <<<MySQL
-update e11_cbizcontrol.suscripciones
+update suscripciones
 set id_paypal_token = '$id_paypal_token'
 where id_cliente = '$id_cliente'
 MySQL;
@@ -24,7 +24,7 @@ MySQL;
     function insertSuscripcion($id_cliente, $id_plan)
     {
         $sql = <<<MySQL
-replace into e11_cbizcontrol.suscripciones(id_cliente, id_plan)
+replace into suscripciones(id_cliente, id_plan)
 VALUES ('$id_cliente','$id_plan')
 MySQL;
         $this->consulta($sql);
@@ -34,7 +34,7 @@ MySQL;
     {
         $estatus_suscripcion = $estatus_suscripcion ? 'true' : 'false';
         $sql = <<<MySQL
-update e11_cbizcontrol.suscripciones
+update suscripciones
 set estatus_suscripcion=$estatus_suscripcion
 where id_cliente='$id_cliente'
 MySQL;
@@ -44,7 +44,7 @@ MySQL;
     function selectEstatusSuscripcion($id_cliente)
     {
         $sql = <<<MySQL
-select estatus_suscripcion estatus from e11_cbizcontrol.suscripciones where id_cliente='$id_cliente'
+select estatus_suscripcion estatus from suscripciones where id_cliente='$id_cliente'
 MySQL;
         $registro = $this->siguiente_registro($this->consulta($sql));
         $estatus = $registro->estatus;
@@ -58,7 +58,7 @@ MySQL;
     function selectIdPaypalSuscripcion($id_cliente)
     {
         $sql = <<<MySQL
-select id_paypal_token idPaypal from e11_cbizcontrol.suscripciones where id_cliente='$id_cliente'
+select id_paypal_token idPaypal from suscripciones where id_cliente='$id_cliente'
 MySQL;
         $registro = $this->siguiente_registro($this->consulta($sql));
         $idPaypal = $registro->idPaypal;
