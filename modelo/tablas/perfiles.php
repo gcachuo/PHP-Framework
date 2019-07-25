@@ -72,9 +72,9 @@ MySQL;
             <<<MySQL
 SELECT nombre_perfil nombrePerfil
 FROM `_perfiles`
-WHERE id_perfil = $id_perfil
+WHERE id_perfil = ?
 MySQL;
-        $registro = $this->siguiente_registro($this->consulta($sql));
+        $registro = $this->siguiente_registro($this->consulta($sql, ['i', $id_perfil]));
         $nombrePerfil = $registro->nombrePerfil;
         return $nombrePerfil;
     }

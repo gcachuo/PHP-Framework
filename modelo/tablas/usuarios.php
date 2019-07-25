@@ -46,7 +46,6 @@ perfil_usuario idPerfil,
 id_sucursal idSucursal,
 id_usuario_create idUserCreate,
 password_usuario passwordUsuario,
-id_representative idRep,
        nombre_usuario nombreUsuario,
        login_usuario loginUsuario
 FROM _usuarios

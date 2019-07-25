@@ -45,7 +45,7 @@ abstract class Tabla extends Conexion
 
         $create_table = preg_replace("/_?($tabla)/i", 'temp_$1', $this->create_table());
         preg_match_all('/create table (.*)/i', $create_table, $matches, PREG_SET_ORDER, 0);
-        $temp_tabla = $matches[0][1];
+        $temp_tabla = trim($matches[0][1],'`');
         $create_table = preg_replace('/(create table)/i', '$1 if not exists', $create_table);
 
         $this->consulta("drop table if exists `$temp_tabla`;");
@@ -351,7 +351,9 @@ sql;
      */
     protected function siguiente_registro($consulta)
     {
-        return mysqli_fetch_object($consulta);
+        if($consulta) {
+            return mysqli_fetch_object($consulta);
+        }
     }
 
     protected function query2array($result, $name = false, $index = "id")

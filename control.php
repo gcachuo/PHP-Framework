@@ -284,8 +284,6 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js");
         $this->script("https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.js");
 
-        $this->script("$plugins/jquery/jquery.sessionTimeout.js");
-
         $this->script("$plugins/tether/dist/js/tether.min.js");
         $this->script("$plugins/bootstrap/dist/js/bootstrap.js");
         $this->script("$plugins/underscore/underscore-min.js");
