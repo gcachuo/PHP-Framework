@@ -30,9 +30,9 @@ abstract class Control
     /**
      * Constructor.
      * Carga los recursos, agrega el script del modulo y genera el codigo HTML para la vista.
-     * @internal param $vista
      * @param bool $api
      * @throws Exception
+     * @internal param $vista
      */
     function __construct($api = false)
     {
@@ -118,9 +118,9 @@ HTML;
     }
 
     /**
-     * @property $formatoFecha
      * @return array
      * @throws Exception
+     * @property $formatoFecha
      */
     private function obtenerIdioma()
     {
@@ -190,10 +190,10 @@ HTML;
         $file = "empresa.json";
         $path = APP_ROOT . "usuario/$token/config/";
         if (!file_exists($path . $file)) {
-            $path = HTTP_PATH_ROOT ."usuario/$token/config/";
-            if(!file_exists($path.$file)) {
+            $path = HTTP_PATH_ROOT . "usuario/$token/config/";
+            if (!file_exists($path . $file)) {
                 $path = APP_ROOT . "usuario/$token/config/";
-                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0','ordenes' => '0','ticket' =>'0','llegada'=> '0','clientes' => '0');
+                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0', 'ordenes' => '0', 'ticket' => '0', 'llegada' => '0', 'clientes' => '0');
                 $json_string = json_encode($empresa);
                 mkdir($path, 0777, true);
                 file_put_contents($path . $file, $json_string);
@@ -229,13 +229,13 @@ HTML;
     private function getAssets()
     {
         $plugins = "../framework/libs";
-        if(!file_exists($plugins))
+        if (!file_exists($plugins))
             $plugins = "../../../framework/libs";
         $CSSassets = "../framework/recursos/css/lib";
-        if(!file_exists($CSSassets))
+        if (!file_exists($CSSassets))
             $CSSassets = "../../../framework/recursos/css/lib";
         $JSassets = "../framework/recursos/js/lib";
-        if(!file_exists($JSassets))
+        if (!file_exists($JSassets))
             $JSassets = "../../../framework/recursos/js/lib";
 
         $this->stylesheet("$CSSassets/animate.css");
@@ -263,7 +263,6 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js");
         $this->script("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.js");
         $this->stylesheet("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.css");
-
 
 
         //JQuery-UI
@@ -316,10 +315,6 @@ HTML;
         $this->script("$plugins/echarts/build/dist/echarts-all.js");
         $this->script("$plugins/echarts/build/dist/jquery.echarts.js");
         $this->script("$plugins/echarts/build/dist/echarts.js");
-
-
-
-
 
 
         $this->script("$plugins/maskedinput/masked-input-1.4-min.js");
@@ -405,16 +400,16 @@ HTML;
         $htmlModulos = "";
         $modulos = $this->control->obtenerModulos($padre);
         foreach ($modulos as $modulo) {
-            if($_SESSION['sistema'] == "admin"){
-                if(!$this->configSistema->llegada) {
+            if ($_SESSION['sistema'] == "admin") {
+                if (!$this->configSistema->llegada) {
                     if ($modulo["idModulo"] == 2003)
                         continue;
                 }
-                if(!$this->configSistema->clientes) {
+                if (!$this->configSistema->clientes) {
                     if ($modulo["idModulo"] == 6007)
                         continue;
                 }
-                if(!$this->configSistema->clientes) {
+                if (!$this->configSistema->clientes) {
                     if ($modulo["idModulo"] == 2006)
                         continue;
                 }
@@ -660,7 +655,7 @@ HTML;
                         break;
                     case "datetime":
                         $cell = ($cell != "0000-00-00" and $cell != "")
-                            ? Globales::formato_fecha($this->idioma->formatoFecha.' H:ia', $cell)
+                            ? Globales::formato_fecha($this->idioma->formatoFecha . ' H:ia', $cell)
                             : "N/A";
                         $rows .= <<<HTML
 <td>$cell</td>
@@ -990,7 +985,7 @@ class ArchivoModelo
  * @property TablaModulos modulos
  * @property TablaCampos campos
  */
-Class Modelo
+class Modelo
 {
     static private $token;
 
