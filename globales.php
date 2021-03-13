@@ -201,6 +201,7 @@ class Globales
     /** @var Exception $ex */
     static function mostrar_exception($ex)
     {
+        $code = $ex->getCode() ?: 500;
         ini_set('log_errors', 1);
         $token = $_SESSION['token'];
         ini_set('error_log', "script_errors_$token.log");
@@ -208,12 +209,22 @@ class Globales
         $error = addslashes($token . " " . $_SESSION['modulo'] . " " . $trace[2]['file'] . " " . $trace[2]['line'] . " " . $ex->getMessage());
         $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
         error_log($error);
-        if (isset($_POST['fn']) or $_GET['aside']) {
-            echo $ex->getMessage();
+        http_response_code($code);
+        if (isset($_POST['fn']) or ($_GET['aside'] ?? null)) {
+            ob_end_clean();
+            header('Content-Type: application/json');
+            die(json_encode([
+                'code' => $code,
+                'message' => $ex->getMessage(),
+                'data' => [
+                    'trace' => $ex->getTrace(),
+                    'file' => $ex->getFile(),
+                    'line' => $ex->getLine()
+                ]
+            ]));
         } else {
             include "vista/error.phtml";
         }
-        http_response_code($ex->getCode());
     }
 
     /**
@@ -457,7 +468,7 @@ class Globales
 
     static function setVista()
     {
-        if ($_GET['file']) {
+        if ($_GET['file'] ?? null) {
             $folder = $_GET['folder'] ?: 'imagenes';
             $token = $_SESSION['token'];
             $path = "usuario/$token/$folder/$_GET[modulo]/";

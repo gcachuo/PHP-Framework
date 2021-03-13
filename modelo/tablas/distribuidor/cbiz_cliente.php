@@ -12,6 +12,27 @@ use cbizcontrol;
 
 class TablaCbiz_Cliente extends cbizcontrol
 {
+    function create_table(): string
+    {
+        return <<<sql
+CREATE TABLE e11_cbizcontrol.cbiz_cliente(
+    id_cbiz_cliente BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_cliente BIGINT(20),
+    id_tipo_cbiz BIGINT(20),
+    id_periodo BIGINT(20),
+    id_usuario BIGINT(20),
+    token_cbiz_cliente VARCHAR(100),
+    fecha_inicial_cbiz_cliente DATE,
+    fecha_prox_pago_cbiz_cliente DATE,
+    monto_cbiz_cliente DECIMAL(12,2),
+    fecha_ultimo_pago_cbiz_cliente DATE,
+    fecha_cbiz_cliente DATE,
+    estatus_cbiz_cliente INT
+)
+sql;
+
+    }
+
     function insertarCbizCliente($id_cliente, $token_cbiz_cliente, $fecha_inicial_cbiz_cliente, $fecha_prox_pago_cbiz_cliente, $monto_cbiz_cliente, $fecha_ultimo_pago_cbiz_cliente, $fecha_cbiz_cliente, $id_usuario, $id_tipo_cbiz)
     {
         $sql = /** @lang MySQL */
@@ -40,11 +61,12 @@ MySQL;
 SELECT token_cbiz_cliente token
 FROM e11_cbizcontrol.cbiz_cliente cbc
   INNER JOIN e11_cbizcontrol.contacto_cliente cc ON cbc.id_cliente = cc.id_cliente
-  LEFT JOIN cliente_usuario cu ON cu.id_cliente = cbc.id_cliente
-  LEFT JOIN `_usuarios` u ON u.id_usuario = cu.id_usuario
+  LEFT JOIN e11_cbizcontrol.cliente_usuario cu ON cu.id_cliente = cbc.id_cliente
+  LEFT JOIN e11_cbizcontrol.`_usuarios` u ON u.id_usuario = cu.id_usuario
 WHERE correo_contacto_cliente = '$correo_contacto_cliente' OR login_usuario = '$correo_contacto_cliente'
 MySQL;
-        return $this->siguiente_registro($this->consulta($sql))->token;
+        $registro = $this->siguiente_registro($this->consulta($sql)) ?: (object)['token' => ''];
+        return $registro->token;
     }
 
     function selectTokenFromCliente($id_cliente)
@@ -90,26 +112,28 @@ MySQL;
     function selectTipoSistema($token_cbiz_cliente)
     {
         $sql = <<<sql
-select 
+SELECT 
  nombre_tipo_cbiz tipo
- from cbiz_cliente 
- inner join tipo_cbiz tc on cbiz_cliente.id_tipo_cbiz = tc.id_tipo_cbiz
- where token_cbiz_cliente=?;
+ FROM e11_cbizcontrol.cbiz_cliente 
+ INNER JOIN e11_cbizcontrol.tipo_cbiz tc ON cbiz_cliente.id_tipo_cbiz = tc.id_tipo_cbiz
+ WHERE token_cbiz_cliente=?;
 sql;
 
-        return $this->siguiente_registro($this->consulta($sql,['s',$token_cbiz_cliente]))->tipo;
+        $registro = $this->siguiente_registro($this->consulta($sql, ['s', $token_cbiz_cliente]));
+        return $registro->tipo;
     }
 
     function selectEstatusSistema($token_cbiz_cliente)
     {
         $sql = <<<sql
-select 
+SELECT 
  estatus_cbiz_cliente estatus
- from cbiz_cliente 
- inner join tipo_cbiz tc on cbiz_cliente.id_tipo_cbiz = tc.id_tipo_cbiz
- where token_cbiz_cliente=?;
+ FROM e11_cbizcontrol.cbiz_cliente 
+ INNER JOIN e11_cbizcontrol.tipo_cbiz tc ON cbiz_cliente.id_tipo_cbiz = tc.id_tipo_cbiz
+ WHERE token_cbiz_cliente=?;
 sql;
 
-        return $this->siguiente_registro($this->consulta($sql,['s',$token_cbiz_cliente]))->estatus;
+        $registro = $this->siguiente_registro($this->consulta($sql, ['s', $token_cbiz_cliente])) ?: (object)['estatus' => null];
+        return $registro->estatus;
     }
 }

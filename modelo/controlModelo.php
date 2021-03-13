@@ -42,7 +42,7 @@ class ModeloControl extends Modelo
      */
     function obtenerPermisosModulo()
     {
-        $perfil = $this->usuarios->selectPerfil($_SESSION['usuario']);
+        $perfil = $this->usuarios->selectPerfil($_SESSION['usuario'] ?? null);
         if ($perfil == 0)
             $acciones = $this->acciones->selectAccionesModulo($_SESSION['modulo']);
         else

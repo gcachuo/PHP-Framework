@@ -66,7 +66,7 @@ abstract class Control
         if (isset($_POST["fn"])) {
             $array = $this->{$_POST["fn"]}();
             $json = Globales::json_encode($array);
-            echo $json;
+            echo($json);
         } else {
 
             $this->obtenerDatos();
@@ -128,7 +128,7 @@ HTML;
         if (!empty($_GET["lang"])) $selectIdioma = $_GET["lang"];
         else $selectIdioma = $config->metadata->default_lang;
 
-        define("SYSTEM_LANG", $selectIdioma);
+        if (!defined('SYSTEM_LANG')) define("SYSTEM_LANG", $selectIdioma);
 
         if (!file_exists(APP_ROOT . "recursos/lang/$selectIdioma.json")) {
             Globales::mensaje_error("No existe el JSON de idioma: $selectIdioma", 500);
@@ -140,7 +140,7 @@ HTML;
         }
 
         $modulo = Globales::$modulo;
-        if ($_GET['aside'])
+        if ($_GET['aside'] ?? null)
             $modulo = "$modulo/$_POST[asideAccion]";
         Globales::setIdioma($idioma);
         $this->idioma = (object)array_merge((array)$idioma->$modulo, (array)$idioma->sistema);
@@ -162,13 +162,13 @@ HTML;
 
     function obtenerNombreUsuario()
     {
-        $usuario = new stdClass();
+        $usuario = (object)['nombre' => ''];
         $namespace = Globales::$namespace;
-        if (isset($_SESSION[usuario]))
+        if (isset($_SESSION['usuario']))
             if ($namespace == "\\")
-                $usuario = $this->control->usuarios->selectUsuarioFromId($_SESSION[usuario]);
+                $usuario = $this->control->usuarios->selectUsuarioFromId($_SESSION['usuario']);
             else
-                $usuario = $_SESSION[usuario];
+                $usuario = $_SESSION['usuario'];
         return $usuario->nombre;
     }
 
@@ -1023,7 +1023,7 @@ class Modelo
 
     static function getToken()
     {
-        self::$token = $_SESSION['token'] ?: self::$token;
+        self::$token = $_SESSION['token'] ?? self::$token;
         return self::$token;
     }
 

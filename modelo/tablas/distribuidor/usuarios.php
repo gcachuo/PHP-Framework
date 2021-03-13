@@ -8,8 +8,27 @@
 
 namespace distribuidor;
 
-class TablaUsuarios extends \cbizcontrol
+use cbizcontrol;
+
+class TablaUsuarios extends cbizcontrol
 {
+    function create_table(): string
+    {
+        return <<<sql
+CREATE TABLE e11_cbizcontrol._usuarios (
+    id_usuario BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_perfil BIGINT(20),
+    login_usuario VARCHAR(100),
+    password_usuario VARCHAR(200),
+    estado_usuario INT,
+    nombre_usuario VARCHAR(100),
+    correo_usuario VARCHAR(100),
+    id_usuarioCreate BIGINT(20)
+)
+sql;
+
+    }
+
     function selectUsuario($login, $password)
     {
         $sql = /** @lang MySQL */

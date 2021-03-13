@@ -16,7 +16,7 @@ abstract class Tabla extends Conexion
     {
         mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));
         $config = Globales::getConfig()->conexion;
-        $token = $_SESSION['token'] ?: $config->default_database;
+        $token = $_SESSION['token'] ?? $config->default_database;
         Conexion::$host = $config->host;
         Conexion::$db = "{$config->prefix}$token";
         Conexion::$user = $config->user;
@@ -89,11 +89,16 @@ MySQL;
     /**
      * @return string regresar el texto de la consulta de la creacion de la tabla
      */
-    abstract function create_table();
+    abstract function create_table(): string;
 }
 
-class cbizcontrol extends Conexion
+abstract class cbizcontrol extends Conexion
 {
+    /**
+     * @return string regresar el texto de la consulta de la creacion de la tabla
+     */
+    abstract function create_table(): string;
+
     /**
      * cbizcontrol constructor.
      */
@@ -176,13 +181,10 @@ abstract class Conexion
     protected function conectar()
     {
         try {
+            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
+            self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
 
-            if (!mysqli_ping(self::$conexion)) {
-                self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
-                self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
-
-                if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
-            }
+            if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
             Globales::mensaje_error($ex->getMessage(), 500);
         }
@@ -202,7 +204,7 @@ abstract class Conexion
         switch ($code) {
             case 1005:
                 $this->retry = false;
-                $token = strtolower($_SESSION[token]);
+                $token = strtolower($_SESSION['token']);
                 $message = str_replace("'", "", str_replace("Can't create table 'e11_$token.", "", $message));
                 $explode = explode(" (errno: ", $message);
                 $table = $explode[0];
@@ -280,7 +282,7 @@ abstract class Conexion
                 break;
             default:
                 $this->retry = false;
-                Globales::mensaje_error("Error $code. $message");
+                Globales::mensaje_error("Error $code. $message", 500);
                 break;
         }
     }

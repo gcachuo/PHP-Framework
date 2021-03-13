@@ -6,14 +6,16 @@
  * Time: 11:11 AM
  */
 /** @var Exception $ex */
-$code = $ex->getCode();
+/** @var $code */
 if ($code >= 500) {
     $message = 'Ha ocurrido un error. Contacte al desarrollador.';
 } elseif ($code >= 400) {
     $message = $ex->getMessage();
 }
+$trace = Globales::json_encode($ex->getTrace());
 ?>
+<textarea style="display: none" id="trace"><?= $trace ?></textarea>
 <h2><?= $code ?></h2>
 <h3><?= $message ?></h3>
 <a href="?s=1">Cerrar Sesión</a>
-<script>console.error("<?= $ex->getMessage() ?>",<?= json_encode($ex->getTrace()) ?>);</script>
+<script>console.error("<?= $ex->getMessage() ?>", "<?= $ex->getFile() ?>", <?= $ex->getLine() ?>, JSON.parse(document.getElementById('trace').textContent));</script>

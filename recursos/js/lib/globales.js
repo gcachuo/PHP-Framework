@@ -148,9 +148,17 @@ function ajax(fn, post, modulo) {
                     console.error(result);
                 }
             }
-        ).fail(function (result) {
-                alert(result.responseText);
-                console.error(result.responseText);
+        ).fail(function ({responseJSON: data}) {
+                switch (data.code) {
+                    case 400:
+                        console.warn(data.message, data);
+                        alert(data.message);
+                        break;
+                    case 500:
+                        console.error(data.message, data);
+                        alert('Ocurrió un error. Contacte al desarrollador.');
+                        break;
+                }
             }
         ).always(function (result) {
             $("a.btn").removeClass("disabled");

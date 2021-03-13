@@ -9,8 +9,32 @@
 namespace distribuidor;
 
 
-class TablaContacto_Cliente extends \cbizcontrol
+use cbizcontrol;
+
+class TablaContacto_Cliente extends cbizcontrol
 {
+    function create_table(): string
+    {
+        return <<<sql
+CREATE TABLE e11_cbizcontrol.contacto_cliente(
+    id_contacto_cliente BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente BIGINT,
+    id_tipo_contacto BIGINT,
+    id_usuario BIGINT,
+    nombre_contacto_cliente VARCHAR(100),
+    apellidoP_contacto_cliente VARCHAR(100),
+    apellidoM_contacto_cliente VARCHAR(100),
+    correo_contacto_cliente VARCHAR(100),
+    telefono_contacto_cliente VARCHAR(100),
+    puesto_contacto_cliente VARCHAR(100),
+    fecha_contacto_cliente DATE,
+    fecha_actualiza_contacto_cliente DATE,
+    estatus_contacto_cliente INT
+)
+sql;
+
+    }
+
     function selectIdClienteFromCorreo($correo_contacto_cliente)
     {
         $sql = <<<MySQL

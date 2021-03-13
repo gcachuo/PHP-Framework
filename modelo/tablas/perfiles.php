@@ -8,7 +8,7 @@
  */
 class TablaPerfiles extends Tabla
 {
-    function create_table()
+    function create_table(): string
     {
         $sql = /** @lang MySQL */
             <<<MySQL

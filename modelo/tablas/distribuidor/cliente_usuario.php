@@ -8,9 +8,21 @@
 
 namespace distribuidor;
 
+use cbizcontrol;
 
-class TablaCliente_Usuario extends \cbizcontrol
+class TablaCliente_Usuario extends cbizcontrol
 {
+    function create_table(): string
+    {
+        return <<<sql
+CREATE TABLE e11_cbizcontrol.cliente_usuario(
+  id_cliente BIGINT,  
+  id_usuario BIGINT  
+);
+sql;
+
+    }
+
     function insertClienteUsuario($id_cliente, $id_usuario)
     {
         $sql = /** @lang MySQL */

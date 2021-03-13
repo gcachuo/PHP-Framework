@@ -8,7 +8,7 @@
  */
 class TablaUsuarios extends Tabla
 {
-    function create_table()
+    function create_table(): string
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -31,7 +31,7 @@ CREATE TABLE _usuarios
     ON UPDATE CASCADE*/
 );
 /*CREATE UNIQUE INDEX usuarios_login_usuario_uindex ON `_usuarios` (login_usuario);*/
-replace INTO `_usuarios` (nombre_usuario, login_usuario, password_usuario, correo_usuario, estatus_usuario, perfil_usuario, id_usuario_create) VALUES ('codeman', 'codeman', '$2s/9XD3TvHsY', '', TRUE, 0, 0);
+REPLACE INTO _usuarios (nombre_usuario, login_usuario, password_usuario, correo_usuario, estatus_usuario, perfil_usuario, id_usuario_create) VALUES ('codeman', 'codeman', '$2s/9XD3TvHsY', '', TRUE, 0, 0);
 MySQL;
         return $sql;
     }
@@ -175,7 +175,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null,$id_especialista)
+    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null, $id_especialista)
     {
         if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION["usuario"];
         $id_usuario = empty($id_usuario) ? 'null' : "'$id_usuario'";
@@ -250,7 +250,7 @@ WHERE id_usuario = '$usuario'
 MySQL;
 
         $consulta = $this->consulta($sql);
-        $registro = $this->siguiente_registro($consulta);
+        $registro = $this->siguiente_registro($consulta) ?: (object)['perfil' => null];
         $perfil = $registro->perfil;
         return $perfil;
     }

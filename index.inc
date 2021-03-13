@@ -23,7 +23,7 @@ session_start();
 if (isset($_REQUEST["lang"]))
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 
-if ($_SESSION['modulo'] != 'login' and ($_REQUEST["s"] == "1" or TYPE_SYSTEM != $_SESSION['sistema'])) {
+if ($_SESSION['modulo'] != 'login' and (($_REQUEST["s"] ?? null) == "1" or TYPE_SYSTEM != $_SESSION['sistema'])) {
     session_unset();
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 }
@@ -36,10 +36,14 @@ require_once dirname(__FILE__) . "/control.php";
 require_once "conexion.php";
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 
-Globales::$modulo = $_POST["modulo"] ?: $_SESSION["modulo"];
+
+ob_start();
+Globales::$modulo = $_POST["modulo"] ?? $_SESSION["modulo"] ?? null;
 Globales::$namespace = __NAMESPACE__ . "\\";
 Globales::setVista();
 Globales::setControl(Globales::$modulo);
+$test = ob_get_contents();
+ob_clean();
 
 function autoloader($class)
 {
@@ -76,29 +80,45 @@ function autoloader($class)
 
 function cierre()
 {
+    global $test;
     $error = error_get_last();
-    if ($error['type'] === E_ERROR) {
-        ob_end_clean();
-        // fatal error has occured
-        die(<<<HTML
+    if (!isset($_POST['fn'])) {
+        if ($error['type'] === E_ERROR) {
+            http_response_code(500);
+            // fatal error has occured
+            die(<<<HTML
 Ha ocurrido un error. Contacte al desarrollador.
 
 file: $error[file]
 line: $error[line]
 message: $error[message]
 HTML
-        );
+            );
 
-    } elseif ($error['type'] !== E_NOTICE and !isset($_POST['fn'])) {
-        $file = addslashes($error['file']);
-        $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
-        echo <<<HTML
+        } elseif ($error) {
+            $file = addslashes($error['file']);
+            $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
+            echo(<<<HTML
 <script>
-console.log('[$error[type]][$file][$error[line]] $message');
+console.error('$message','$file',$error[line]);
 </script>
-HTML;
-
+HTML
+            );
+        }
+    } elseif ($error) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        die(json_encode([
+            'code' => 500,
+            'message' => $error['message'],
+            'data' => [
+                'file' => $error['file'],
+                'line' => $error['line']
+            ]
+        ]));
     }
+    header('Content-Type: application/json');
+    die($test);
 }
 
 function exception($ex)
