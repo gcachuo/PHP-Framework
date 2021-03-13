@@ -211,12 +211,6 @@ class Globales
         if (isset($_POST['fn']) or $_GET['aside']) {
             echo $ex->getMessage();
         } else {
-            /*session_unset();
-             $_SESSION[modulo] = "login";*/
-            ?>
-            <script>alert('Error. Contacte al desarrollador. ');
-                console.error("<?= $error ?>");</script>
-            <?php
             include "vista/error.phtml";
         }
         http_response_code($ex->getCode());
@@ -499,10 +493,10 @@ class Globales
 
     static function base64_to_jpeg($base64, $archivo_salida)
     {
-        $ifp = fopen($archivo_salida,'wb');
+        $ifp = fopen($archivo_salida, 'wb');
 
-        $data = explode(',',$base64);
-        fwrite($ifp,base64_decode($data[1]));
+        $data = explode(',', $base64);
+        fwrite($ifp, base64_decode($data[1]));
 
         fclose($ifp);
 
@@ -577,7 +571,7 @@ class Globales
             if (!file_exists($ruta)) {
                 $ruta = APP_ROOT . "config.json";
                 if (!file_exists($ruta)) {
-                    Globales::mensaje_error("No existe el archivo de configuración $ruta");
+                    Globales::mensaje_error("No existe el archivo de configuración $ruta", 500);
                 }
             }
         }

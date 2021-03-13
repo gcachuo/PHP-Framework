@@ -5,6 +5,15 @@
  * Date: 26/01/2018
  * Time: 11:11 AM
  */
+/** @var Exception $ex */
+$code = $ex->getCode();
+if ($code >= 500) {
+    $message = 'Ha ocurrido un error. Contacte al desarrollador.';
+} elseif ($code >= 400) {
+    $message = $ex->getMessage();
+}
 ?>
-
+<h2><?= $code ?></h2>
+<h3><?= $message ?></h3>
 <a href="?s=1">Cerrar Sesión</a>
+<script>console.error("<?= $ex->getMessage() ?>",<?= json_encode((array)$ex) ?>);</script>
