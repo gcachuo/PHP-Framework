@@ -202,13 +202,13 @@ class Globales
     static function mostrar_exception($ex)
     {
         ini_set('log_errors', 1);
-        $token = $_SESSION[token];
+        $token = $_SESSION['token'];
         ini_set('error_log', "script_errors_$token.log");
         $trace = $ex->getTrace();
-        $error = addslashes($token . " " . $_SESSION[modulo] . " " . $trace[2][file] . " " . $trace[2][line] . " " . $ex->getMessage());
+        $error = addslashes($token . " " . $_SESSION['modulo'] . " " . $trace[2]['file'] . " " . $trace[2]['line'] . " " . $ex->getMessage());
         $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
         error_log($error);
-        if (isset($_POST[fn]) or $_GET[aside]) {
+        if (isset($_POST['fn']) or $_GET['aside']) {
             echo $ex->getMessage();
         } else {
             /*session_unset();
