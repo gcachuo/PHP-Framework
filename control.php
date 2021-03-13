@@ -130,10 +130,14 @@ HTML;
 
         define("SYSTEM_LANG", $selectIdioma);
 
+        if (!file_exists(APP_ROOT . "recursos/lang/$selectIdioma.json")) {
+            Globales::mensaje_error("No existe el JSON de idioma: $selectIdioma", 500);
+        }
         $json = file_get_contents(APP_ROOT . "recursos/lang/$selectIdioma.json");
         $idioma = Globales::json_decode($json, false);
-        if (is_string($idioma))
-            Globales::mensaje_error("Error en el JSON de idioma: $idioma");
+        if (is_string($idioma)) {
+            Globales::mensaje_error("Error en el JSON de idioma: $idioma", 500);
+        }
 
         $modulo = Globales::$modulo;
         if ($_GET['aside'])
@@ -1007,7 +1011,7 @@ class Modelo
             if (!file_exists($ruta)) {
                 $ruta = dirname(__FILE__) . "/modelo/tablas/{$namespaceDir}{$key}.php";
                 if (!file_exists($ruta))
-                    Globales::mensaje_error("No existe el archivo. ($ruta)");
+                    Globales::mensaje_error("No existe el archivo. ($ruta)", 500);
             }
         }
         require_once $ruta;

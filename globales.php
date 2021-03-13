@@ -292,7 +292,7 @@ class Globales
      * @param null $sql
      * @throws Exception
      */
-    static function mensaje_error($mensaje, $code = 200, $sql = null)
+    static function mensaje_error($mensaje, $code = 400, $sql = null)
     {
         if (!is_null($sql)) {
             $sql = addslashes(preg_replace("/\r|\n/", "", $sql));

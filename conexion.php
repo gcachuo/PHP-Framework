@@ -184,7 +184,7 @@ abstract class Conexion
                 if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
             }
         } catch (mysqli_sql_exception $ex) {
-            Globales::mensaje_error($ex->getMessage());
+            Globales::mensaje_error($ex->getMessage(), 500);
         }
     }
 
@@ -213,11 +213,11 @@ abstract class Conexion
                         unset($foreignTable[0]);
                         foreach ($foreignTable as $tabla) {
                             $explode = explode(" ", $tabla);
-                            $tabla=str_replace("`","",$explode[0]);
+                            $tabla = str_replace("`", "", $explode[0]);
                             $tabla = trim($tabla, "_");
-                            $namet="Tabla$tabla";
-                            $t=new $namet();
-                            $sql=$t->create_table();
+                            $namet = "Tabla$tabla";
+                            $t = new $namet();
+                            $sql = $t->create_table();
                             $consulta = $this->multiconsulta($sql);
                             $verificar = is_null($consulta);
                             if ($verificar) {
@@ -231,8 +231,8 @@ abstract class Conexion
                 break;
             case 1146:
                 /** @var Tabla $table */
-                $token = strtolower($_SESSION[token]);
-                $table = trim(str_replace("Table 'e11_$token.", "", str_replace("' doesn't exist", "", $message)), "_");
+                $token = strtolower($_SESSION['token']);
+                $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $message), '.'), '.');
 
                 //Linea para evitar recursividad infinita
                 $recursive = strpos($sql, "CREATE TABLE") !== false ? true : false;

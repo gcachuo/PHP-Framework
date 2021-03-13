@@ -16,4 +16,4 @@ if ($code >= 500) {
 <h2><?= $code ?></h2>
 <h3><?= $message ?></h3>
 <a href="?s=1">Cerrar Sesión</a>
-<script>console.error("<?= $ex->getMessage() ?>",<?= json_encode((array)$ex) ?>);</script>
+<script>console.error("<?= $ex->getMessage() ?>",<?= json_encode($ex->getTrace()) ?>);</script>
