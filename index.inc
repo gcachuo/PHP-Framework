@@ -42,7 +42,7 @@ Globales::$modulo = $_POST["modulo"] ?? $_SESSION["modulo"] ?? null;
 Globales::$namespace = __NAMESPACE__ . "\\";
 Globales::setVista();
 Globales::setControl(Globales::$modulo);
-$test = ob_get_contents();
+$response = ob_get_contents();
 ob_clean();
 
 function autoloader($class)
@@ -80,7 +80,7 @@ function autoloader($class)
 
 function cierre()
 {
-    global $test;
+    global $response;
     $error = error_get_last();
     if (!isset($_POST['fn'])) {
         if ($error['type'] === E_ERROR) {
@@ -118,7 +118,7 @@ HTML
         ]));
     }
     header('Content-Type: application/json');
-    die($test);
+    die($response);
 }
 
 function exception($ex)

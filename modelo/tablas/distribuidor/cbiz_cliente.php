@@ -119,7 +119,7 @@ SELECT
  WHERE token_cbiz_cliente=?;
 sql;
 
-        $registro = $this->siguiente_registro($this->consulta($sql, ['s', $token_cbiz_cliente]));
+        $registro = $this->siguiente_registro($this->consulta($sql, ['s', $token_cbiz_cliente])) ?: (object)['tipo' => null];
         return $registro->tipo;
     }
 

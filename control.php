@@ -418,7 +418,7 @@ HTML;
                         continue;
                 }
             }
-            $nombre = $idioma->{$modulo["idModulo"]}[0];
+            $nombre = $idioma->{$modulo["idModulo"]}[0] ?? null;
             $navegar = mb_strtolower($modulo["navegarModulo"]);
             $icono = !empty($modulo["iconoModulo"]) ? <<<HTML
 <span class="nav-icon"><i class="material-icons">$modulo[iconoModulo]</i></span>
