@@ -8,7 +8,7 @@
  */
 class TablaCiudades extends Tabla
 {
-    function create_table()
+    function create_table(): string
     {
         $sql = <<<MySQL
 CREATE TABLE ciudades
