@@ -17,7 +17,7 @@ mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));//MYSQLI_REPORT_ERROR |
 date_default_timezone_set('America/Mexico_City');
 set_exception_handler('exception');
 spl_autoload_register('autoloader');
-register_shutdown_function('cierre');
+//register_shutdown_function('cierre');
 session_start();
 
 if (isset($_REQUEST["lang"]))
@@ -44,6 +44,7 @@ Globales::setVista();
 Globales::setControl(Globales::$modulo);
 $response = ob_get_contents();
 ob_clean();
+cierre();
 
 function autoloader($class)
 {
@@ -95,7 +96,7 @@ message: $error[message]
 HTML
             );
 
-        } elseif ($error) {
+        } elseif ($error && !defined('EXCEPTION')) {
             $file = addslashes($error['file']);
             $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
             echo(<<<HTML
@@ -130,5 +131,6 @@ HTML
 
 function exception($ex)
 {
+    define('EXCEPTION', true);
     Globales::mostrar_exception($ex);
 }

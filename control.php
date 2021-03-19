@@ -65,6 +65,13 @@ abstract class Control
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : ($_SESSION['id'] ?? null);
         if (isset($_POST["fn"])) {
             $array = $this->{$_POST["fn"]}();
+            if (!is_array($array)) {
+                $array = [
+                    'code' => 200,
+                    'message' => 'Completed.',
+                    'data' => $array
+                ];
+            }
             $json = Globales::json_encode($array);
             echo($json);
         } else {

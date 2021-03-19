@@ -2513,13 +2513,14 @@ MySQL;
             <<<MySQL
 SELECT id_estado idEstado FROM ciudades WHERE id_ciudad='$id_ciudad'
 MySQL;
-        return $this->siguiente_registro($this->consulta($sql))->idEstado;
+        $query = $this->siguiente_registro($this->consulta($sql));
+        return $query->idEstado ?? null;
     }
 
     function selectCiudad($id_ciudad)
     {
         $sql = <<<sql
-select nombre_ciudad nombre from ciudades where id_ciudad=?;
+SELECT nombre_ciudad nombre FROM ciudades WHERE id_ciudad=?;
 sql;
         return $this->siguiente_registro($this->consulta($sql, ['i', $id_ciudad]))->nombre;
     }
