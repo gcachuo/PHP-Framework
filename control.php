@@ -56,7 +56,7 @@ abstract class Control
         }
         if (isset($_POST['form']) or isset($_POST['aside'])) {
             parse_str($_POST["form"], $_POST["form"]);
-            parse_str($_POST["aside"], $_POST["aside"]);
+            parse_str($_POST["aside"] ?? '', $_POST["aside"]);
             $_POST = array_merge($_POST, $_POST["form"]);
             $_POST = array_merge($_POST, $_POST["aside"]);
             unset($_POST["form"]);

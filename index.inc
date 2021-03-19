@@ -105,7 +105,9 @@ console.error('$message','$file',$error[line]);
 HTML
             );
         }
-    } elseif ($error) {
+    }
+    if ($error) {
+        ob_end_clean();
         http_response_code(500);
         header('Content-Type: application/json');
         die(json_encode([
@@ -116,9 +118,10 @@ HTML
                 'line' => $error['line']
             ]
         ]));
+    } else {
+        header('Content-Type: application/json');
+        die($response);
     }
-    header('Content-Type: application/json');
-    die($response);
 }
 
 function exception($ex)
