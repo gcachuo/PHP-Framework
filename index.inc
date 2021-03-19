@@ -119,7 +119,11 @@ HTML
             ]
         ]));
     } else {
-        header('Content-Type: application/json');
+        json_decode($response);
+        $is_json = json_last_error();
+        if (!$is_json) {
+            header('Content-Type: application/json');
+        }
         die($response);
     }
 }
