@@ -493,11 +493,12 @@ class Globales
                 elseif (empty($_POST["vista"])) $vista = $_SESSION["modulo"];
                 else $vista = $_POST["vista"];
 
-                if (empty($_POST["modulo"]))
+                if (empty($_POST["modulo"])) {
                     self::$modulo = $vista;
+                }
                 if (!empty($_POST["post"])) $_SESSION["post"] = $_POST["post"];
                 $_SESSION["modulo"] = self::$modulo;
-                exit;
+                die(true);
             }
         }
     }

@@ -128,7 +128,7 @@ function ajax(fn, post, modulo) {
     else formValido = validarFormulario($('#frmAside'));
     if (formValido) {
         $("a.btn").addClass("disabled");
-        $.post("index.php",
+        $.post("index.php?fn=" + fn,
             {
                 fn: fn,
                 form: $("#frmSistema").serialize(),
@@ -216,17 +216,17 @@ function navegar_externo(modulo, accion, post) {
 function navegar(modulo, accion, post) {
     $(".loader").show();
     if (accion != null) accion = modulo + "/" + accion;
-    $.post(
-        "index.php",
-        {
+    $.ajax({
+        method: 'post',
+        url: "index.php?navegar=" + modulo,
+        data: {
             vista: modulo,
             accion: accion,
             post: post
-        },
-        function () {
-            location.reload(true);
         }
-    );
+    }).done(() => {
+        location.reload();
+    });
 }
 
 function btnDownload(path) {

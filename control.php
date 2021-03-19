@@ -62,7 +62,7 @@ abstract class Control
             unset($_POST["form"]);
             unset($_POST["aside"]);
         }
-        $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : $_SESSION['id'];
+        $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : ($_SESSION['id'] ?? null);
         if (isset($_POST["fn"])) {
             $array = $this->{$_POST["fn"]}();
             $json = Globales::json_encode($array);
@@ -252,7 +252,7 @@ HTML;
 
 
         $this->script("https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js");
-        $this->script("https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.js");
+        $this->script("https://cdn.jsdelivr.net/npm/jquery@3.6.0");
 
         $this->script("$plugins/tether/dist/js/tether.min.js");
         $this->script("$plugins/bootstrap/dist/js/bootstrap.js");
@@ -330,7 +330,7 @@ HTML;
             $this->stylesheet("recursos/css/lib/styles.css");
         else
             $this->stylesheet("$CSSassets/styles.css");
-        $this->script("$JSassets/globales.js");
+        $this->script("$JSassets/globales.js?" . uniqid());
         $this->script("$JSassets/app.js");
 
         $modulo = str_replace("/", "_", Globales::$modulo);
@@ -934,7 +934,7 @@ HTML;
         #Override
         $this->stylesheetPDF(HTTP_PATH_ROOT . "recursos/css/wrap.css");
         $this->stylesheetPDF("$css/styles.css");
-        $this->scriptPDF("$js/globales.js");
+        $this->scriptPDF("$js/globales.js?" . uniqid());
 
         if (file_exists("recursos/css/{$modulo}.css"))
             $this->stylesheetPDF("recursos/css/{$modulo}.css");
