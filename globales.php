@@ -208,7 +208,7 @@ class Globales
         $error = addslashes($token . " " . $_SESSION[modulo] . " " . $trace[2][file] . " " . $trace[2][line] . " " . $ex->getMessage());
         $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
         error_log($error);
-        if (isset($_POST[fn]) or $_GET[aside]) {
+        if (isset($_POST['fn']) or $_GET['aside']) {
             echo $ex->getMessage();
         } else {
             /*session_unset();
