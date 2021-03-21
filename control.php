@@ -590,7 +590,7 @@ HTML;
      * @return string
      * @throws Exception
      */
-    protected function buildTabla($registros, $acciones = [], $columns = [], $hide = [])
+    protected function buildTabla($registros, array $acciones = [], $columns = [], $hide = [])
     {
         $tabla = "";
         if (get_class($registros) == "mysqli_result") {
@@ -617,7 +617,7 @@ HTML
 HTML;
                         break;
                     case "input":
-                        $inputType = $explode[1];
+                        $inputType = $explode[1] ?? '';
                         $input = <<<HTML
 <input type="$inputType" class="form-control" id="{$key}_$id" name="{$key}[$id]" value="$cell">
 HTML;
