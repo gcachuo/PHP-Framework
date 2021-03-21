@@ -232,7 +232,7 @@ abstract class Conexion
             case 1146:
                 /** @var Tabla $table */
                 $token = strtolower($_SESSION[token]);
-                $table = trim(str_replace("Table 'e11_$token.", "", str_replace("' doesn't exist", "", $message)), "_");
+                $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $message), '.'), '.');
 
                 //Linea para evitar recursividad infinita
                 $recursive = strpos($sql, "CREATE TABLE") !== false ? true : false;
