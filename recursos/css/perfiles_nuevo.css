@@ -1,0 +1,21 @@
+.dd {
+    margin-left: 205px;
+}
+
+@media (max-width: 991px) {
+    .dd {
+        margin-left: 0;
+    }
+}
+
+.box {
+    margin-bottom: 0.5rem;
+}
+
+.dd-nodrag {
+    display: inline-block;
+}
+
+.checkbox {
+    margin-left: 17px;
+}
