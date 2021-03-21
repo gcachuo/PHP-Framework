@@ -12,6 +12,23 @@ use cbizcontrol;
 
 class TablaDistribuidor extends cbizcontrol
 {
+    function create_table(): string
+    {
+        return <<<sql
+CREATE TABLE e11_cbizcontrol.distribuidor(
+    id_distribuidor BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    id_padre BIGINT,
+    nombre_distribuidor VARCHAR(100),
+    perfil_distribuidor INT,
+    password_distribuidor VARCHAR(200),
+    correo_distribuidor VARCHAR(100),
+    token_distribuidor VARCHAR(200),
+    estatus_distribuidor INT
+);
+sql;
+
+    }
+
     /**
      * @param string $token_distribuidor
      * @param string $password_distribuidor

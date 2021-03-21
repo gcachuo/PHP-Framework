@@ -107,7 +107,7 @@ HTML
             );
         }
     }
-    if ($error) {
+    if ($error && $error['type'] !== 8) {
         ob_end_clean();
         http_response_code(500);
         header('Content-Type: application/json');
