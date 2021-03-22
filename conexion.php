@@ -89,7 +89,7 @@ MySQL;
     /**
      * @return string regresar el texto de la consulta de la creacion de la tabla
      */
-    abstract function create_table(): string;
+    abstract function create_table();
 }
 
 abstract class cbizcontrol extends Conexion

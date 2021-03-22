@@ -12,6 +12,26 @@ use cbizcontrol;
 
 class TablaCliente extends cbizcontrol
 {
+    function create_table(): string
+    {
+        return <<<sql
+CREATE TABLE e11_cbizcontrol.cliente(
+    id_cliente BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id_distribuidor BIGINT,
+    id_usuario BIGINT,
+    id_ciudad BIGINT,
+    nombre_comercial_cliente VARCHAR(100),
+    lada_cliente VARCHAR(100),
+    telefono_cliente VARCHAR(100),
+    rfc_cliente VARCHAR(100),
+    fecha_cliente DATE,
+    api_key_factucare VARCHAR(200),
+    estatus_cliente INT
+)
+sql;
+
+    }
+
     function insertCliente($nombre_comercial_cliente, $lada_cliente, $telefono_cliente, $fecha_cliente, $id_usuario, $id_distribuidor = 1)
     {
         $sql = /** @lang MySQL */
@@ -152,7 +172,7 @@ MySQL;
     {
         $sql = /** @lang MySQL */
             <<<MySQL
-UPDATE cliente SET rfc_cliente='$rfc_cliente' WHERE id_cliente='$id_cliente'
+UPDATE e11_cbizcontrol.cliente SET rfc_cliente='$rfc_cliente' WHERE id_cliente='$id_cliente'
 MySQL;
         $this->consulta($sql);
     }

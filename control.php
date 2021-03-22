@@ -530,13 +530,13 @@ HTML;
             $message = "";
             $color = "";
             switch (true) {
-                case $_SESSION[messages][transaccion]:
+                case $_SESSION['messages']['transaccion']:
                     $message = "Registrado correctamente";
                     $color = "light-green-500";
                     break;
             }
             echo "<script>showMessage('$message', '$color');</script>";
-            unset($_SESSION[messages]);
+            unset($_SESSION['messages']);
         }
     }
 

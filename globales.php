@@ -462,7 +462,14 @@ class Globales
     static function formato_moneda($simbolo, &$cantidad, $suma = 0)
     {
         $cantidad += $suma;
-        $cantidad = $simbolo . number_format($cantidad, 2);
+
+        $sign = '';
+        if ($cantidad < 0) {
+            $cantidad = abs($cantidad);
+            $sign = '- ';
+        }
+
+        $cantidad = $sign . $simbolo . number_format($cantidad, 2);
         return $cantidad;
     }
 
