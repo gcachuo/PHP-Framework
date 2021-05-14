@@ -233,8 +233,7 @@ class Globales
      */
     static function crypt_blowfish_bydinvaders($password)
     {
-        $salt = '$2a$%02d$' . $password;
-        return crypt($password, $salt);
+        return password_hash($password, CRYPT_BLOWFISH);
     }
 
     static function array2json($array)

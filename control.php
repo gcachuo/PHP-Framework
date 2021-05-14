@@ -183,7 +183,7 @@ HTML;
     {
         $metadata = Globales::getConfig()->metadata;
         $botones = Globales::getConfig()->floating_button;
-        foreach ($botones as $nombre => $boton) {
+        foreach ($botones ?? [] as $nombre => $boton) {
             $this->floating_button .= <<<HTML
 <div class="row">
     <span style="cursor: pointer" onclick="{$boton->onclick}" 

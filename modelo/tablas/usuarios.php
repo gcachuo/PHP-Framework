@@ -175,26 +175,49 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = 'null', $id_usuario_create = null, $id_especialista)
+    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = null, $id_usuario_create = null, $id_especialista)
     {
         if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION["usuario"];
-        $id_usuario = empty($id_usuario) ? 'null' : "'$id_usuario'";
         $sql = /** @lang MySQL */
             <<<MySQL
 INSERT INTO
-  _usuarios (id_usuario,nombre_usuario, login_usuario, password_usuario, correo_usuario, perfil_usuario,id_usuario_create,id_especialista)
-VALUES ($id_usuario,'$nombre_usuario', '$login_usuario', '$password_usuario', '$correo_usuario', $perfil_usuario,'$id_usuario_create','$id_especialista')
-ON DUPLICATE KEY UPDATE 
-login_usuario='$login_usuario',
-nombre_usuario = '$nombre_usuario',
-password_usuario='$password_usuario', 
-correo_usuario='$correo_usuario', 
-perfil_usuario=$perfil_usuario,
-id_usuario_create='$id_usuario_create',
-id_especialista = '$id_especialista'
+	_usuarios (id_usuario,
+	           nombre_usuario,
+	           login_usuario,
+	           password_usuario,
+	           correo_usuario,
+	           perfil_usuario,
+	           id_usuario_create,
+	           id_especialista)
+VALUES
+(:id_usuario,
+ :nombre_usuario,
+ :login_usuario,
+ :password_usuario,
+ :correo_usuario,
+ :perfil_usuario,
+ :id_usuario_create,
+ :id_especialista)
+ON DUPLICATE KEY UPDATE
+	                 login_usuario=:login_usuario,
+	                 nombre_usuario = :nombre_usuario,
+	                 password_usuario=:password_usuario,
+	                 correo_usuario=:correo_usuario,
+	                 perfil_usuario=:perfil_usuario,
+	                 id_usuario_create=:id_usuario_create,
+	                 id_especialista = :id_especialista
 MySQL;
-        $consulta = $this->consulta($sql);
-        if ($id_usuario != 'null') $id = $id_usuario;
+        $consulta = $this->consulta2($sql, [
+            ':id_usuario' => $id_usuario,
+            ':nombre_usuario' => $nombre_usuario,
+            ':login_usuario' => $login_usuario,
+            ':password_usuario' => $password_usuario,
+            ':correo_usuario' => $correo_usuario,
+            ':perfil_usuario' => $perfil_usuario,
+            ':id_usuario_create' => $id_usuario_create,
+            ':id_especialista' => $id_especialista,
+        ]);
+        if (!is_null($id_usuario)) $id = $id_usuario;
         else $id = $consulta;
         return $id;
     }
