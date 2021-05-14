@@ -131,6 +131,7 @@ abstract class Conexion
      * @param array $params
      * @return int|mysqli_result
      * @throws Exception
+     * @deprecated usar consulta2
      */
     protected function consulta($sql, $params = [])
     {
@@ -178,6 +179,44 @@ abstract class Conexion
         return $resultado;
     }
 
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return $this
+     */
+    public function consulta2(string $sql, array $params = [])
+    {
+        try {
+            $host = self::$host;
+            $dbname = self::$db;
+            $username = self::$user;
+            $passwd = self::$pass;
+
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $passwd);
+            $stmt = $pdo->prepare($sql);
+
+            foreach ($params as $key => &$val) {
+                $type = $this->parseValue($val);
+                $stmt->bindParam($key, $val, $type);
+            }
+
+            $stmt->execute();
+            $this->stmt = $stmt;
+
+            return $this;
+        } catch (PDOException $exception) {
+            [$pdoerror, $code, $message] = $exception->errorInfo;
+
+            $message = $message ?: $exception->getMessage();
+
+            $trace = $exception->getTrace();
+            foreach ($params as $key => &$val) {
+                $this->parseValue($val);
+            }
+            throw new Exception($message, 500, compact('code', 'pdoerror', 'trace', 'params', 'sql', 'parsed_sql'));
+        }
+    }
+
     protected function conectar()
     {
         try {
@@ -188,6 +227,28 @@ abstract class Conexion
         } catch (mysqli_sql_exception $ex) {
             Globales::mensaje_error($ex->getMessage(), 500);
         }
+    }
+
+    private function parseValue(&$val): int
+    {
+        $type = PDO::PARAM_STR;
+
+        if ($val === '') {
+            $val = null;
+        } elseif (is_int($val)) {
+            $val = intval($val);
+        } elseif (is_numeric($val)) {
+            if (strpos((string)floatval($val), 'E') === false) {
+                $val = floatval($val);
+            }
+        } elseif (is_array($val)) {
+            $val = json_encode($val);
+        } elseif (is_bool($val)) {
+            $type = PDO::PARAM_BOOL;
+            $val = $val ? 1 : 0;
+        }
+
+        return $type;
     }
 
     /**

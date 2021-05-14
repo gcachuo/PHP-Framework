@@ -29,7 +29,10 @@ sql;
             <<<MySQL
 INSERT cliente_usuario(id_cliente, id_usuario) VALUES ('$id_cliente','$id_usuario')
 MySQL;
-        $this->consulta($sql);
+        $this->consulta2($sql, [
+            ':id_cliente' => $id_cliente,
+            ':id_usuario' => $id_usuario,
+        ]);
     }
 
     public function deleteRegistro($id_cliente)
