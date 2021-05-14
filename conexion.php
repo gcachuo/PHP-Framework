@@ -213,7 +213,7 @@ abstract class Conexion
             foreach ($params as $key => &$val) {
                 $this->parseValue($val);
             }
-            throw new Exception($message, 500, compact('code', 'pdoerror', 'trace', 'params', 'sql', 'parsed_sql'));
+            throw new Exception($message, 500);
         }
     }
 
