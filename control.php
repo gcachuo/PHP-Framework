@@ -253,8 +253,6 @@ HTML;
         $this->stylesheet("$plugins/glyphicons/glyphicons.css");
         $this->stylesheet("//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
         $this->stylesheet("$plugins/material-design-icons/material-design-icons.css");
-        $this->stylesheet("$plugins/bootstrap/dist/css/bootstrap.min.css");
-        $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
         $this->stylesheet("$CSSassets/font.css");
 
 
@@ -262,7 +260,14 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/jquery@3.6.0");
 
         $this->script("$plugins/tether/dist/js/tether.min.js");
+
+        $this->stylesheet("$plugins/bootstrap/dist/css/bootstrap.min.css");
         $this->script("$plugins/bootstrap/dist/js/bootstrap.js");
+        //$this->stylesheet("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css");
+        //$this->script("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js");
+
+        $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
+
         $this->script("$plugins/underscore/underscore-min.js");
         $this->script("$plugins/jQuery-Storage-API/jquery.storageapi.min.js");
         #$this->script("$libs/jquery/PACE/pace.min.js");
