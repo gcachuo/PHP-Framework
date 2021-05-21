@@ -252,7 +252,7 @@ HTML;
         $this->stylesheet("$CSSassets/animate.css");
         $this->stylesheet("$plugins/glyphicons/glyphicons.css");
         $this->stylesheet("//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
-        $this->stylesheet("$plugins/material-design-icons/material-design-icons.css");
+        $this->stylesheet("https://fonts.googleapis.com/css2?family=Material+Icons");
         $this->stylesheet("$CSSassets/font.css");
 
 
