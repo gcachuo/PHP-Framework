@@ -128,13 +128,11 @@ function ajax(fn, post, modulo) {
     else formValido = validarFormulario($('#frmAside'));
     if (formValido) {
         $("a.btn").addClass("disabled");
-        $.post("index.php?fn=" + fn,
+        return $.post((modulo || 0) + '/' + fn,
             {
-                fn: fn,
-                form: $("#frmSistema").serialize(),
+                form: $("form:not(#frmAside)").serialize(),
                 aside: $("#frmAside").serialize(),
-                post: post,
-                modulo: modulo
+                post: post
             },
             function () {
             }
@@ -144,7 +142,6 @@ function ajax(fn, post, modulo) {
                     if (typeof window[fn] !== 'undefined' && typeof window[fn] === 'function')
                         window[fn](result);
                 } else {
-                    alert(result);
                     console.error(result);
                 }
             }
@@ -152,11 +149,9 @@ function ajax(fn, post, modulo) {
                 switch (data.code) {
                     case 400:
                         console.warn(data.message, data);
-                        alert(data.message);
                         break;
                     case 500:
                         console.error(data.message, data);
-                        alert('Ocurrió un error. Contacte al desarrollador.');
                         break;
                 }
             }

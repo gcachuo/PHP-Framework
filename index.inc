@@ -18,8 +18,9 @@ date_default_timezone_set('America/Mexico_City');
 set_exception_handler('exception');
 spl_autoload_register('autoloader');
 //register_shutdown_function('cierre');
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (isset($_REQUEST["lang"]))
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 

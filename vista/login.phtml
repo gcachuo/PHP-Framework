@@ -31,7 +31,7 @@
             <!-- / brand -->
         </div>
     </div>
-    <div class="box-color r text-color container">
+    <form class="box-color r text-color container">
         <div class="md-form-group float-label">
             <input name="usuario" type="text" class="md-input" required>
             <label><?= $this->idioma->lblUsuario ?></label>
@@ -54,7 +54,7 @@
             <a onclick="aside('login','registro')"
                class="p-x-md"><?= $this->idioma->btnRegistrar ?></a>
         </div>
-    </div>
+    </form>
     <div class="navbar">
         <?php if ($this->metadata->lang): ?>
         <div class="btn-group dropdown pull-right">
