@@ -129,6 +129,7 @@ abstract class Conexion
      * @var false|PDOStatement
      */
     private $stmt;
+    private $pdo;
 
     /**
      * @param string $sql
@@ -207,6 +208,7 @@ abstract class Conexion
 
             $stmt->execute();
             $this->stmt = $stmt;
+            $this->pdo = $pdo;
 
             return $this;
         } catch (PDOException $exception) {
@@ -236,6 +238,11 @@ abstract class Conexion
     public function fetchColumn(int $column = 0)
     {
         return $this->stmt->fetchColumn($column);
+    }
+
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
     }
 
     protected function conectar()

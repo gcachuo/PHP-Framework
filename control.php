@@ -266,6 +266,9 @@ HTML;
         //$this->stylesheet("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css");
         //$this->script("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js");
 
+        $this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
+
         $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
 
         $this->script("$plugins/underscore/underscore-min.js");
