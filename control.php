@@ -150,7 +150,7 @@ HTML;
         if ($_GET['aside'] ?? null)
             $modulo = "$modulo/$_POST[asideAccion]";
         Globales::setIdioma($idioma);
-        $this->idioma = (object)array_merge((array)$idioma->$modulo, (array)$idioma->sistema);
+        $this->idioma = (object)array_merge((array)($idioma->$modulo ?? []), (array)$idioma->sistema);
         return (array)$idioma;
     }
 
@@ -182,8 +182,8 @@ HTML;
     function obtenerDatos()
     {
         $metadata = Globales::getConfig()->metadata;
-        $botones = Globales::getConfig()->floating_button;
-        foreach ($botones ?? [] as $nombre => $boton) {
+        $botones = Globales::getConfig()->floating_button ?? [];
+        foreach ($botones as $nombre => $boton) {
             $this->floating_button .= <<<HTML
 <div class="row">
     <span style="cursor: pointer" onclick="{$boton->onclick}" 
@@ -252,9 +252,7 @@ HTML;
         $this->stylesheet("$CSSassets/animate.css");
         $this->stylesheet("$plugins/glyphicons/glyphicons.css");
         $this->stylesheet("//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
-        $this->stylesheet("$plugins/material-design-icons/material-design-icons.css");
-        $this->stylesheet("$plugins/bootstrap/dist/css/bootstrap.min.css");
-        $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
+        $this->stylesheet("https://fonts.googleapis.com/css2?family=Material+Icons");
         $this->stylesheet("$CSSassets/font.css");
 
 
@@ -262,7 +260,17 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/jquery@3.6.0");
 
         $this->script("$plugins/tether/dist/js/tether.min.js");
+
+        $this->stylesheet("$plugins/bootstrap/dist/css/bootstrap.min.css");
         $this->script("$plugins/bootstrap/dist/js/bootstrap.js");
+        //$this->stylesheet("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css");
+        //$this->script("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js");
+
+        $this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
+
+        $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
+
         $this->script("$plugins/underscore/underscore-min.js");
         $this->script("$plugins/jQuery-Storage-API/jquery.storageapi.min.js");
         #$this->script("$libs/jquery/PACE/pace.min.js");
@@ -274,7 +282,6 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js");
         $this->script("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.js");
         $this->stylesheet("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.css");
-
 
         //JQuery-UI
         $this->stylesheet("$plugins/jquery-ui/jquery-ui.css");
@@ -302,8 +309,10 @@ HTML;
         $this->script("$plugins/jquery/jquery.wordexport.js");
         $this->script("$JSassets/ajax.js");
 
-        $this->stylesheet("$plugins/datatables/integration/bootstrap/3/dataTables.bootstrap.css");
-        $this->script("$plugins/datatables/datatables.js");
+        $this->stylesheet("https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.css");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js");
+        $this->script("https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.js");
 
 
         $this->stylesheet("$plugins/select2/css/select2.css");
@@ -379,6 +388,14 @@ HTML;
 
     }
 
+    private function script_module($src)
+    {
+        $this->scripts .= <<<HTML
+<script type="module" src="$src"></script>
+HTML;
+
+    }
+
     private function addCustom($modulo, $custom = false)
     {
         $stylesheet = !$custom ? "stylesheet" : "customStylesheet";
@@ -391,7 +408,7 @@ HTML;
             $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
 
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
-            $this->$script(APP_ROOT . "recursos/js/{$modulo}.js");
+            $this->script_module(APP_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists("../framework/recursos/js/{$modulo}.js"))
@@ -970,7 +987,7 @@ class ArchivoModelo
     function __get($key)
     {
         try {
-            $namespace = APP_NAMESPACE;
+            $namespace = str_replace(' ', '_', APP_NAMESPACE);
             $key = strtolower(str_replace($namespace, "", $key));
             $ruta = APP_ROOT . "modelo/{$key}Modelo.php";
             if (!file_exists($ruta)) {

@@ -703,4 +703,32 @@ HTML;
     {
         self::$namespace = $namespace . "\\";
     }
+
+    public static function check_value_empty($array, $required, $message = 'Missing Data.', $code = 400)
+    {
+        $required = array_flip($required);
+        $intersect = array_intersect_key($array ?: $required, $required);
+        $empty_values = '';
+
+        foreach ($required as $key => $value) {
+            if (!isset($array[$key]) || empty($array[$key]) && $array[$key] !== 0) {
+                $empty_values .= $key . ', ';
+            }
+        }
+        $empty_values = trim($empty_values, ', ');
+        if (!empty($empty_values)) {
+            throw new Exception($message . ' ' . "[$empty_values]", $code);
+        }
+
+        foreach ($intersect as $key => $value) {
+            $value = is_string($value) ? trim($value) : $value;
+            if (empty($value) and $value != 0) {
+                $empty_values .= $key . ', ';
+            }
+        }
+        $empty_values = trim($empty_values, ', ');
+        if (!empty($empty_values)) {
+            throw new Exception($message . ' ' . "[$empty_values]", $code);
+        }
+    }
 }

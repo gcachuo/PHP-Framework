@@ -125,6 +125,11 @@ abstract class Conexion
     private static $mysqli;
     private $retry;
     private $error = false;
+    /**
+     * @var false|PDOStatement
+     */
+    private $stmt;
+    private $pdo;
 
     /**
      * @param string $sql
@@ -193,6 +198,7 @@ abstract class Conexion
             $passwd = self::$pass;
 
             $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $passwd);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $stmt = $pdo->prepare($sql);
 
             foreach ($params as $key => &$val) {
@@ -202,6 +208,7 @@ abstract class Conexion
 
             $stmt->execute();
             $this->stmt = $stmt;
+            $this->pdo = $pdo;
 
             return $this;
         } catch (PDOException $exception) {
@@ -213,8 +220,29 @@ abstract class Conexion
             foreach ($params as $key => &$val) {
                 $this->parseValue($val);
             }
-            throw new Exception($message, 500, compact('code', 'pdoerror', 'trace', 'params', 'sql', 'parsed_sql'));
+
+            $this->handleErrors($exception, $sql);
         }
+    }
+
+    public function fetch()
+    {
+        return $this->stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function fetchAll($fetch_style = null)
+    {
+        return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
+    }
+
+    public function fetchColumn(int $column = 0)
+    {
+        return $this->stmt->fetchColumn($column);
+    }
+
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
     }
 
     protected function conectar()
@@ -293,6 +321,7 @@ abstract class Conexion
                 Globales::mensaje_error("No se creo la tabla $table [ForeignKey]", 200, $sql);
                 break;
             case 1146:
+            case '42S02':
                 /** @var Tabla $table */
                 $token = strtolower($_SESSION['token']);
                 $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $message), '.'), '.');
@@ -304,7 +333,7 @@ abstract class Conexion
                     return;
                 }
                 $modelo = new Modelo();
-                $consulta = $this->multiconsulta($modelo->$table->create_table());
+                $consulta = $this->consulta2($modelo->$table->create_table());
                 $verificar = is_null($consulta);
                 if ($verificar) {
                     $this->retry = false;
