@@ -269,6 +269,10 @@ HTML;
         $this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
         $this->script("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
 
+        $google_maps_key = $this->configSistema->api_keys->google_maps ?? '';
+        $this->script("https://maps.googleapis.com/maps/api/js?key=$google_maps_key");
+        $this->script("https://unpkg.com/location-picker@1.1.1/dist/location-picker.umd.js");
+
         $this->stylesheet("https://unpkg.com/filepond/dist/filepond.css");
         $this->stylesheet("https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css");
         $this->script("https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js");
