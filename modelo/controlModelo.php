@@ -38,22 +38,25 @@ class ModeloControl extends Modelo
     }
 
     /**
-     * @return object
+     * @return array
      */
-    function obtenerPermisosModulo()
+    function obtenerPermisosModulo(): array
     {
         $perfil = $this->usuarios->selectPerfil($_SESSION['usuario'] ?? null);
-        if ($perfil == 0)
+        if ($perfil == 0) {
             $acciones = $this->acciones->selectAccionesModulo($_SESSION['modulo']);
-        else
+        }
+        else {
             $acciones = $this->perfiles_acciones->selectAccionesFromModuloAndPerfil($_SESSION['modulo'], $perfil);
+        }
 
         $origlength = array_count_values($acciones);
         foreach ($acciones as $accion => $value) {
             $decoded = htmlentities($accion);
             $acciones[$decoded] = $acciones[$accion];
-            if (array_count_values($acciones) > $origlength)
+            if (array_count_values($acciones) > $origlength) {
                 unset($acciones[$accion]);
+            }
         }
 
         return $acciones;

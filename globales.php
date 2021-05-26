@@ -495,14 +495,20 @@ class Globales
                     self::$modulo = "login";
 
             if (isset($_POST["vista"])) {
-                if (!empty($_POST["accion"])) $vista = $_POST["accion"];
-                elseif (empty($_POST["vista"])) $vista = $_SESSION["modulo"];
-                else $vista = $_POST["vista"];
+                if (!empty($_POST["accion"])) {
+                    $vista = $_POST["accion"];
+                } elseif (empty($_POST["vista"])) {
+                    $vista = $_SESSION["modulo"];
+                } else {
+                    $vista = $_POST["vista"];
+                }
 
-                if (empty($_POST["modulo"])) {
+                if (!empty($vista)) {
                     self::$modulo = $vista;
                 }
-                if (!empty($_POST["post"])) $_SESSION["post"] = $_POST["post"];
+                if (!empty($_POST["post"])) {
+                    $_SESSION["post"] = $_POST["post"];
+                }
                 $_SESSION["modulo"] = self::$modulo;
                 die(true);
             }
