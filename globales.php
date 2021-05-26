@@ -176,7 +176,7 @@ class Globales
      * @param bool $assoc
      * @return object|array
      */
-    static function json_decode($json, $assoc)
+    static function json_decode(string $json, $assoc = true)
     {
         $json = json_decode($json, $assoc);
         $error = json_last_error();
@@ -736,5 +736,18 @@ HTML;
         if (!empty($empty_values)) {
             throw new Exception($message . ' ' . "[$empty_values]", $code);
         }
+    }
+
+    static function uploadFile(string $FILE, array $path_array): string
+    {
+        $FILE = Globales::json_decode($FILE);
+        $data = base64_decode($FILE['data']);
+
+        $path = $path_array[1] . urlencode(str_replace(['(', ')'], '', $FILE['name']));
+        $path_full = $path_array[0] . $path;
+        is_dir(dirname($path_full)) || @mkdir(dirname($path_full));
+        file_put_contents($path_full, $data);
+
+        return $path;
     }
 }
