@@ -176,7 +176,7 @@ class Globales
      * @param bool $assoc
      * @return object|array
      */
-    static function json_decode($json, $assoc)
+    static function json_decode(string $json, $assoc = true)
     {
         $json = json_decode($json, $assoc);
         $error = json_last_error();
@@ -495,14 +495,20 @@ class Globales
                     self::$modulo = "login";
 
             if (isset($_POST["vista"])) {
-                if (!empty($_POST["accion"])) $vista = $_POST["accion"];
-                elseif (empty($_POST["vista"])) $vista = $_SESSION["modulo"];
-                else $vista = $_POST["vista"];
+                if (!empty($_POST["accion"])) {
+                    $vista = $_POST["accion"];
+                } elseif (empty($_POST["vista"])) {
+                    $vista = $_SESSION["modulo"];
+                } else {
+                    $vista = $_POST["vista"];
+                }
 
-                if (empty($_POST["modulo"])) {
+                if (!empty($vista)) {
                     self::$modulo = $vista;
                 }
-                if (!empty($_POST["post"])) $_SESSION["post"] = $_POST["post"];
+                if (!empty($_POST["post"])) {
+                    $_SESSION["post"] = $_POST["post"];
+                }
                 $_SESSION["modulo"] = self::$modulo;
                 die(true);
             }
@@ -730,5 +736,18 @@ HTML;
         if (!empty($empty_values)) {
             throw new Exception($message . ' ' . "[$empty_values]", $code);
         }
+    }
+
+    static function uploadFile(string $FILE, array $path_array): string
+    {
+        $FILE = Globales::json_decode($FILE);
+        $data = base64_decode($FILE['data']);
+
+        $path = $path_array[1] . urlencode(str_replace(['(', ')'], '', $FILE['name']));
+        $path_full = $path_array[0] . $path;
+        is_dir(dirname($path_full)) || @mkdir(dirname($path_full));
+        file_put_contents($path_full, $data);
+
+        return $path;
     }
 }
