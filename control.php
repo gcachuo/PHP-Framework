@@ -269,6 +269,15 @@ HTML;
         $this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
         $this->script("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
 
+        $this->stylesheet("https://unpkg.com/filepond/dist/filepond.css");
+        $this->stylesheet("https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css");
+        $this->script("https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js");
+        $this->script("https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js");
+        $this->script("https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js");
+        $this->script("https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js");
+        $this->script("https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js");
+        $this->script("https://unpkg.com/filepond/dist/filepond.js");
+
         $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
 
         $this->script("$plugins/underscore/underscore-min.js");
