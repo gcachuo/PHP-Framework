@@ -3,6 +3,11 @@
  */
 
 $(function () {
+    $.ajaxSetup({
+        beforeSend: function (jqXHR, settings) {
+            settings.url = 'index.php/' + settings.url;
+        }
+    });
     ajax('obtenerIdioma');
 });
 

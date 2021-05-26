@@ -33,8 +33,8 @@ class Perfiles extends Control
     }
 
     /**
-     * @deprecated usar funcion 'guardarPerfil'
      * @throws Exception
+     * @deprecated usar funcion 'guardarPerfil'
      */
     function editarPerfil()
     {
@@ -69,7 +69,7 @@ class Perfiles extends Control
     function generarTablaPerfiles()
     {
         $idioma = $this->idioma;
-        $permisos = $this->permisos->perfiles;
+        $permisos = $this->permisos->perfiles ?? [];
 
         $perfiles = $this->modelo->obtenerPerfiles();
 
