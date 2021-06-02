@@ -534,7 +534,7 @@ class Globales
      * @param array $archivo
      * @return string
      */
-    static function subirImagenSimple($carpeta, $archivo)
+    static function subirImagenSimple(string $carpeta, array $archivo)
     {
         try {
             $debug = print_r($archivo, true);
@@ -548,7 +548,7 @@ class Globales
                 mkdir($carpeta, 0777, true);
             if (is_dir($carpeta) && is_writable($carpeta)) {
                 if (!move_uploaded_file($archivo['tmp_name'], $carpeta . $name)) {
-                    switch ($archivo[error]) {
+                    switch ($archivo['error']) {
                         case 1:
                             $max = ini_get('upload_max_filesize');
                             Globales::mensaje_error("El archivo excede el tamaño establecido ($max): " . $debug);
