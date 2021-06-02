@@ -14,7 +14,9 @@ $(function () {
 function btnIniciarSesion() {
     $.ajaxSetup({
         beforeSend: function (jqXHR, settings) {
-            settings.url = 'index.php/' + settings.url;
+            if (settings.url.indexOf('http') === -1) {
+                settings.url = 'index.php/' + settings.url;
+            }
         }
     });
     ajax('iniciarSesion', undefined, 'login');

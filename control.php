@@ -403,10 +403,11 @@ HTML;
 
     private function script_module($src)
     {
-        $this->scripts .= <<<HTML
+        $script = <<<HTML
 <script type="module" src="$src"></script>
 HTML;
-
+        $this->scripts .= $script;
+        return $script;
     }
 
     private function addCustom($modulo, $custom = false)
@@ -421,7 +422,7 @@ HTML;
             $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
 
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
-            $this->script_module(APP_ROOT . "recursos/js/{$modulo}.js");
+            $this->script_module("recursos/js/{$modulo}.js");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists("../framework/recursos/js/{$modulo}.js"))
@@ -509,6 +510,10 @@ HTML;
         }
         require $ruta . "vista/{$vista}.phtml";
         $pagina = ob_get_contents();
+
+        $modulo = str_replace('/', '_', $vista);
+        $pagina .= $this->script_module("recursos/js/{$modulo}.js");
+
         ob_end_clean();
         return $pagina;
     }
