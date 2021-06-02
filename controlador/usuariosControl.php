@@ -28,7 +28,7 @@ class Usuarios extends Control
         if ($password == "") Globales::mensaje_error("Ingrese una contraseña");
         if ($repass != $password) Globales::mensaje_error("Las contraseñas no coinciden");
         $password = Globales::crypt_blowfish_bydinvaders($password);
-        $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id,$_POST['especialista']);
+        $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id, $_POST['especialista']);
     }
 
     function eliminarUsuario()
@@ -88,9 +88,9 @@ HTML;
 
     protected function cargarAside()
     {
-        if(isset($_POST['tutor']))
+        if (isset($_POST['tutor']))
             $this->tutor = true;
-        $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_POST["idUsuario"] ?: 'null');
+        $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_POST["idUsuario"] ?? 'null');
         $this->listaPerfiles .= $this->generarListaPerfiles();
         $this->generarListasEspecialistas();
     }
@@ -98,8 +98,7 @@ HTML;
     function generarListasEspecialistas()
     {
         $especialistas = $this->modelo->especialistas->selectEspecialistas();
-        foreach($especialistas as $especialista)
-        {
+        foreach ($especialistas as $especialista) {
             $selected = $this->usuario->idEspecialista == $especialista['id'] ? "selected" : "";
             $this->listaEspecialistas .= <<<HTML
 <option $selected  value="$especialista[id]">$especialista[nombre]</option>
@@ -119,10 +118,10 @@ HTML;
         }*/
 
         $perfiles = $this->modelo->perfiles->selectPerfiles();
-        if(isset($_POST['tutor']))
+        if (isset($_POST['tutor']))
             $this->usuario->perfil = 3;
         foreach ($perfiles as $perfil) {
-            $selected = $this->usuario->perfil == $perfil['idPerfil'] ? "selected" : "";
+            $selected = ($this->usuario->perfil ?? null) == $perfil['idPerfil'] ? "selected" : "";
             $listaPerfiles .= <<<HTML
 <option $selected value="$perfil[idPerfil]">$perfil[nombrePerfil]</option>
 HTML;
