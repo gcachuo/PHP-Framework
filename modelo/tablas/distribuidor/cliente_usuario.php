@@ -27,7 +27,7 @@ sql;
     {
         $sql = /** @lang MySQL */
             <<<MySQL
-INSERT cliente_usuario(id_cliente, id_usuario) VALUES ('$id_cliente','$id_usuario')
+INSERT cliente_usuario(id_cliente, id_usuario) VALUES (:id_cliente, :id_usuario)
 MySQL;
         $this->consulta2($sql, [
             ':id_cliente' => $id_cliente,
