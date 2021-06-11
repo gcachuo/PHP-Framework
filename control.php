@@ -282,6 +282,8 @@ HTML;
         $this->script("https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js");
         $this->script("https://unpkg.com/filepond/dist/filepond.js");
 
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js");
+
         $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
 
         $this->script("$plugins/underscore/underscore-min.js");
