@@ -579,7 +579,9 @@ HTML;
 
     function buildAcciones($acciones, $ancho)
     {
+        $this->acciones = $this->acciones ?? (object)[];
         $this->acciones->ancho = $ancho;
+        $this->acciones->html = '';
         foreach ($acciones as $accion) {
             $this->acciones->html .= <<<HTML
 <div class="$accion[class] b-r b-b">
