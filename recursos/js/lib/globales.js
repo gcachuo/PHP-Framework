@@ -233,7 +233,7 @@ function aside(modulo, accion, post) {
     $("#rightBar").modal();
     $("#rightBarContent").html("<div class='loading'></div>");
     $.post(
-        `index.php?modulo=${modulo}&accion=${accion}&aside=1`,
+        `${modulo}/${accion}?aside=1`,
         {
             asideModulo: modulo,
             asideAccion: accion,
@@ -241,7 +241,7 @@ function aside(modulo, accion, post) {
             post: post
         },
         function (result) {
-            $("#rightBarContent").html(result);
+            $("#rightBarContent").html(result).trigger('asideLoaded');
             var fn = "aside" + modulo + accion;
             if (typeof window[fn] === "function") {
                 window[fn]();
