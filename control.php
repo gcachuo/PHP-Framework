@@ -63,7 +63,7 @@ abstract class Control
             unset($_POST["aside"]);
         }
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : ($_SESSION['id'] ?? null);
-        if (isset($_POST["fn"])) {
+        if (isset($_POST["fn"]) and !isset($_GET['aside'])) {
             $array = $this->{$_POST["fn"]}();
             if (!is_array($array)) {
                 $array = [
@@ -147,8 +147,9 @@ HTML;
         }
 
         $modulo = Globales::$modulo;
-        if ($_GET['aside'] ?? null)
+        if ($_GET['aside'] ?? null) {
             $modulo = "$modulo/$_POST[asideAccion]";
+        }
         Globales::setIdioma($idioma);
         $this->idioma = (object)array_merge((array)($idioma->$modulo ?? []), (array)$idioma->sistema);
         return (array)$idioma;
