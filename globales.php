@@ -556,7 +556,7 @@ class Globales
             if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
             else
                 $name = $_SESSION['token'] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
-            $carpeta = trim($carpeta, '/') . '/';
+            $carpeta = __DIR__ . '/' . APP_ROOT . trim($carpeta, '/') . '/';
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
             if (is_dir($carpeta) && is_writable($carpeta)) {
