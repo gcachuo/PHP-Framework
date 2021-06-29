@@ -474,7 +474,20 @@ class Globales
 
     static function setVista()
     {
-        if ($_GET['file'] ?? null) {
+        if ($_POST['fn'] === 'loadFilePond') {
+            $path = $_GET['file'];
+
+            if (file_exists($path)) {
+                $mime_content_type = mime_content_type($path);
+                header('Content-Disposition: inline; filename="' . basename($path) . '"');
+                header('Content-Type: ' . $mime_content_type);
+                header('Content-Length: ' . filesize($path));
+                readfile($path);
+            } else {
+                header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+            }
+            exit;
+        } else if ($_GET['file'] ?? null) {
             $folder = $_GET['folder'] ?: 'imagenes';
             $token = $_SESSION['token'];
             $path = "usuario/$token/$folder/$_GET[modulo]/";
@@ -543,7 +556,7 @@ class Globales
             if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
             else
                 $name = $_SESSION['token'] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
-            $carpeta = trim($carpeta, '/') . '/';
+            $carpeta = __DIR__ . '/' . APP_ROOT . trim($carpeta, '/') . '/';
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
             if (is_dir($carpeta) && is_writable($carpeta)) {

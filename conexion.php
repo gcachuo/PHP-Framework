@@ -188,6 +188,7 @@ abstract class Conexion
      * @param string $sql
      * @param array $params
      * @return $this
+     * @throws Exception
      */
     public function consulta2(string $sql, array $params = [])
     {
@@ -286,7 +287,7 @@ abstract class Conexion
      */
     private function handleErrors($ex, $sql)
     {
-        $code = $ex->getCode();
+        $code = $ex->errorInfo[1] ?? 0;
         $message = $ex->getMessage();
         $trace = $ex->getTrace();
         /** @var Tabla $this */
@@ -356,6 +357,10 @@ abstract class Conexion
                 /** Error de sintaxis */
                 $this->retry = false;
                 Globales::mensaje_error("Error 1064. Contacte al desarrollador. [{$trace[2]['class']}][{$trace[2]['function']}]");
+                break;
+            case 1451:
+                $this->retry = false;
+                Globales::mensaje_error('Error 1451. Contacte al desarrollador. [Cannot delete or update a parent row: a foreign key constraint fails]', $code);
                 break;
             case 2002:
                 /** Error de conexion */
