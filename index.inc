@@ -43,9 +43,8 @@ Globales::$modulo = $_POST["modulo"] ?? $_SESSION["modulo"] ?? null;
 Globales::$namespace = __NAMESPACE__ . "\\";
 Globales::setVista();
 Globales::setControl(Globales::$modulo);
-$response = ob_get_contents();
-ob_clean();
 cierre();
+ob_clean();
 
 function autoloader($class)
 {
@@ -82,7 +81,6 @@ function autoloader($class)
 
 function cierre()
 {
-    global $response;
     $error = error_get_last();
     if (!isset($_POST['fn'])) {
         if ($error['type'] === E_ERROR) {
@@ -100,7 +98,7 @@ HTML
         } elseif ($error && !defined('EXCEPTION')) {
             $file = addslashes($error['file']);
             $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
-            echo(<<<HTML
+            $script = (<<<HTML
 <script>
 console.error('$message','$file',$error[line]);
 </script>
@@ -120,14 +118,16 @@ HTML
                 'line' => $error['line']
             ]
         ]));
-    } else {
-        json_decode($response);
+    } elseif (defined('JSON_RESPONSE')) {
+        Globales::json_decode(JSON_RESPONSE);
         $json_error = json_last_error();
         if (!$json_error) {
             header('Content-Type: application/json');
         }
         http_response_code(200);
-        die($response);
+        die(JSON_RESPONSE);
+    } else if (defined('PAGE')) {
+        die(PAGE);
     }
 }
 

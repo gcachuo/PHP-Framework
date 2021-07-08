@@ -146,7 +146,7 @@ function ajax(fn, post, modulo) {
                 }
             }
         ).fail(function ({responseJSON: data}) {
-                switch (data.code) {
+                switch (data?.code) {
                     case 400:
                         console.warn(data.message, data);
                         break;
@@ -371,11 +371,6 @@ function loadDT(options, element) {
         }).css("width", "100%").DataTable(options);
 }
 
-function btnLimpiarFiltros() {
-    //$("form")[0].reset();
-    $(".header select").val(0).trigger('change');
-}
-
 function reloadDropzone() {
     Dropzone.forElement('.dropzone').removeAllFiles(true);
 }
@@ -594,11 +589,10 @@ function cargarDatePicker(elemento, eStartDate, eEndDate, idioma, fn, range) {
         if (elemento.prop("tagName") != "input") {
             elemento.html(label);
         }
-        if (fn) window[fn]();
+        if (fn && window[fn]) window[fn]();
     }).on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
     });
-    ;
 }
 
 /**
@@ -734,7 +728,7 @@ function cargarDoughnut(id, data, names, color) {
 }
 
 function cargarDoughnut2(id, data, color) {
-    var myChart = echarts.init(document.getElementById(id));
+    const myChart = echarts.init(document.getElementById(id));
     myChart.setOption({
         title: {
             x: 'center',
