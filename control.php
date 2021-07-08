@@ -50,9 +50,7 @@ abstract class Control
         if (isset($_POST["post"])) {
             if (is_string($_POST["post"]))
                 $_POST["post"] = json_decode($_POST["post"], true);
-            $_POST = array_merge($_POST, $_POST["post"]);
-            /*if (isset($_POST["modo"]))
-                $data = $this->$_POST["modo"]();*/
+            $_POST = array_merge($_POST, $_POST["post"] ?? []);
         }
         if (isset($_POST['form']) or isset($_POST['aside'])) {
             parse_str($_POST["form"], $_POST["form"]);
@@ -64,16 +62,17 @@ abstract class Control
         }
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : ($_SESSION['id'] ?? null);
         if (isset($_POST["fn"]) and !isset($_GET['aside'])) {
-            $array = $this->{$_POST["fn"]}();
-            if (!is_array($array)) {
-                $array = [
+            $data = $this->{$_POST["fn"]}();
+            if (!is_array($data)) {
+                $response = [
                     'code' => 200,
                     'message' => 'Completed.',
-                    'data' => $array
+                    'data' => $data
                 ];
+            } else {
+                $response = $data;
             }
-            $json = Globales::json_encode($array);
-            echo($json);
+            define('JSON_RESPONSE', Globales::json_encode($response));
         } else {
 
             $this->obtenerDatos();
@@ -94,7 +93,7 @@ abstract class Control
             } else {
                 $page = $this->buildPage($vista);
             }
-            echo $page;
+            define('PAGE', $page);
             $this->showMessage();
         }
     }
