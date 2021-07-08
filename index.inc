@@ -122,10 +122,11 @@ HTML
         ]));
     } else {
         json_decode($response);
-        $is_json = json_last_error();
-        if (!$is_json) {
+        $json_error = json_last_error();
+        if (!$json_error) {
             header('Content-Type: application/json');
         }
+        http_response_code(200);
         die($response);
     }
 }
