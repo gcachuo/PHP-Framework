@@ -149,7 +149,11 @@ class Globales
         return $results;
     }
 
-    static function json_encode($array)
+    /**
+     * @param array $array
+     * @return false|string
+     */
+    static function json_encode(array $array)
     {
         $json = json_encode($array);
         $error = json_last_error();
@@ -176,7 +180,7 @@ class Globales
      * @param bool $assoc
      * @return object|array
      */
-    static function json_decode(string $json, $assoc = true)
+    static function json_decode(string $json, bool $assoc = true)
     {
         $json = json_decode($json, $assoc);
         $error = json_last_error();
@@ -186,7 +190,7 @@ class Globales
                 break;
             case 5:
                 //Malformed UTF-8 characters, possibly incorrectly encoded
-                array_walk_recursive($array, function (&$item) {
+                array_walk_recursive($json, function (&$item) {
                     $item = utf8_encode($item);
                 });
                 $json = json_decode($json, $assoc);
