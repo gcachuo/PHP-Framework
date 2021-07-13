@@ -123,43 +123,38 @@ function btnCopiarTexto(inputId) {
 
 
 function ajax(fn, post, modulo) {
-    var formValido = false;
-    if ($("#txtAside").val() === 0) formValido = validarFormulario($('#frmSistema'));
-    else formValido = validarFormulario($('#frmAside'));
-    if (formValido) {
-        $("a.btn").addClass("disabled");
-        return $.post((modulo || 0) + '/' + fn,
-            {
-                form: $("form:not(#frmAside)").serialize(),
-                aside: $("#frmAside").serialize(),
-                post: post
-            },
-            function () {
+    $("a.btn").addClass("disabled");
+    return $.post((modulo || 0) + '/' + fn,
+        {
+            form: $("form:not(#frmAside)").serialize(),
+            aside: $("#frmAside").serialize(),
+            post: post
+        },
+        function () {
+        }
+        , 'json'
+    ).done(function (result) {
+            if (typeof result !== 'string') {
+                if (typeof window[fn] !== 'undefined' && typeof window[fn] === 'function')
+                    window[fn](result);
+            } else {
+                console.error(result);
             }
-            , 'json'
-        ).done(function (result) {
-                if (typeof result !== 'string') {
-                    if (typeof window[fn] !== 'undefined' && typeof window[fn] === 'function')
-                        window[fn](result);
-                } else {
-                    console.error(result);
-                }
+        }
+    ).fail(function ({responseJSON: data}) {
+            switch (data?.code) {
+                case 400:
+                    console.warn(data.message, data);
+                    break;
+                case 500:
+                    console.error(data.message, data);
+                    break;
             }
-        ).fail(function ({responseJSON: data}) {
-                switch (data?.code) {
-                    case 400:
-                        console.warn(data.message, data);
-                        break;
-                    case 500:
-                        console.error(data.message, data);
-                        break;
-                }
-            }
-        ).always(function (result) {
-            $("a.btn").removeClass("disabled");
-            $(".loader").hide();
-        });
-    }
+        }
+    ).always(function (result) {
+        $("a.btn").removeClass("disabled");
+        $(".loader").hide();
+    });
 }
 
 function uploadFiles(modulo, fn) {
