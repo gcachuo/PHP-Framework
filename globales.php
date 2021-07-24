@@ -602,7 +602,7 @@ class Globales
         return self::$token;
     }
 
-    public static function getConfig()
+    public static function getConfig(bool $object = true)
     {
         $env = file_exists(APP_ROOT . "config.dev.json") ? "dev" : "prod";
 
@@ -616,7 +616,11 @@ class Globales
                 }
             }
         }
-        $config = self::get_json_to_object($ruta);
+        if ($object) {
+            $config = self::get_json_to_object($ruta);
+        } else {
+            $config = self::get_json_to_array($ruta);
+        }
         return $config;
     }
 
@@ -766,5 +770,102 @@ HTML;
         file_put_contents($path_full, $data);
 
         return $path;
+    }
+
+    /**
+     * @param $options
+     * @param string|null $select
+     * @return mixed
+     * @throws Exception
+     */
+    static function curl($options, ?string $select = '')
+    {
+        $curl = curl_init();
+
+        $headers = [
+            'Cookie: XDEBUG_SESSION=PHPSTORM'
+        ];
+        $options['method'] = mb_strtoupper($options['method'] ?? 'get');
+
+        $options['url'] = str_replace(' ', '%20', $options['url']);
+        curl_setopt_array($curl, [
+            CURLOPT_URL => ($options['url'] ?? ''),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $options['method'] ?? 'GET',
+        ]);
+        if (is_array($options['data'])) {
+            $data = json_encode($options['data']);
+
+            $headers[] = 'Content-Type: application/json';
+            $headers[] = 'Content-Length: ' . strlen($data);
+
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        } elseif (($options['data'] ?? null)) {
+            $headers[] = 'Content-Length: ' . strlen($options['data']);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $options['data']);
+        }
+        $headers = array_merge($headers, $options['headers'] ?? []);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $json = curl_exec($curl);
+        $error = curl_error($curl);
+        $info = curl_getinfo($curl);
+        curl_close($curl);
+
+        $result = ['data' => []];
+
+        if ($error) {
+            throw new Exception($error, 500);
+        } elseif ($json) {
+            if (!self::isJson($json)) {
+                if ($info['http_code'] >= 500) {
+                    throw new Exception('', $info['http_code'], $result['data']);
+                } elseif ($info['http_code'] >= 400) {
+                    throw new Exception('', $info['http_code'], $result['data']);
+                } else {
+                    throw new Exception('', $info['http_code'], ['data' => $json]);
+                }
+            } else {
+                $result = self::json_decode($json);
+                $code = $result['code'] ?? $result['status'] ?? $info['http_code'];
+                $code = $code >= 600 ? $result['status'] : $code;
+                if (($code ?: 500) >= 400) {
+                    if (!$code) {
+                        throw new Exception('Response Code not defined', 500);
+                    }
+                    if (is_array($result['message'])) {
+                        $result['message'] = implode(' ', $result['message']);
+                    }
+                    throw new Exception($result['message'], $code, $result['data']);
+                }
+            }
+        } else {
+            throw new Exception('Empty response: ' . $options['url'], 503);
+        }
+
+        if ($select && key_exists($select, $result['data'])) {
+            return $result['data'][$select];
+        }
+
+        return $result['data'];
+    }
+
+    /**
+     * @param $string
+     * @return bool
+     */
+    private static function isJson($string): bool
+    {
+        $decoded = json_decode($string, true);
+        $isJson = (json_last_error() == JSON_ERROR_NONE && is_array($decoded));
+        if (!$isJson) {
+            $error = json_last_error_msg();
+        }
+        return $isJson;
     }
 }

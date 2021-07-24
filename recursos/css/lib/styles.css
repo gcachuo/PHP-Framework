@@ -677,7 +677,7 @@ div.loading-invisible {
 
 @media (min-width: 992px) {
     .app-aside:not(.hide) ~ .app-content {
-        margin-left: 3rem;
+        margin-left: 3.4rem;
     }
 }
 

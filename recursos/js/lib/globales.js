@@ -145,9 +145,11 @@ function ajax(fn, post, modulo) {
             switch (data?.code) {
                 case 400:
                     console.warn(data.message, data);
+                    toastr.warning(data.message);
                     break;
                 case 500:
                     console.error(data.message, data);
+                    toastr.error('Ocurrió un error. Contacte al desarrollador.');
                     break;
             }
         }
