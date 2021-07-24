@@ -328,6 +328,7 @@ HTML;
         $this->script("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js");
         $this->script("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js");
         $this->script("https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.js");
+        $this->script('https://cdn.datatables.net/plug-ins/1.10.25/filtering/type-based/accent-neutralise.js');
 
 
         $this->stylesheet("$plugins/select2/css/select2.css");
