@@ -143,7 +143,7 @@ a.btn[disabled] {
 
 .tdAcciones {
     display: flex;
-    float: right;
+    justify-content: flex-end;
 }
 
 .tdAcciones a.btn.btn-sm.btn-default,
