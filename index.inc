@@ -15,6 +15,7 @@ error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
 mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));//MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 date_default_timezone_set('America/Mexico_City');
+setlocale(LC_ALL, 'es_ES');
 set_exception_handler('exception');
 spl_autoload_register('autoloader');
 //register_shutdown_function('cierre');

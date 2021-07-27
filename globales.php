@@ -604,9 +604,9 @@ class Globales
 
     public static function getConfig(bool $object = true)
     {
-        $env = file_exists(APP_ROOT . "config.dev.json") ? "dev" : "prod";
+        $env = file_exists(__DIR__ . '/' . APP_ROOT . "config.dev.json") ? "dev" : "prod";
 
-        $ruta = APP_ROOT . "config.$env.json";
+        $ruta = __DIR__ . '/' . APP_ROOT . "config.$env.json";
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "config.$env.json";
             if (!file_exists($ruta)) {

@@ -1012,7 +1012,7 @@ class ArchivoModelo
         try {
             $namespace = str_replace(' ', '_', APP_NAMESPACE);
             $key = strtolower(str_replace($namespace, "", $key));
-            $ruta = APP_ROOT . "modelo/{$key}Modelo.php";
+            $ruta = __DIR__ . '/' . APP_ROOT . "modelo/{$key}Modelo.php";
             if (!file_exists($ruta)) {
                 $ruta = HTTP_PATH_ROOT . "modelo/{$key}Modelo.php";
                 $namespace = "";
@@ -1024,10 +1024,12 @@ class ArchivoModelo
                 require_once $ruta;
                 $modelo = "{$namespace}Modelo{$key}";
                 $class = new $modelo();
+            } else {
+                throw new Exception(APP_ROOT . "modelo/{$key}Modelo.php", 500);
             }
             return $class;
         } catch (Exception $ex) {
-            return null;
+            return new stdClass();
         }
     }
 }
@@ -1052,7 +1054,7 @@ class Modelo
         $key = ltrim($key, "_");
         $namespace = Globales::$namespace == "\\" ? "" : Globales::$namespace;
         $namespaceDir = str_replace("\\", "/", $namespace);
-        $ruta = APP_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
+        $ruta = __DIR__ . '/' . APP_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
             if (!file_exists($ruta)) {
