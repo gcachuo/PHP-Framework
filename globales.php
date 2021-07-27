@@ -610,7 +610,7 @@ class Globales
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "config.$env.json";
             if (!file_exists($ruta)) {
-                $ruta = APP_ROOT . "config.json";
+                $ruta =  __DIR__ . '/' . APP_ROOT . "config.json";
                 if (!file_exists($ruta)) {
                     Globales::mensaje_error("No existe el archivo de configuración $ruta", 500);
                 }
