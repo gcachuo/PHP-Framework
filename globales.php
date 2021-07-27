@@ -778,7 +778,7 @@ HTML;
      * @return mixed
      * @throws Exception
      */
-    static function curl($options, ?string $select = '')
+    static function curl($options, ?string $select = '', ?string $code_string = 'code')
     {
         $curl = curl_init();
 
@@ -832,12 +832,10 @@ HTML;
                 }
             } else {
                 $result = self::json_decode($json);
-                $code = $result['code'] ?? $result['status'] ?? $info['http_code'];
-                $code = $code >= 600 ? $result['status'] : $code;
-                if (($code ?: 500) >= 400) {
-                    if (!$code) {
-                        throw new Exception('Response Code not defined', 500);
-                    }
+                $code = $result[$code_string] ?? $info['http_code'];
+                if (!$code) {
+                    throw new Exception('Response Code not defined', 500);
+                } else if ($code >= 400) {
                     if (is_array($result['message'])) {
                         $result['message'] = implode(' ', $result['message']);
                     }
@@ -852,7 +850,7 @@ HTML;
             return $result['data'][$select];
         }
 
-        return $result['data'];
+        return $result['data'] ?? $result;
     }
 
     /**
