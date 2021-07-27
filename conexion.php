@@ -211,6 +211,8 @@ abstract class Conexion
             $this->stmt = $stmt;
             $this->pdo = $pdo;
 
+            $interpolated = self::interpolate_query($sql, $params);
+
             return $this;
         } catch (PDOException $exception) {
             [$pdoerror, $code, $message] = $exception->errorInfo;
@@ -224,6 +226,46 @@ abstract class Conexion
 
             $this->handleErrors($exception, $sql);
         }
+    }
+
+
+    private static function interpolate_query($query, $params, $splice = false)
+    {
+        if ($splice) {
+            $params = array_splice($params, 1);
+        }
+
+        $keys = array();
+        $values = $params;
+
+        # build a regular expression for each parameter
+        foreach ($params as $key => $value) {
+            if (is_string($key)) {
+                $keys[] = '/' . $key . '(?=[^_])/';
+            } else {
+                $keys[] = '/[?]/';
+            }
+
+            if (is_array($value)) {
+                $value = $value[0];
+            }
+
+            if (is_string($value))
+                $values[$key] = "'" . $value . "'";
+
+            if (is_array($value))
+                $values[$key] = "'" . implode("','", $value) . "'";
+
+            if (is_null($value))
+                $values[$key] = 'NULL';
+
+            if (is_bool($value))
+                $values[$key] = $value ? 'true' : 'false';
+        }
+
+        $query = @preg_replace($keys, $values, $query);
+
+        return $query;
     }
 
     public function fetch()

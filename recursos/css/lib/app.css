@@ -383,7 +383,7 @@ sup {
   -ms-transform: scale(1);
   transform: scale(1);
   pointer-events: auto;
-  display: block !important; }
+  display: block; }
 
 .dropdown-header {
   padding: 8px 16px; }
