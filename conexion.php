@@ -197,8 +197,9 @@ abstract class Conexion
             $dbname = self::$db;
             $username = self::$user;
             $passwd = self::$pass;
+            $port = 3307;
 
-            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $passwd);
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $passwd);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $stmt = $pdo->prepare($sql);
 
@@ -291,8 +292,8 @@ abstract class Conexion
     protected function conectar()
     {
         try {
-            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
-            self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
+            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
+            self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
 
             if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
