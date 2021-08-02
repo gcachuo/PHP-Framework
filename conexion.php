@@ -330,7 +330,7 @@ abstract class Conexion
      */
     private function handleErrors($ex, $sql)
     {
-        $code = $ex->errorInfo[1] ?? 0;
+        $code = $ex->errorInfo[1] ?? $ex->getCode() ?? 0;
         $message = $ex->getMessage();
         $trace = $ex->getTrace();
         /** @var Tabla $this */
