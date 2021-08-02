@@ -284,6 +284,11 @@ abstract class Conexion
         return $this->stmt->fetchColumn($column);
     }
 
+    public function fetchObject()
+    {
+        return $this->stmt->fetchObject() ?: (object)[];
+    }
+
     public function lastInsertId()
     {
         return $this->pdo->lastInsertId();
