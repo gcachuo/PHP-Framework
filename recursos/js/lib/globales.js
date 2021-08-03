@@ -239,8 +239,12 @@ function aside(modulo, accion, post) {
         },
         function (result) {
             $("#rightBarContent").html(result).trigger('asideLoaded');
+            modulo = modulo.charAt(0).toUpperCase() + modulo.slice(1)
+            accion = accion.charAt(0).toUpperCase() + accion.slice(1)
             var fn = "aside" + modulo + accion;
+            console.log('trigger: ', fn);
             if (typeof window[fn] === "function") {
+                console.log(fn);
                 window[fn]();
             }
         }
