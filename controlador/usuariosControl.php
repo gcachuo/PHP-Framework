@@ -16,17 +16,22 @@ class Usuarios extends Control
 
     function registrarUsuario()
     {
-        $id = $_POST['id'];
-        $nombre = $_POST['nombre'];
-        $usuario = $_POST['usuario'];
-        $password = $_POST['password'];
-        $repass = $_POST['repass'];
+        Globales::check_value_empty($_POST, ['nombre', 'usuario', 'password']);
+        [
+            'id' => $id,
+            'nombre' => $nombre,
+            'usuario' => $usuario,
+            'password' => $password,
+            'repass' => $repass,
+        ] = $_POST;
 
-        if ($nombre == "") Globales::mensaje_error("Ingrese un nombre");
-        if ($usuario == "") Globales::mensaje_error("Ingrese un usuario");
-        if (strpos($usuario, " ") !== false) Globales::mensaje_error("El usuario no debe contener espacios");
-        if ($password == "") Globales::mensaje_error("Ingrese una contraseña");
-        if ($repass != $password) Globales::mensaje_error("Las contraseñas no coinciden");
+        if (strpos($usuario, " ") !== false) {
+            Globales::mensaje_error("El usuario no debe contener espacios");
+        }
+        if ($repass != $password) {
+            Globales::mensaje_error("Las contraseñas no coinciden");
+        }
+
         $password = Globales::crypt_blowfish_bydinvaders($password);
         $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id, $_POST['especialista']);
     }
@@ -38,6 +43,7 @@ class Usuarios extends Control
 
     protected function cargarPrincipal()
     {
+        unset($_SESSION['id']);
         $this->generarTablaUsuarios();
     }
 
@@ -88,9 +94,14 @@ HTML;
 
     protected function cargarAside()
     {
-        if (isset($_POST['tutor']))
+        if (isset($_POST['tutor'])) {
             $this->tutor = true;
-        $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_POST["idUsuario"] ?? 'null');
+        }
+        if ($_POST['idUsuario'] ?? $_SESSION['id'] ?? null) {
+            $_SESSION['id'] = $_POST['idUsuario'] ?? $_SESSION['id'];
+            $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_SESSION["id"] ?? 'null');
+        }
+
         $this->listaPerfiles .= $this->generarListaPerfiles();
         $this->generarListasEspecialistas();
     }
