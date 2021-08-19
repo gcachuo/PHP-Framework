@@ -779,6 +779,7 @@ HTML;
     /**
      * @param $options
      * @param string|null $select
+     * @param string|null $code_string
      * @return mixed
      * @throws Exception
      */
