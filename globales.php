@@ -45,6 +45,10 @@ use Mpdf\Mpdf;
  * @property object sidebar
  * @property object acciones
  * @property object modulos
+ * @property string lblUsuario
+ * @property string lblCorreo
+ * @property string lblPerfil
+ * @property string btnCancelar
  */
 class Globales
 {
@@ -610,7 +614,7 @@ class Globales
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "config.$env.json";
             if (!file_exists($ruta)) {
-                $ruta =  __DIR__ . '/' . APP_ROOT . "config.json";
+                $ruta = __DIR__ . '/' . APP_ROOT . "config.json";
                 if (!file_exists($ruta)) {
                     Globales::mensaje_error("No existe el archivo de configuración $ruta", 500);
                 }
@@ -775,6 +779,7 @@ HTML;
     /**
      * @param $options
      * @param string|null $select
+     * @param string|null $code_string
      * @return mixed
      * @throws Exception
      */
