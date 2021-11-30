@@ -81,8 +81,10 @@ COMMENT '$columna[comment]' $notnull;
 MySQL;
             $consulta = $this->consulta($sql);
         }
-        $drop = "drop table temp_$tabla;";
-        $this->consulta($drop);
+        if ($verificar) {
+            $drop = "drop table if exists temp_$tabla;";
+            $this->consulta2($drop);
+        }
         return $consulta;
     }
 
