@@ -272,10 +272,9 @@ FROM `_usuarios`
 WHERE id_usuario = '$usuario'
 MySQL;
 
-        $consulta = $this->consulta($sql);
-        $registro = $this->siguiente_registro($consulta) ?: (object)['perfil' => null];
-        $perfil = $registro->perfil;
-        return $perfil;
+        $consulta = $this->consulta2($sql);
+        $registro = $consulta->fetch() ?: (object)['perfil' => null];
+        return $registro->perfil;
     }
 
     function updateIdUserCreate($id_usuario, $id_usuario_create)
