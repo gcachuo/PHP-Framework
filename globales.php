@@ -179,33 +179,6 @@ class Globales
         return $json;
     }
 
-    /**
-     * @param string $json
-     * @param bool $assoc
-     * @return object|array
-     */
-    static function json_decode(string $json, bool $assoc = true)
-    {
-        $json = json_decode($json, $assoc);
-        $error = json_last_error();
-        switch ($error) {
-            case 0:
-                //No Error
-                break;
-            case 5:
-                //Malformed UTF-8 characters, possibly incorrectly encoded
-                array_walk_recursive($json, function (&$item) {
-                    $item = utf8_encode($item);
-                });
-                $json = json_decode($json, $assoc);
-                break;
-            default:
-                $json = json_last_error_msg();
-                break;
-        }
-        return $json;
-    }
-
     /** @var Exception $ex */
     static function mostrar_exception($ex)
     {
@@ -290,33 +263,6 @@ class Globales
         $time = new DateTime($datetime);
         $time->add(new DateInterval($spec));
         return $time->format($format);
-    }
-
-    /**
-     * @param string $path
-     * @return object
-     */
-    static function get_json_to_array($path)
-    {
-        if (!file_exists($path))
-            self::mensaje_error("No existe el archivo $path");
-        $json = file_get_contents($path);
-        return json_decode($json, true);
-    }
-
-    /**
-     * @param string $mensaje
-     * @param int $code
-     * @param null $sql
-     * @throws Exception
-     */
-    static function mensaje_error($mensaje, $code = 400, $sql = null)
-    {
-        if (!is_null($sql)) {
-            $sql = addslashes(preg_replace("/\r|\n/", "", $sql));
-            echo "<script>console.log('$sql')</script>";
-        }
-        throw new Exception($mensaje, $code);
     }
 
     /**
@@ -459,7 +405,6 @@ class Globales
         return $nombredia . " " . $numeroDia . " de " . $nombreMes . ".";
     }
 
-
     /**
      * @param string $simbolo
      * @param double $cantidad
@@ -482,7 +427,7 @@ class Globales
 
     static function setVista()
     {
-        if ($_POST['fn'] === 'loadFilePond') {
+        if (($_POST['fn'] ?? '') === 'loadFilePond') {
             $path = $_GET['file'];
 
             if (file_exists($path)) {
@@ -536,20 +481,6 @@ class Globales
         }
     }
 
-    static function base64_to_jpeg($base64, $archivo_salida)
-    {
-        $ifp = fopen($archivo_salida, 'wb');
-
-        $data = explode(',', $base64);
-        fwrite($ifp, base64_decode($data[1]));
-
-        fclose($ifp);
-
-        return $archivo_salida;
-
-    }
-
-
     /**
      * @param string $carpeta
      * @param array $archivo
@@ -597,6 +528,19 @@ class Globales
         }
     }
 
+    static function base64_to_jpeg($base64, $archivo_salida)
+    {
+        $ifp = fopen($archivo_salida, 'wb');
+
+        $data = explode(',', $base64);
+        fwrite($ifp, base64_decode($data[1]));
+
+        fclose($ifp);
+
+        return $archivo_salida;
+
+    }
+
     static function getToken()
     {
         if (empty($_SESSION['token'])) {
@@ -639,6 +583,33 @@ class Globales
             self::mensaje_error("No existe el archivo $path");
         $json = file_get_contents($path);
         return json_decode($json, false);
+    }
+
+    /**
+     * @param string $path
+     * @return object
+     */
+    static function get_json_to_array($path)
+    {
+        if (!file_exists($path))
+            self::mensaje_error("No existe el archivo $path");
+        $json = file_get_contents($path);
+        return json_decode($json, true);
+    }
+
+    /**
+     * @param string $mensaje
+     * @param int $code
+     * @param null $sql
+     * @throws Exception
+     */
+    static function mensaje_error($mensaje, $code = 400, $sql = null)
+    {
+        if (!is_null($sql)) {
+            $sql = addslashes(preg_replace("/\r|\n/", "", $sql));
+            echo "<script>console.log('$sql')</script>";
+        }
+        throw new Exception($mensaje, $code);
     }
 
     static function setToken($token)
@@ -722,19 +693,6 @@ HTML;
         return $str;
     }
 
-    function __destruct()
-    {
-        self::setNamespace("");
-    }
-
-    /**
-     * @param string $namespace
-     */
-    static function setNamespace($namespace)
-    {
-        self::$namespace = $namespace . "\\";
-    }
-
     public static function check_value_empty($array, $required, $message = 'Missing Data.', $code = 400)
     {
         $required = array_flip($required);
@@ -774,6 +732,33 @@ HTML;
         file_put_contents($path_full, $data);
 
         return $path;
+    }
+
+    /**
+     * @param string $json
+     * @param bool $assoc
+     * @return object|array
+     */
+    static function json_decode(string $json, bool $assoc = true)
+    {
+        $json = json_decode($json, $assoc);
+        $error = json_last_error();
+        switch ($error) {
+            case 0:
+                //No Error
+                break;
+            case 5:
+                //Malformed UTF-8 characters, possibly incorrectly encoded
+                array_walk_recursive($json, function (&$item) {
+                    $item = utf8_encode($item);
+                });
+                $json = json_decode($json, $assoc);
+                break;
+            default:
+                $json = json_last_error_msg();
+                break;
+        }
+        return $json;
     }
 
     /**
@@ -870,5 +855,18 @@ HTML;
             $error = json_last_error_msg();
         }
         return $isJson;
+    }
+
+    function __destruct()
+    {
+        self::setNamespace("");
+    }
+
+    /**
+     * @param string $namespace
+     */
+    static function setNamespace($namespace)
+    {
+        self::$namespace = $namespace . "\\";
     }
 }
