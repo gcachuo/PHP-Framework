@@ -1,12 +1,13 @@
 <?php
 
+use EMysqli\EMysqli;
+
 /**
  * Created by PhpStorm.
  * User: Cachu
  * Date: 21/feb/2017
  * Time: 06:14 PM
  */
-
 abstract class Tabla extends Conexion
 {
     /**
@@ -97,11 +98,6 @@ MySQL;
 abstract class cbizcontrol extends Conexion
 {
     /**
-     * @return string regresar el texto de la consulta de la creacion de la tabla
-     */
-    abstract function create_table(): string;
-
-    /**
      * cbizcontrol constructor.
      */
     function __construct()
@@ -113,6 +109,11 @@ abstract class cbizcontrol extends Conexion
         Conexion::$user = $config->user;
         Conexion::$pass = $config->password;
     }
+
+    /**
+     * @return string regresar el texto de la consulta de la creacion de la tabla
+     */
+    abstract function create_table(): string;
 }
 
 /**
@@ -123,7 +124,7 @@ abstract class Conexion
     static $host, $db, $user, $pass;
     /** @var mysqli $conexion */
     static private $conexion;
-    /** @var \EMysqli\EMysqli $mysqli */
+    /** @var EMysqli $mysqli */
     private static $mysqli;
     private $retry;
     private $error = false;
@@ -132,6 +133,31 @@ abstract class Conexion
      */
     private $stmt;
     private $pdo;
+
+    public function fetch(): array
+    {
+        return $this->stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function fetchAll($fetch_style = null)
+    {
+        return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
+    }
+
+    public function fetchColumn(int $column = 0)
+    {
+        return $this->stmt->fetchColumn($column);
+    }
+
+    public function fetchObject()
+    {
+        return $this->stmt->fetchObject() ?: (object)[];
+    }
+
+    public function lastInsertId()
+    {
+        return $this->pdo->lastInsertId();
+    }
 
     /**
      * @param string $sql
@@ -186,148 +212,16 @@ abstract class Conexion
         return $resultado;
     }
 
-    /**
-     * @param string $sql
-     * @param array $params
-     * @return $this
-     * @throws Exception
-     */
-    public function consulta2(string $sql, array $params = [])
-    {
-        try {
-            $host = self::$host;
-            $dbname = self::$db;
-            $username = self::$user;
-            $passwd = self::$pass;
-            $port = 3307;
-
-            $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $passwd);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->prepare($sql);
-
-            foreach ($params as $key => &$val) {
-                $type = $this->parseValue($val);
-                $stmt->bindParam($key, $val, $type);
-            }
-
-            $stmt->execute();
-            $this->stmt = $stmt;
-            $this->pdo = $pdo;
-
-            $interpolated = self::interpolate_query($sql, $params);
-
-            return $this;
-        } catch (PDOException $exception) {
-            [$pdoerror, $code, $message] = $exception->errorInfo;
-
-            $message = $message ?: $exception->getMessage();
-
-            $trace = $exception->getTrace();
-            foreach ($params as $key => &$val) {
-                $this->parseValue($val);
-            }
-
-            $this->handleErrors($exception, $sql);
-        }
-    }
-
-
-    private static function interpolate_query($query, $params, $splice = false)
-    {
-        if ($splice) {
-            $params = array_splice($params, 1);
-        }
-
-        $keys = array();
-        $values = $params;
-
-        # build a regular expression for each parameter
-        foreach ($params as $key => $value) {
-            if (is_string($key)) {
-                $keys[] = '/' . $key . '(?=[^_])/';
-            } else {
-                $keys[] = '/[?]/';
-            }
-
-            if (is_array($value)) {
-                $value = $value[0];
-            }
-
-            if (is_string($value))
-                $values[$key] = "'" . $value . "'";
-
-            if (is_array($value))
-                $values[$key] = "'" . implode("','", $value) . "'";
-
-            if (is_null($value))
-                $values[$key] = 'NULL';
-
-            if (is_bool($value))
-                $values[$key] = $value ? 'true' : 'false';
-        }
-
-        $query = @preg_replace($keys, $values, $query);
-
-        return $query;
-    }
-
-    public function fetch()
-    {
-        return $this->stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    }
-
-    public function fetchAll($fetch_style = null)
-    {
-        return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
-    }
-
-    public function fetchColumn(int $column = 0)
-    {
-        return $this->stmt->fetchColumn($column);
-    }
-
-    public function fetchObject()
-    {
-        return $this->stmt->fetchObject() ?: (object)[];
-    }
-
-    public function lastInsertId()
-    {
-        return $this->pdo->lastInsertId();
-    }
-
     protected function conectar()
     {
         try {
             self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
-            self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
+            self::$mysqli = new EMysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
 
             if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
             Globales::mensaje_error($ex->getMessage(), 500);
         }
-    }
-
-    private function parseValue(&$val): int
-    {
-        $type = PDO::PARAM_STR;
-
-        if ($val === '') {
-            $val = null;
-        } elseif (is_int($val)) {
-            $val = intval($val);
-        } elseif (is_numeric($val)) {
-            if (strpos((string)floatval($val), 'E') === false) {
-                $val = floatval($val);
-            }
-        } elseif (is_array($val)) {
-            $val = json_encode($val);
-        } elseif (is_bool($val)) {
-            $type = PDO::PARAM_BOOL;
-            $val = $val ? 1 : 0;
-        }
-
-        return $type;
     }
 
     /**
@@ -461,6 +355,112 @@ abstract class Conexion
     protected function desconectar()
     {
         mysqli_close(self::$conexion);
+    }
+
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return $this
+     * @throws Exception
+     */
+    public function consulta2(string $sql, array $params = [])
+    {
+        try {
+            $host = self::$host;
+            $dbname = self::$db;
+            $username = self::$user;
+            $passwd = self::$pass;
+            $port = 3307;
+
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $passwd);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $stmt = $pdo->prepare($sql);
+
+            foreach ($params as $key => &$val) {
+                $type = $this->parseValue($val);
+                $stmt->bindParam($key, $val, $type);
+            }
+
+            $stmt->execute();
+            $this->stmt = $stmt;
+            $this->pdo = $pdo;
+
+            $interpolated = self::interpolate_query($sql, $params);
+
+            return $this;
+        } catch (PDOException $exception) {
+            [$pdoerror, $code, $message] = $exception->errorInfo;
+
+            $message = $message ?: $exception->getMessage();
+
+            $trace = $exception->getTrace();
+            foreach ($params as $key => &$val) {
+                $this->parseValue($val);
+            }
+
+            $this->handleErrors($exception, $sql);
+        }
+    }
+
+    private function parseValue(&$val): int
+    {
+        $type = PDO::PARAM_STR;
+
+        if ($val === '') {
+            $val = null;
+        } elseif (is_int($val)) {
+            $val = intval($val);
+        } elseif (is_numeric($val)) {
+            if (strpos((string)floatval($val), 'E') === false) {
+                $val = floatval($val);
+            }
+        } elseif (is_array($val)) {
+            $val = json_encode($val);
+        } elseif (is_bool($val)) {
+            $type = PDO::PARAM_BOOL;
+            $val = $val ? 1 : 0;
+        }
+
+        return $type;
+    }
+
+    private static function interpolate_query($query, $params, $splice = false)
+    {
+        if ($splice) {
+            $params = array_splice($params, 1);
+        }
+
+        $keys = array();
+        $values = $params;
+
+        # build a regular expression for each parameter
+        foreach ($params as $key => $value) {
+            if (is_string($key)) {
+                $keys[] = '/' . $key . '(?=[^_])/';
+            } else {
+                $keys[] = '/[?]/';
+            }
+
+            if (is_array($value)) {
+                $value = $value[0];
+            }
+
+            if (is_string($value))
+                $values[$key] = "'" . $value . "'";
+
+            if (is_array($value))
+                $values[$key] = "'" . implode("','", $value) . "'";
+
+            if (is_null($value))
+                $values[$key] = 'NULL';
+
+            if (is_bool($value))
+                $values[$key] = $value ? 'true' : 'false';
+        }
+
+        $query = @preg_replace($keys, $values, $query);
+
+        return $query;
     }
 
     /**
