@@ -276,7 +276,7 @@ WHERE id_usuario = '$usuario'
 MySQL;
 
         $consulta = $this->consulta2($sql);
-        $registro = $consulta->fetch() ?: (object)['perfil' => null];
+        $registro = $consulta->fetch() ?: ['perfil' => null];
         return $registro['perfil'];
     }
 
