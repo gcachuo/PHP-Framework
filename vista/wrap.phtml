@@ -93,10 +93,10 @@
                         <!-- brand -->
                         <a class="navbar-brand" onclick="navegar('inicio')">
                             <?php
-                                $path = "usuario/$_SESSION[token]/config/{$this->configSistema->imagen}";
-                            $img = file_exists(APP_ROOT . $path) ? APP_ROOT . $path :(file_exists(HTTP_PATH_ROOT . $path)? HTTP_PATH_ROOT . $path:'../framework/'.$path);
-                            if(file_exists($img)):?>
-                                <img src="<?= $img ?>"alt="Logo">
+                            $path = "usuario/$_SESSION[token]/config/{$this->configSistema->imagen}";
+                            $img = file_exists(APP_ROOT . $path) ? APP_ROOT . $path : (file_exists(HTTP_PATH_ROOT . $path) ? HTTP_PATH_ROOT . $path : '../framework/' . $path);
+                            if (file_exists($img)):?>
+                                <img src="<?= $img ?>" alt="Logo">
                             <?php endif; ?>
 
                             <span class="hidden-folded inline"><?= $this->configSistema->nombre ?></span>
@@ -135,7 +135,7 @@
                     <div flex-no-shrink class="b-t">
                         <div class="nav-fold">
                             <a onclick="location.reload(true)" class="version">v/<?= Globales::getVersion() ?>
-                                -<?= $_SESSION[token] ?></a>
+                                -<?= $_SESSION['token'] ?></a>
                         </div>
                     </div>
                 </div>
@@ -217,7 +217,8 @@
                             <div class="navbar-form form-inline pull-right pull-none-sm navbar-item v-m">
                                 <div class="form-group 1-h m-a-0">
                                     <div class="input-group">
-                                        <a title="Inicio" onclick="navegar('inicio')" class="nav-link btn btn-sm btn-outline b-primary text-primary b-2x" style="border-color:#c0ca33 !important" data-toggle="dropdown">
+                                        <a title="Inicio" onclick="navegar('inicio')" class="nav-link btn btn-sm btn-outline b-primary text-primary b-2x"
+                                           style="border-color:#c0ca33 !important" data-toggle="dropdown">
                                             <i class="material-icons">home</i>
                                         </a>
                                     </div>
