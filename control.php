@@ -30,9 +30,9 @@ abstract class Control
     /**
      * Constructor.
      * Carga los recursos, agrega el script del modulo y genera el codigo HTML para la vista.
-     * @internal param $vista
      * @param bool $api
      * @throws Exception
+     * @internal param $vista
      */
     function __construct($api = false)
     {
@@ -43,14 +43,12 @@ abstract class Control
         $this->permisos = $this->permisosModulo();
         $this->nombreUsuario = $this->obtenerNombreUsuario();
         define('MODULO', $this->control->modulos->selectIdFromNombre(explode("/", $_SESSION['modulo'])[0]) ?: 0);
-        if (isset($_SESSION["post"]) and empty($_POST["post"]))
-        {
+        if (isset($_SESSION["post"]) and empty($_POST["post"])) {
             $_POST["post"] = $_SESSION["post"];
             unset($_SESSION['post']);
         }
 
-        if (isset($_POST["post"]))
-        {
+        if (isset($_POST["post"])) {
             if (is_string($_POST["post"]))
                 $_POST["post"] = json_decode($_POST["post"], true);
             $_POST = array_merge($_POST, $_POST["post"]);
@@ -58,8 +56,7 @@ abstract class Control
                 $data = $this->$_POST["modo"]();*/
         }
 
-        if (isset($_POST['form']) or isset($_POST['aside']))
-        {
+        if (isset($_POST['form']) or isset($_POST['aside'])) {
             parse_str($_POST["form"], $_POST["form"]);
             parse_str($_POST["aside"], $_POST["aside"]);
             $_POST = array_merge($_POST, $_POST["form"]);
@@ -69,14 +66,11 @@ abstract class Control
         }
 
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : $_SESSION['id'];
-        if (isset($_POST["fn"]))
-        {
+        if (isset($_POST["fn"])) {
             $array = $this->{$_POST["fn"]}();
             $json = Globales::json_encode($array);
             echo $json;
-        }
-        else
-        {
+        } else {
             $this->obtenerDatos();
             if (isset($_GET["aside"]) or strpos($_SESSION["modulo"], "/"))
                 $this->cargarAside();
@@ -89,14 +83,12 @@ abstract class Control
             if ($vista != "login" and $vista != "registro")
                 $this->modulos = $this->buildModulos(0);
 
-            if (isset($_GET["aside"]))
-            {
+            if (isset($_GET["aside"])) {
                 $vista = $_REQUEST["asideModulo"] . "/" . $_REQUEST["asideAccion"];
                 $file = $_REQUEST["asideModulo"] . "_" . $_REQUEST["asideAccion"];
                 $this->addCustom($file, true);
                 $page = $this->buildAside($vista) . $this->customStylesheets . $this->customScripts;
-            }
-            else
+            } else
                 $page = $this->buildPage($vista);
 
             echo $page;
@@ -130,9 +122,9 @@ HTML;
     }
 
     /**
-     * @property $formatoFecha
      * @return array
      * @throws Exception
+     * @property $formatoFecha
      */
     private function obtenerIdioma()
     {
@@ -173,11 +165,11 @@ HTML;
     {
         $usuario = new stdClass();
         $namespace = Globales::$namespace;
-        if (isset($_SESSION[usuario]))
+        if (isset($_SESSION['usuario']))
             if ($namespace == "\\")
-                $usuario = $this->control->usuarios->selectUsuarioFromId($_SESSION[usuario]);
+                $usuario = $this->control->usuarios->selectUsuarioFromId($_SESSION['usuario']);
             else
-                $usuario = $_SESSION[usuario];
+                $usuario = $_SESSION['usuario'];
         return $usuario->nombre;
     }
 
@@ -202,21 +194,18 @@ HTML;
         $token = Globales::getToken();
         $file = "empresa.json";
         $path = APP_ROOT . "usuario/$token/config/";
-        if (!file_exists($path . $file))
-        {
-            $path = HTTP_PATH_ROOT ."usuario/$token/config/";
-            if(!file_exists($path.$file))
-            {
+        if (!file_exists($path . $file)) {
+            $path = HTTP_PATH_ROOT . "usuario/$token/config/";
+            if (!file_exists($path . $file)) {
                 $path = APP_ROOT . "usuario/$token/config/";
-                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0','ordenes' => '0','ticket' =>'0','llegada'=> '0','clientes' => '0');
+                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0', 'ordenes' => '0', 'ticket' => '0', 'llegada' => '0', 'clientes' => '0');
                 $json_string = json_encode($empresa);
                 mkdir($path, 0777, true);
                 file_put_contents($path . $file, $json_string);
             }
         }
 
-        if (!file_exists($path . "logo.png"))
-        {
+        if (!file_exists($path . "logo.png")) {
             mkdir($path, 0777, true);
             copy(HTTP_PATH_ROOT . "recursos/img/logo.png", $path . "logo.png");
         }
@@ -247,13 +236,13 @@ HTML;
     private function getAssets()
     {
         $plugins = "../framework/libs";
-        if(!file_exists($plugins))
+        if (!file_exists($plugins))
             $plugins = "../../../framework/libs";
         $CSSassets = "../framework/recursos/css/lib";
-        if(!file_exists($CSSassets))
+        if (!file_exists($CSSassets))
             $CSSassets = "../../../framework/recursos/css/lib";
         $JSassets = "../framework/recursos/js/lib";
-        if(!file_exists($JSassets))
+        if (!file_exists($JSassets))
             $JSassets = "../../../framework/recursos/js/lib";
 
         $this->stylesheet("$CSSassets/animate.css");
@@ -281,7 +270,6 @@ HTML;
         $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js");
         $this->script("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.js");
         $this->stylesheet("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.css");
-
 
 
         //JQuery-UI
@@ -334,10 +322,6 @@ HTML;
         $this->script("$plugins/echarts/build/dist/echarts-all.js");
         $this->script("$plugins/echarts/build/dist/jquery.echarts.js");
         $this->script("$plugins/echarts/build/dist/echarts.js");
-
-
-
-
 
 
         $this->script("$plugins/maskedinput/masked-input-1.4-min.js");
@@ -404,11 +388,11 @@ HTML;
             $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
 
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
-            $this->$script(APP_ROOT . "recursos/js/{$modulo}.js?v=".uniqid());
+            $this->$script(APP_ROOT . "recursos/js/{$modulo}.js?v=" . uniqid());
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
-            $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js?v=".uniqid());
+            $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js?v=" . uniqid());
         elseif (file_exists("../framework/recursos/js/{$modulo}.js"))
-            $this->$script("../framework/recursos/js/{$modulo}.js?v=".uniqid());
+            $this->$script("../framework/recursos/js/{$modulo}.js?v=" . uniqid());
     }
 
     /**
@@ -425,31 +409,25 @@ HTML;
         $idioma = $this->idioma->modulos;
         $htmlModulos = "";
         $modulos = $this->control->obtenerModulos($padre);
-        foreach ($modulos as $modulo)
-        {
-            if($_SESSION['sistema'] == "admin")
-            {
-                if(!$this->configSistema->llegada)
-                {
+        foreach ($modulos as $modulo) {
+            if ($_SESSION['sistema'] == "admin") {
+                if (!$this->configSistema->llegada) {
                     if ($modulo["idModulo"] == 2003)
                         continue;
                 }
 
-                if(!$this->configSistema->clientes)
-                {
+                if (!$this->configSistema->clientes) {
                     if ($modulo["idModulo"] == 6007)
                         continue;
                 }
 
-                if(!$this->configSistema->clientes)
-                {
+                if (!$this->configSistema->clientes) {
                     if ($modulo["idModulo"] == 2006)
                         continue;
                 }
             }
 
-            if(!in_array($modulo["idModulo"], $arrayModDescart))
-            {
+            if (!in_array($modulo["idModulo"], $arrayModDescart)) {
                 $nombre = $idioma->{$modulo["idModulo"]}[0];
                 $navegar = mb_strtolower($modulo["navegarModulo"]);
                 $icono = !empty($modulo["iconoModulo"]) ? <<<HTML
@@ -470,11 +448,9 @@ HTML
 HTML
                     : "";
                 $disabled = "";
-                if (empty($submodulos) and empty($navegar))
-                {
+                if (empty($submodulos) and empty($navegar)) {
                     $disabled = "color: black;";
-                    if ($modulo['padreModulo'] == 0)
-                    {
+                    if ($modulo['padreModulo'] == 0) {
                         $disabled .= "display:none;";
                     }
                 }
@@ -573,8 +549,7 @@ HTML;
     function buildAcciones($acciones, $ancho)
     {
         $this->acciones->ancho = $ancho;
-        foreach ($acciones as $accion)
-        {
+        foreach ($acciones as $accion) {
             $this->acciones->html .= <<<HTML
 <div class="$accion[class] b-r b-b">
     <a title="$accion[title]" class="p-a block text-center" onclick="$accion[onclick]">
@@ -627,18 +602,15 @@ HTML;
         if (get_class($registros) == "mysqli_result")
             $registros = $this->obtenerRegistros($registros);
 
-        foreach ($registros as $id => $cells)
-        {
+        foreach ($registros as $id => $cells) {
             $rows = "";
             $index = 0;
 
-            foreach ($cells as $key => $cell)
-            {
+            foreach ($cells as $key => $cell) {
                 if (in_array($key, $hide)) continue;
                 $explode = explode("-", $columns[$index]);
                 $type = $explode[0] ?: $columns[$index]["type"];
-                switch ($type)
-                {
+                switch ($type) {
                     case "button":
                         $accion = $explode[1];
                         $onclick = "btn" . ucfirst($accion) . "($id)";
@@ -649,7 +621,7 @@ HTML
                         $rows .= <<<HTML
 <td>$button</td>
 HTML;
-                    break;
+                        break;
                     case "input":
                         $inputType = $explode[1];
                         $input = <<<HTML
@@ -659,7 +631,7 @@ HTML;
 <td>$input</td>
 HTML;
 
-                    break;
+                        break;
                     case "select":
                         $table = $explode[1];
                         $funcion = "selectLista" . ucfirst($table);
@@ -675,7 +647,7 @@ HTML;
                         $rows .= <<<HTML
 <td>$select</td>
 HTML;
-                    break;
+                        break;
                     case "date":
                         $cell = $cell != "0000-00-00"
                             ? Globales::formato_fecha($this->idioma->formatoFecha, $cell)
@@ -683,7 +655,7 @@ HTML;
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
-                    break;
+                        break;
                     case "expired":
                         $now = date('Y-m-d');
                         $label = $now > $cell
@@ -697,21 +669,21 @@ HTML;
                         $rows .= <<<HTML
 <td><span class="label label-lg block $label">$cell</span></td>
 HTML;
-                    break;
+                        break;
                     case "datetime":
                         $cell = ($cell != "0000-00-00" and $cell != "")
-                            ? Globales::formato_fecha($this->idioma->formatoFecha.' H:ia', $cell)
+                            ? Globales::formato_fecha($this->idioma->formatoFecha . ' H:ia', $cell)
                             : "N/A";
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
-                    break;
+                        break;
                     case "time":
                         $cell = Globales::formato_fecha("h:ia", $cell);
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
-                    break;
+                        break;
                     case "age":
                         $tz = new DateTimeZone(TIMEZONE);
                         $age = ($cell != "0000-00-00" and !empty($cell)) ? DateTime::createFromFormat('Y-m-d', $cell, $tz)
@@ -720,40 +692,38 @@ HTML;
                         $rows .= <<<HTML
 <td>$age</td>
 HTML;
-                    break;
+                        break;
                     case "estatus":
                         $color = $columns[$index][$cell][0];
                         $cell = $columns[$index][$cell][1];
                         $rows .= <<<HTML
 <td><a onclick="btnCambiarEstatus($id)" class="label label-lg $color btn">$cell</a></td>
 HTML;
-                    break;
+                        break;
                     case "label":
                         $color = $columns[$index][$cell][0];
                         $print = $columns[$index][$cell][1];
                         $rows .= <<<HTML
 <td><a class="label label-lg block $color">$print</a></td>
 HTML;
-                    break;
+                        break;
                     case "nada":
-                    break;
+                        break;
                     default:
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
-                    break;
+                        break;
                 }
 
                 $index++;
             }
 
             $btnAcciones = "";
-            foreach ($acciones as $icono => $accion)
-            {
+            foreach ($acciones as $icono => $accion) {
                 if (is_array($accion)) continue;
                 $code = true;
-                foreach ($acciones["conditions"][$accion] as $column => $condition)
-                {
+                foreach ($acciones["conditions"][$accion] as $column => $condition) {
                     $code = (($cells[$column] == $condition[0]) == $condition[1]);
                 }
 
@@ -903,7 +873,7 @@ HTML;
      */
     private function customScript($src)
     {
-        $src = $src."?v=".uniqid();
+        $src = $src . "?v=" . uniqid();
 
         $this->customScripts .= <<<HTML
 <script type="text/javascript" src="$src"></script>
@@ -1028,7 +998,7 @@ class ArchivoModelo
                 if (!file_exists($ruta)) {
                     $ruta = dirname(__FILE__) . "/modelo/{$key}Modelo.php";
                 }
-            };
+            }
             if (file_exists($ruta)) {
                 require_once $ruta;
                 $modelo = "{$namespace}Modelo{$key}";
@@ -1045,7 +1015,7 @@ class ArchivoModelo
  * @property TablaModulos modulos
  * @property TablaCampos campos
  */
-Class Modelo
+class Modelo
 {
     static private $token;
 

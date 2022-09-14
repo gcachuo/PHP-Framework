@@ -1,12 +1,13 @@
 <?php
 
+use EMysqli\EMysqli;
+
 /**
  * Created by PhpStorm.
  * User: Cachu
  * Date: 21/feb/2017
  * Time: 06:14 PM
  */
-
 abstract class Tabla extends Conexion
 {
     /**
@@ -116,7 +117,7 @@ abstract class Conexion
     static $host, $db, $user, $pass;
     /** @var mysqli $conexion */
     static private $conexion;
-    /** @var \EMysqli\EMysqli $mysqli */
+    /** @var EMysqli $mysqli */
     private static $mysqli;
     private $retry;
     private $error = false;
@@ -177,12 +178,10 @@ abstract class Conexion
     {
         try {
 
-            if (!mysqli_ping(self::$conexion)) {
-                self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
-                self::$mysqli = new EMysqli\EMysqli(self::$host, self::$user, self::$pass, self::$db);
+            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db);
+            self::$mysqli = new EMysqli(self::$host, self::$user, self::$pass, self::$db);
 
-                if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
-            }
+            if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
             Globales::mensaje_error($ex->getMessage());
         }
@@ -213,11 +212,11 @@ abstract class Conexion
                         unset($foreignTable[0]);
                         foreach ($foreignTable as $tabla) {
                             $explode = explode(" ", $tabla);
-                            $tabla=str_replace("`","",$explode[0]);
+                            $tabla = str_replace("`", "", $explode[0]);
                             $tabla = trim($tabla, "_");
-                            $namet="Tabla$tabla";
-                            $t=new $namet();
-                            $sql=$t->create_table();
+                            $namet = "Tabla$tabla";
+                            $t = new $namet();
+                            $sql = $t->create_table();
                             $consulta = $this->multiconsulta($sql);
                             $verificar = is_null($consulta);
                             if ($verificar) {
@@ -231,7 +230,7 @@ abstract class Conexion
                 break;
             case 1146:
                 /** @var Tabla $table */
-                $token = strtolower($_SESSION[token]);
+                $token = strtolower($_SESSION['token']);
                 $table = trim(str_replace("Table 'e11_$token.", "", str_replace("' doesn't exist", "", $message)), "_");
 
                 //Linea para evitar recursividad infinita

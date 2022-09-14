@@ -205,10 +205,10 @@ class Globales
     static function mostrar_exception($ex)
     {
         ini_set('log_errors', 1);
-        $token = $_SESSION[token];
+        $token = $_SESSION['token'];
         ini_set('error_log', "script_errors_$token.log");
         $trace = $ex->getTrace();
-        $error = addslashes($token . " " . $_SESSION[modulo] . " " . $trace[2][file] . " " . $trace[2][line] . " " . $ex->getMessage());
+        $error = addslashes($token . " " . $_SESSION['modulo'] . " " . $trace[2]['file'] . " " . $trace[2]['line'] . " " . $ex->getMessage());
         $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
         error_log($error);
         if (isset($_POST["fn"]) or $_GET["aside"]) {
@@ -231,7 +231,7 @@ class Globales
      */
     static function crypt_blowfish_bydinvaders($password)
     {
-        return password_hash($password,PASSWORD_DEFAULT);
+        return password_hash($password, PASSWORD_DEFAULT);
     }
 
     static function array2json($array)
@@ -498,19 +498,6 @@ class Globales
         }
     }
 
-    static function base64_to_jpeg($base64, $archivo_salida)
-    {
-        $ifp = fopen($archivo_salida,'wb');
-
-        $data = explode(',',$base64);
-        fwrite($ifp,base64_decode($data[1]));
-
-        fclose($ifp);
-
-        return $archivo_salida;
-
-    }
-
     /**
      * @param string $carpeta
      * @param array $archivo
@@ -556,6 +543,19 @@ class Globales
             error_log($msg);
             exit($msg);
         }
+    }
+
+    static function base64_to_jpeg($base64, $archivo_salida)
+    {
+        $ifp = fopen($archivo_salida, 'wb');
+
+        $data = explode(',', $base64);
+        fwrite($ifp, base64_decode($data[1]));
+
+        fclose($ifp);
+
+        return $archivo_salida;
+
     }
 
     static function getToken()
@@ -645,8 +645,7 @@ $html
     </div>
 </div>
 HTML;
-        try
-        {
+        try {
             $carpeta = dirname($ruta);
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
@@ -654,8 +653,7 @@ HTML;
             date_default_timezone_set('America/Mexico_City');
             $mpdf = new mPDF();
             $mpdf->debug = false;
-            if ($watermark != false)
-            {
+            if ($watermark != false) {
                 $mpdf->showWatermarkText = 1;
                 $mpdf->SetWatermarkText($watermark, 0.5);
             }
@@ -663,9 +661,7 @@ HTML;
             $mpdf->WriteHTML($html, 2);
             $mpdf->Output($ruta, 'F');
             return true;
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             echo $ex->getMessage();
             return false;
         }
@@ -684,19 +680,6 @@ HTML;
         return $str;
     }
 
-    function __destruct()
-    {
-        self::setNamespace("");
-    }
-
-    /**
-     * @param string $namespace
-     */
-    static function setNamespace($namespace)
-    {
-        self::$namespace = $namespace . "\\";
-    }
-    
     static function varDumpToString($var)
     {
         ob_start();
@@ -763,16 +746,14 @@ HTML;
         $matmil[16] = 'millones de billones de trillones';
 
         //Zi hack
-        $float=explode('.',$num);
-        $num=$float[0];
+        $float = explode('.', $num);
+        $num = $float[0];
 
         $num = trim((string)@$num);
-        if ($num[0] == '-')
-        {
+        if ($num[0] == '-') {
             $neg = 'menos ';
             $num = substr($num, 1);
-        }
-        else
+        } else
             $neg = '';
         while ($num[0] == '0') $num = substr($num, 1);
         if ($num[0] < '1' or $num[0] > 9) $num = '0' . $num;
@@ -780,39 +761,29 @@ HTML;
         $punt = false;
         $ent = '';
         $fra = '';
-        for ($c = 0; $c < strlen($num); $c++)
-        {
+        for ($c = 0; $c < strlen($num); $c++) {
             $n = $num[$c];
-            if (! (strpos(".,'''", $n) === false))
-            {
+            if (!(strpos(".,'''", $n) === false)) {
                 if ($punt)
                     break;
-                else
-                {
+                else {
                     $punt = true;
                     continue;
                 }
-            }
-            elseif (! (strpos('0123456789', $n) === false))
-            {
-                if ($punt)
-                {
+            } elseif (!(strpos('0123456789', $n) === false)) {
+                if ($punt) {
                     if ($n != '0') $zeros = false;
                     $fra .= $n;
-                }
-                else
+                } else
                     $ent .= $n;
-            }
-            else
+            } else
                 break;
         }
 
         $ent = ' ' . $ent;
-        if ($dec and $fra and ! $zeros)
-        {
+        if ($dec and $fra and !$zeros) {
             $fin = ' coma';
-            for ($n = 0; $n < strlen($fra); $n++)
-            {
+            for ($n = 0; $n < strlen($fra); $n++) {
                 if (($s = $fra[$n]) == '0')
                     $fin .= ' cero';
                 elseif ($s == '1')
@@ -820,8 +791,7 @@ HTML;
                 else
                     $fin .= ' ' . $matuni[$s];
             }
-        }
-        else
+        } else
             $fin = '';
 
         if ((int)$ent === 0)
@@ -831,35 +801,26 @@ HTML;
         $sub = 0;
         $mils = 0;
         $neutro = false;
-        while ( ($num = substr($ent, -3)) != ' ')
-        {
+        while (($num = substr($ent, -3)) != ' ') {
             $ent = substr($ent, 0, -3);
-            if (++$sub < 3 and $fem)
-            {
+            if (++$sub < 3 and $fem) {
                 $matuni[1] = 'una';
                 $subcent = 'as';
-            }
-            else
-            {
+            } else {
                 $matuni[1] = $neutro ? 'un' : 'uno';
                 $subcent = 'os';
             }
             $t = '';
             $n2 = substr($num, 1);
-            if ($n2 == '00')
-            {
-            }
-            elseif ($n2 < 21)
+            if ($n2 == '00') {
+            } elseif ($n2 < 21)
                 $t = ' ' . $matuni[(int)$n2];
-            elseif ($n2 < 30)
-            {
+            elseif ($n2 < 30) {
                 $n3 = $num[2];
                 if ($n3 != 0) $t = 'i' . $matuni[$n3];
                 $n2 = $num[1];
                 $t = ' ' . $matdec[$n2] . $t;
-            }
-            else
-            {
+            } else {
                 $n3 = $num[2];
                 if ($n3 != 0) $t = ' y ' . $matuni[$n3];
                 $n2 = $num[1];
@@ -874,24 +835,19 @@ HTML;
             elseif ($n != 0)
                 $t = ' ' . $matunisub[$n] . 'cient' . $subcent . $t;
 
-            if ($sub == 1)
-            {
-            }
-            elseif (! isset($matsub[$sub]))
-            {
+            if ($sub == 1) {
+            } elseif (!isset($matsub[$sub])) {
                 if ($num == 1)
                     $t = ' mil';
                 elseif ($num > 1)
                     $t .= ' mil';
-            }
-            elseif ($num == 1)
+            } elseif ($num == 1)
                 $t .= ' ' . $matsub[$sub] . '?n';
             elseif ($num > 1)
                 $t .= ' ' . $matsub[$sub] . 'ones';
 
-            if ($num == '000') $mils ++;
-            elseif ($mils != 0)
-            {
+            if ($num == '000') $mils++;
+            elseif ($mils != 0) {
                 if (isset($matmil[$sub])) $t .= ' ' . $matmil[$sub];
                 $mils = 0;
             }
@@ -902,7 +858,20 @@ HTML;
 
         $tex = $neg . substr($tex, 1) . $fin;
         //Zi hack --> return ucfirst($tex);
-        $end_num=ucfirst($tex).' pesos '.$float[1].'/100 M.N.';
+        $end_num = ucfirst($tex) . ' pesos ' . $float[1] . '/100 M.N.';
         return $end_num;
+    }
+
+    function __destruct()
+    {
+        self::setNamespace("");
+    }
+
+    /**
+     * @param string $namespace
+     */
+    static function setNamespace($namespace)
+    {
+        self::$namespace = $namespace . "\\";
     }
 }
