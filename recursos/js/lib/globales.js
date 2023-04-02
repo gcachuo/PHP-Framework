@@ -124,7 +124,7 @@ function btnCopiarTexto(inputId) {
 
 function ajax(fn, post, modulo) {
     $("a.btn").addClass("disabled");
-    return $.post((modulo || 0) + '/' + fn,
+    return $.post(`index.php/${modulo || 0}/${fn}`,
         {
             form: $("form:not(#frmAside)").serialize(),
             aside: $("#frmAside").serialize(),
