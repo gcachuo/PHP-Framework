@@ -17,7 +17,7 @@ abstract class Tabla extends Conexion
     {
         mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));
         $config = Globales::getConfig()->conexion;
-        $token = $_SESSION['token'] ?? $config->default_database;
+        $token = isset($_SESSION['token']) ? $_SESSION['token'] : $config->default_database;
         Conexion::$host = $config->host;
         Conexion::$db = "{$config->prefix}$token";
         Conexion::$user = $config->user;
@@ -44,7 +44,9 @@ abstract class Tabla extends Conexion
         $consulta = null;
         $metadata = Globales::getConfig()->conexion;
         $create_table =
-            str_replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS",
+            str_replace(
+                "CREATE TABLE",
+                /** @lang text */ "CREATE TABLE IF NOT EXISTS",
                 str_replace($tabla, "temp_" . $tabla,
                     $this->create_table()));
         $consulta_create = $this->multiconsulta($create_table);
@@ -113,7 +115,7 @@ abstract class cbizcontrol extends Conexion
     /**
      * @return string regresar el texto de la consulta de la creacion de la tabla
      */
-    abstract function create_table(): string;
+    abstract function create_table();
 }
 
 /**
@@ -134,7 +136,7 @@ abstract class Conexion
     private $stmt;
     private $pdo;
 
-    public function fetch(): array
+    public function fetch()
     {
         return $this->stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
@@ -144,7 +146,7 @@ abstract class Conexion
         return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
     }
 
-    public function fetchColumn(int $column = 0)
+    public function fetchColumn( $column = 0)
     {
         return $this->stmt->fetchColumn($column);
     }
@@ -231,7 +233,7 @@ abstract class Conexion
      */
     private function handleErrors($ex, $sql)
     {
-        $code = $ex->errorInfo[1] ?? $ex->getCode() ?? 0;
+        $code = isset($ex->errorInfo[1]) ? $ex->errorInfo[1] : $ex->getCode() !== null ? $ex->getCode() : 0;
         $message = $ex->getMessage();
         $trace = $ex->getTrace();
         /** @var Tabla $this */
@@ -363,7 +365,7 @@ abstract class Conexion
      * @return $this
      * @throws Exception
      */
-    public function consulta2(string $sql, array $params = [])
+    public function consulta2( $sql, array $params = [])
     {
         try {
             $host = self::$host;
@@ -389,7 +391,7 @@ abstract class Conexion
 
             return $this;
         } catch (PDOException $exception) {
-            [$pdoerror, $code, $message] = $exception->errorInfo;
+            list($pdoerror, $code, $message) = $exception->errorInfo;
 
             $message = $message ?: $exception->getMessage();
 
@@ -402,7 +404,7 @@ abstract class Conexion
         }
     }
 
-    private function parseValue(&$val): int
+    private function parseValue(&$val)
     {
         $type = PDO::PARAM_STR;
 

@@ -25,7 +25,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (isset($_REQUEST["lang"]))
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 
-if ($_SESSION['modulo'] != 'login' and (($_REQUEST["s"] ?? null) == "1" or TYPE_SYSTEM != $_SESSION['sistema'])) {
+if ($_SESSION['modulo'] != 'login' and ((isset($_REQUEST["s"]) ? $_REQUEST["s"] : null) == "1" or TYPE_SYSTEM != $_SESSION['sistema'])) {
     session_unset();
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 }
@@ -40,7 +40,7 @@ require_once dirname(__FILE__) . '/vendor/autoload.php';
 
 
 ob_start();
-Globales::$modulo = $_POST["modulo"] ?? $_SESSION["modulo"] ?? null;
+Globales::$modulo = isset($_POST["modulo"]) ? $_POST["modulo"] : isset($_SESSION["modulo"]) ? $_SESSION["modulo"] : null;
 Globales::$namespace = __NAMESPACE__ . "\\";
 Globales::setVista();
 Globales::setControl(Globales::$modulo);

@@ -50,17 +50,17 @@ abstract class Control
         if (isset($_POST["post"])) {
             if (is_string($_POST["post"]))
                 $_POST["post"] = json_decode($_POST["post"], true);
-            $_POST = array_merge($_POST, $_POST["post"] ?? []);
+            $_POST = array_merge($_POST, isset($_POST["post"]) ? $_POST["post"] : []);
         }
         if (isset($_POST['form']) or isset($_POST['aside'])) {
             parse_str($_POST["form"], $_POST["form"]);
-            parse_str($_POST["aside"] ?? '', $_POST["aside"]);
+            parse_str(isset($_POST["aside"]) ? $_POST["aside"] : '', $_POST["aside"]);
             $_POST = array_merge($_POST, $_POST["form"]);
             $_POST = array_merge($_POST, $_POST["aside"]);
             unset($_POST["form"]);
             unset($_POST["aside"]);
         }
-        $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : ($_SESSION['id'] ?? null);
+        $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : (isset($_SESSION['id']) ? $_SESSION['id'] : null);
         if (isset($_POST["fn"]) and !isset($_GET['aside'])) {
             $data = $this->{$_POST["fn"]}();
             if (!is_array($data)) {
@@ -146,11 +146,11 @@ HTML;
         }
 
         $modulo = Globales::$modulo;
-        if ($_GET['aside'] ?? null) {
+        if (isset($_GET['aside']) ? $_GET['aside'] : null) {
             $modulo = "$modulo/$_POST[asideAccion]";
         }
         Globales::setIdioma($idioma);
-        $this->idioma = (object)array_merge((array)($idioma->$modulo ?? []), (array)$idioma->sistema);
+        $this->idioma = (object)array_merge((array)(isset($idioma->$modulo) ? $idioma->$modulo : []), (array)$idioma->sistema);
         return (array)$idioma;
     }
 
@@ -182,7 +182,7 @@ HTML;
     function obtenerDatos()
     {
         $metadata = Globales::getConfig()->metadata;
-        $botones = Globales::getConfig()->floating_button ?? [];
+        $botones = Globales::getConfig()->floating_button ?: [];
         foreach ($botones as $nombre => $boton) {
             $this->floating_button .= <<<HTML
 <div class="row">
@@ -269,7 +269,7 @@ HTML;
         $this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
         $this->script("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
 
-        $google_maps_key = $this->configSistema->api_keys->google_maps ?? '';
+        $google_maps_key = isset($this->configSistema->api_keys->google_maps) ? $this->configSistema->api_keys->google_maps : '';
         $this->script("https://maps.googleapis.com/maps/api/js?key=$google_maps_key");
         $this->script("https://unpkg.com/location-picker@1.1.1/dist/location-picker.umd.js");
 
@@ -459,7 +459,7 @@ HTML;
                         continue;
                 }
             }
-            $nombre = $idioma->{$modulo["idModulo"]}[0] ?? null;
+            $nombre = isset($idioma->{$modulo["idModulo"]}[0]) ? $idioma->{$modulo["idModulo"]}[0] : null;
             $navegar = mb_strtolower($modulo["navegarModulo"]);
             $icono = !empty($modulo["iconoModulo"]) ? <<<HTML
 <span class="nav-icon"><i class="material-icons">$modulo[iconoModulo]</i></span>
@@ -580,7 +580,7 @@ HTML;
 
     function buildAcciones($acciones, $ancho)
     {
-        $this->acciones = $this->acciones ?? (object)[];
+        $this->acciones = isset($this->acciones) ? $this->acciones : (object)[];
         $this->acciones->ancho = $ancho;
         $this->acciones->html = '';
         foreach ($acciones as $accion) {
@@ -657,7 +657,7 @@ HTML
 HTML;
                         break;
                     case "input":
-                        $inputType = $explode[1] ?? '';
+                        $inputType = isset($explode[1]) ? $explode[1] : '';
                         $input = <<<HTML
 <input type="$inputType" class="form-control" id="{$key}_$id" name="{$key}[$id]" value="$cell">
 HTML;
@@ -1072,7 +1072,7 @@ class Modelo
 
     static function getToken()
     {
-        self::$token = $_SESSION['token'] ?? self::$token;
+        self::$token = isset($_SESSION['token']) ? $_SESSION['token'] : self::$token;
         return self::$token;
     }
 

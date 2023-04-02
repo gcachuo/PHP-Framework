@@ -191,7 +191,7 @@ class Globales
         $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
         error_log($error);
         http_response_code($code);
-        if (isset($_POST['fn']) or ($_GET['aside'] ?? null)) {
+        if (isset($_POST['fn']) or (isset($_GET['aside']) ? $_GET['aside'] : null)) {
             ob_end_clean();
             header('Content-Type: application/json');
             die(json_encode([
@@ -427,7 +427,7 @@ class Globales
 
     static function setVista()
     {
-        if (($_POST['fn'] ?? '') === 'loadFilePond') {
+        if ((isset($_POST['fn']) ? $_POST['fn'] : '') === 'loadFilePond') {
             $path = $_GET['file'];
 
             if (file_exists($path)) {
@@ -440,7 +440,7 @@ class Globales
                 header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
             }
             exit;
-        } else if ($_GET['file'] ?? null) {
+        } else if (isset($_GET['file']) ? $_GET['file'] : null) {
             $folder = $_GET['folder'] ?: 'imagenes';
             $token = $_SESSION['token'];
             $path = "usuario/$token/$folder/$_GET[modulo]/";
@@ -486,7 +486,7 @@ class Globales
      * @param array $archivo
      * @return string
      */
-    static function subirImagenSimple(string $carpeta, array $archivo)
+    static function subirImagenSimple($carpeta, array $archivo)
     {
         try {
             $debug = print_r($archivo, true);
@@ -550,7 +550,7 @@ class Globales
         return self::$token;
     }
 
-    public static function getConfig(bool $object = true)
+    public static function getConfig( $object = true)
     {
         $env = file_exists(__DIR__ . '/' . APP_ROOT . "config.dev.json") ? "dev" : "prod";
 
@@ -721,7 +721,7 @@ HTML;
         }
     }
 
-    static function uploadFile(string $FILE, array $path_array): string
+    static function uploadFile( $FILE, array $path_array)
     {
         $FILE = Globales::json_decode($FILE);
         $data = base64_decode($FILE['data']);
@@ -739,7 +739,7 @@ HTML;
      * @param bool $assoc
      * @return object|array
      */
-    static function json_decode(string $json, bool $assoc = true)
+    static function json_decode( $json,  $assoc = true)
     {
         $json = json_decode($json, $assoc);
         $error = json_last_error();
@@ -768,25 +768,25 @@ HTML;
      * @return mixed
      * @throws Exception
      */
-    static function curl($options, ?string $select = '', ?string $code_string = 'code')
+    static function curl($options,  $select = '',  $code_string = 'code')
     {
         $curl = curl_init();
 
         $headers = [
             'Cookie: XDEBUG_SESSION=PHPSTORM'
         ];
-        $options['method'] = mb_strtoupper($options['method'] ?? 'get');
+        $options['method'] = mb_strtoupper(isset($options['method']) ? $options['method'] : 'get');
 
         $options['url'] = str_replace(' ', '%20', $options['url']);
         curl_setopt_array($curl, [
-            CURLOPT_URL => ($options['url'] ?? ''),
+            CURLOPT_URL => (isset($options['url']) ? $options['url'] : ''),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 0,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $options['method'] ?? 'GET',
+            CURLOPT_CUSTOMREQUEST => isset($options['method']) ? $options['method'] : 'GET',
         ]);
         if (is_array($options['data'])) {
             $data = json_encode($options['data']);
@@ -795,11 +795,11 @@ HTML;
             $headers[] = 'Content-Length: ' . strlen($data);
 
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        } elseif (($options['data'] ?? null)) {
+        } elseif ((isset($options['data']) ? $options['data'] : null)) {
             $headers[] = 'Content-Length: ' . strlen($options['data']);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $options['data']);
         }
-        $headers = array_merge($headers, $options['headers'] ?? []);
+        $headers = array_merge($headers, isset($options['headers']) ? $options['headers'] : []);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
         $json = curl_exec($curl);
@@ -822,7 +822,7 @@ HTML;
                 }
             } else {
                 $result = self::json_decode($json);
-                $code = $result[$code_string] ?? $info['http_code'];
+                $code = isset($result[$code_string]) ? $result[$code_string] : $info['http_code'];
                 if (!$code) {
                     throw new Exception('Response Code not defined', 500);
                 } else if ($code >= 400) {
@@ -840,14 +840,14 @@ HTML;
             return $result['data'][$select];
         }
 
-        return $result['data'] ?? $result;
+        return isset($result['data']) ? $result['data'] : $result;
     }
 
     /**
      * @param $string
      * @return bool
      */
-    private static function isJson($string): bool
+    private static function isJson($string)
     {
         $decoded = json_decode($string, true);
         $isJson = (json_last_error() == JSON_ERROR_NONE && is_array($decoded));
