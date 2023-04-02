@@ -217,8 +217,8 @@ abstract class Conexion
     protected function conectar()
     {
         try {
-            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
-            self::$mysqli = new EMysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
+            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db, 3306);
+            self::$mysqli = new EMysqli(self::$host, self::$user, self::$pass, self::$db, 3306);
 
             if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
