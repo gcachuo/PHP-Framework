@@ -8,7 +8,7 @@
  */
 class TablaPerfiles_Acciones extends Tabla
 {
-    function create_table(): string
+    function create_table()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
