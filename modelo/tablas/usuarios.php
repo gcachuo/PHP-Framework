@@ -36,7 +36,7 @@ MySQL;
         return $sql;
     }
 
-    function selectUsuario($login)
+    function selectUsuario(string $login): array
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -48,12 +48,15 @@ id_usuario_create idUserCreate,
 password_usuario pass
 FROM _usuarios
 WHERE
-  (login_usuario = '$login' OR correo_usuario='$login')
+  (login_usuario = :login_usuario OR correo_usuario = :login_usuario)
  AND estatus_usuario = TRUE 
 MySQL;
 
-        $consulta = $this->consulta($sql);
-        $registro = $this->siguiente_registro($consulta);
+        $consulta = $this->consulta2($sql, [
+            ':login_usuario' => $login,
+            ':correo_usuario' => $login,
+        ]);
+        $registro = $consulta->fetch();
         return $registro;
     }
 
@@ -175,7 +178,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = null, $id_usuario_create = null, $id_especialista)
+    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = null, $id_usuario_create = null, $id_especialista = null)
     {
         if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION["usuario"];
         $sql = /** @lang MySQL */
@@ -272,10 +275,9 @@ FROM `_usuarios`
 WHERE id_usuario = '$usuario'
 MySQL;
 
-        $consulta = $this->consulta($sql);
-        $registro = $this->siguiente_registro($consulta) ?: (object)['perfil' => null];
-        $perfil = $registro->perfil;
-        return $perfil;
+        $consulta = $this->consulta2($sql);
+        $registro = $consulta->fetch() ?: ['perfil' => null];
+        return $registro['perfil'];
     }
 
     function updateIdUserCreate($id_usuario, $id_usuario_create)

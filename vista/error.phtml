@@ -14,8 +14,16 @@ if ($code >= 500) {
 }
 $trace = Globales::json_encode($ex->getTrace());
 ?>
-<textarea style="display: none" id="trace"><?= $trace ?></textarea>
+<label for="trace">
+    <textarea style="display: none" id="trace"><?= $trace ?></textarea>
+</label>
 <h2><?= $code ?></h2>
-<h3><?= $message ?></h3>
+<h3><?= $message ?? '' ?></h3>
 <a href="?s=1">Cerrar Sesión</a>
-<script>console.error("<?= $ex->getMessage() ?>", "<?= $ex->getFile() ?>", <?= $ex->getLine() ?>, JSON.parse(document.getElementById('trace').textContent));</script>
+<script>
+    console.error(
+        "<?= addslashes($ex->getMessage()) ?>",
+        "<?= $ex->getFile() ?>",
+        <?= $ex->getLine() ?>,
+        JSON.parse(document.getElementById('trace').textContent));
+</script>

@@ -101,17 +101,22 @@ HTML
             $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
             $script = (<<<HTML
 <script>
-console.error('$message','$file',$error[line]);
+console.error('$message','$file',$error[line])
 </script>
 HTML
             );
         }
     }
-    if ($error && $error['type'] !== 8) {
+    if (
+        $error &&
+        $error['type'] !== E_NOTICE &&
+        $error['type'] !== E_WARNING
+    ) {
         ob_end_clean();
         http_response_code(500);
         header('Content-Type: application/json');
         die(json_encode([
+            'type' => $error['type'],
             'code' => 500,
             'message' => $error['message'],
             'data' => [

@@ -39,7 +39,7 @@ class Login extends Control
             $dist = true;
             $password = bin2hex(openssl_random_pseudo_bytes(4));
             $this->password = $password;
-        };
+        }
         $password = Globales::crypt_blowfish_bydinvaders($password);
         unset($repassword);
         switch (TYPE_SYSTEM) {
@@ -209,17 +209,17 @@ class Login extends Control
         $usuario = $this->modelo->usuarios->selectUsuario($usuario);
 
         #Encripta la contraseña antes de mandarla al modelo
-        $password = password_verify($_POST["password"], $usuario->pass);
+        $password = password_verify($_POST["password"], $usuario['pass']);
         unset($_POST['password']);
         unset($_REQUEST);
 
-        $cambiarPass = (bool)$usuario->idUserCreate;
+        $cambiarPass = (bool)$usuario['idUserCreate'];
 
         #Si el usuario existe llena la variable de usuario en sesión con el id del usuario
         if ($password) {
-            $_SESSION['usuario'] = $usuario->idUsuario;
-            $_SESSION['perfil'] = $usuario->idPerfil;
-            $_SESSION['sucursal'] = $usuario->idSucursal;
+            $_SESSION['usuario'] = $usuario['idUsuario'];
+            $_SESSION['perfil'] = $usuario['idPerfil'];
+            $_SESSION['sucursal'] = $usuario['idSucursal'];
         } else Globales::mensaje_error("Los datos son incorrectos. Verifique la información.");
 
         return compact("cambiarPass", "usuario", "token");
