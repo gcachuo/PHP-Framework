@@ -12,7 +12,7 @@ use cbizcontrol;
 
 class TablaCbiz_Cliente extends cbizcontrol
 {
-    function create_table(): string
+    function create_table()
     {
         return <<<sql
 CREATE TABLE e11_cbizcontrol.cbiz_cliente(

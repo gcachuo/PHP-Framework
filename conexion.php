@@ -217,8 +217,8 @@ abstract class Conexion
     protected function conectar()
     {
         try {
-            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db, 3306);
-            self::$mysqli = new EMysqli(self::$host, self::$user, self::$pass, self::$db, 3306);
+            self::$conexion = new mysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
+            self::$mysqli = new EMysqli(self::$host, self::$user, self::$pass, self::$db, 3307);
 
             if (!self::$conexion) Globales::mensaje_error('Error de conexion. [' . self::$db . ']');
         } catch (mysqli_sql_exception $ex) {
@@ -372,7 +372,7 @@ abstract class Conexion
             $dbname = self::$db;
             $username = self::$user;
             $passwd = self::$pass;
-            $port = 3306;
+            $port = 3307;
 
             $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $passwd);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
