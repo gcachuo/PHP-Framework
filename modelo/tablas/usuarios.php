@@ -8,7 +8,7 @@
  */
 class TablaUsuarios extends Tabla
 {
-    function create_table(): string
+    function create_table()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -36,7 +36,7 @@ MySQL;
         return $sql;
     }
 
-    function selectUsuario(string $login): array
+    function selectUsuario( $login)
     {
         $sql = /** @lang MySQL */
             <<<MySQL

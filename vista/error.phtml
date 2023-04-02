@@ -18,7 +18,7 @@ $trace = Globales::json_encode($ex->getTrace());
     <textarea style="display: none" id="trace"><?= $trace ?></textarea>
 </label>
 <h2><?= $code ?></h2>
-<h3><?= $message ?? '' ?></h3>
+<h3><?= isset($message) ? $message : '' ?></h3>
 <a href="?s=1">Cerrar Sesión</a>
 <script>
     console.error(

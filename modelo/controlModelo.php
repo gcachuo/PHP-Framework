@@ -40,9 +40,9 @@ class ModeloControl extends Modelo
     /**
      * @return array
      */
-    function obtenerPermisosModulo(): array
+    function obtenerPermisosModulo()
     {
-        $perfil = $this->usuarios->selectPerfil($_SESSION['usuario'] ?? null);
+        $perfil = $this->usuarios->selectPerfil(isset($_SESSION['usuario']) ? $_SESSION['usuario'] : null);
         if ($perfil == 0) {
             $acciones = $this->acciones->selectAccionesModulo($_SESSION['modulo']);
         }
