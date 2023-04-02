@@ -372,7 +372,7 @@ abstract class Conexion
             $dbname = self::$db;
             $username = self::$user;
             $passwd = self::$pass;
-            $port = 3307;
+            $port = 3306;
 
             $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $passwd);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
