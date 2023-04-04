@@ -18,7 +18,7 @@ date_default_timezone_set('America/Mexico_City');
 setlocale(LC_ALL, 'es_ES');
 set_exception_handler('exception');
 spl_autoload_register('autoloader');
-register_shutdown_function('cierre');
+//register_shutdown_function('cierre');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -88,6 +88,7 @@ function autoloader($class)
 
 function cierre()
 {
+    ob_clean();
     $error = error_get_last();
     if (!isset($_POST['fn'])) {
         if ($error['type'] === E_ERROR) {

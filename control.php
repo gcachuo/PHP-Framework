@@ -355,6 +355,14 @@ HTML;
 
         $this->script("$plugins/maskedinput/masked-input-1.4-min.js");
         $this->script("$plugins/jic/js/JIC.js");
+        
+        $this->script("$JSassets/jquery.numeric.js");
+        $this->script("$JSassets/facturama.api.multiemisor.js");
+        /*$this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js");*/
+        $this->script("$JSassets/certificates.js");
+
+        $this->script("$JSassets/bootstrap-datepicker.js");
 
         #Override
         $this->stylesheet("$CSSassets/wrap.css");
@@ -364,13 +372,6 @@ HTML;
             $this->stylesheet("$CSSassets/styles.css");
         $this->script("$JSassets/globales.js?" . uniqid());
         $this->script("$JSassets/app.js");
-
-
-        $this->script("$JSassets/jquery.numeric.js");
-        $this->script("$JSassets/facturama.api.multiemisor.js");
-        /*$this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css");
-        $this->script("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js");*/
-        $this->script("$JSassets/certificates.js");
 
         $modulo = str_replace("/", "_", Globales::$modulo);
         $this->addCustom($modulo);
