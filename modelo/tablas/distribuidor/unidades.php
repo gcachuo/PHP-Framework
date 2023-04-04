@@ -75,4 +75,19 @@ WHERE clave_unidad='$clave_unidad'
 MySQL;
         return $this->siguiente_registro($this->consulta($sql));
     }
+
+    public function selectUnidadFromId($id)
+    {
+        $sql = /** @lang MySQL */
+            <<<MySQL
+SELECT
+     id_unidad AS id,
+     clave_unidad AS clave,
+     nombre_unidad AS nombre
+FROM unidades
+WHERE id_unidad = '$id'
+MySQL;
+
+        return (array)$this->siguiente_registro($this->consulta($sql));
+    }
 }
