@@ -140,6 +140,7 @@ HTML
         ob_clean();
         die(JSON_RESPONSE);
     } else if (defined('PAGE')) {
+        ob_clean();
         die(PAGE);
     }
 }
