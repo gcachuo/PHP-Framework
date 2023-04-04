@@ -365,6 +365,13 @@ HTML;
         $this->script("$JSassets/globales.js?" . uniqid());
         $this->script("$JSassets/app.js");
 
+
+        $this->script("$JSassets/jquery.numeric.js");
+        $this->script("$JSassets/facturama.api.multiemisor.js");
+        /*$this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css");
+        $this->script("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js");*/
+        $this->script("$JSassets/certificates.js");
+
         $modulo = str_replace("/", "_", Globales::$modulo);
         $this->addCustom($modulo);
 
