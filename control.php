@@ -383,6 +383,20 @@ HTML;
 HTML;
     }
 
+    /**
+     * Convierte el enlace del recurso en etiquetas de referencia para Javascript
+     * @param $src
+     */
+    private function script($src)
+    {
+        $script = <<<HTML
+<script src="$src"></script>
+HTML;
+
+        $this->scripts .= $script;
+        return $script;
+    }
+
     private function minStylesheet($href, $hrefmin)
     {
         $this->stylesheets .= <<<HTML
@@ -390,27 +404,6 @@ HTML;
 <link rel="stylesheet" type="text/css" href="$href">
   <!-- endbuild -->
 HTML;
-    }
-
-    /**
-     * Convierte el enlace del recurso en etiquetas de referencia para Javascript
-     * @param $src
-     */
-    private function script($src)
-    {
-        $this->scripts .= <<<HTML
-<script src="$src"></script>
-HTML;
-
-    }
-
-    private function script_module($src)
-    {
-        $script = <<<HTML
-<script type="module" src="$src"></script>
-HTML;
-        $this->scripts .= $script;
-        return $script;
     }
 
     private function addCustom($modulo, $custom = false)
@@ -430,6 +423,15 @@ HTML;
             $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists("../framework/recursos/js/{$modulo}.js"))
             $this->$script("../framework/recursos/js/{$modulo}.js");
+    }
+
+    private function script_module($src)
+    {
+        $script = <<<HTML
+<script type="module" src="$src"></script>
+HTML;
+        $this->scripts .= $script;
+        return $script;
     }
 
     /**
@@ -515,7 +517,7 @@ HTML;
         $pagina = ob_get_contents();
 
         $modulo = str_replace('/', '_', $vista);
-        $pagina .= $this->script_module("recursos/js/{$modulo}.js");
+        $pagina .= $this->script("recursos/js/{$modulo}.js");
 
         ob_end_clean();
         return $pagina;
@@ -1019,7 +1021,7 @@ class ArchivoModelo
                 if (!file_exists($ruta)) {
                     $ruta = dirname(__FILE__) . "/modelo/{$key}Modelo.php";
                 }
-            };
+            }
             if (file_exists($ruta)) {
                 require_once $ruta;
                 $modelo = "{$namespace}Modelo{$key}";
