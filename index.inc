@@ -18,7 +18,7 @@ date_default_timezone_set('America/Mexico_City');
 setlocale(LC_ALL, 'es_ES');
 set_exception_handler('exception');
 spl_autoload_register('autoloader');
-//register_shutdown_function('cierre');
+register_shutdown_function('cierre');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -40,10 +40,16 @@ require_once dirname(__FILE__) . '/vendor/autoload.php';
 
 
 ob_start();
-Globales::$modulo = isset($_POST["modulo"]) ? $_POST["modulo"] : isset($_SESSION["modulo"]) ? $_SESSION["modulo"] : null;
+$modulo = isset($_POST['modulo'])
+    ? $_POST['modulo']
+    : (isset($_SESSION['modulo'])
+        ? $_SESSION['modulo']
+        : null
+    );
+Globales::$modulo = $modulo;
 Globales::$namespace = __NAMESPACE__ . "\\";
 Globales::setVista();
-Globales::setControl(Globales::$modulo);
+Globales::setControl($modulo);
 cierre();
 ob_clean();
 
@@ -131,6 +137,7 @@ HTML
             header('Content-Type: application/json');
         }
         http_response_code(200);
+        ob_clean();
         die(JSON_RESPONSE);
     } else if (defined('PAGE')) {
         die(PAGE);

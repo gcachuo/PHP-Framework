@@ -326,6 +326,21 @@ class Globales
     }
 
     /**
+     * @param string $mensaje
+     * @param int $code
+     * @param null $sql
+     * @throws Exception
+     */
+    static function mensaje_error($mensaje, $code = 400, $sql = null)
+    {
+        if (!is_null($sql)) {
+            $sql = addslashes(preg_replace("/\r|\n/", "", $sql));
+            echo "<script>console.log('$sql')</script>";
+        }
+        throw new Exception($mensaje, $code);
+    }
+
+    /**
      * @param string $formato %#d/%#m/%Y %I:%M%P http://php.net/manual/es/function.strftime.php
      * @param string $fecha
      * @param bool $locale
@@ -550,7 +565,7 @@ class Globales
         return self::$token;
     }
 
-    public static function getConfig( $object = true)
+    public static function getConfig($object = true)
     {
         $env = file_exists(__DIR__ . '/' . APP_ROOT . "config.dev.json") ? "dev" : "prod";
 
@@ -597,21 +612,6 @@ class Globales
         return json_decode($json, true);
     }
 
-    /**
-     * @param string $mensaje
-     * @param int $code
-     * @param null $sql
-     * @throws Exception
-     */
-    static function mensaje_error($mensaje, $code = 400, $sql = null)
-    {
-        if (!is_null($sql)) {
-            $sql = addslashes(preg_replace("/\r|\n/", "", $sql));
-            echo "<script>console.log('$sql')</script>";
-        }
-        throw new Exception($mensaje, $code);
-    }
-
     static function setToken($token)
     {
         self::$token = $token;
@@ -623,7 +623,9 @@ class Globales
      */
     static function setControl($modulo = null)
     {
-        if (isset($_GET["aside"])) $modulo = $_REQUEST["asideModulo"] . "/" . $_REQUEST["asideAccion"];
+        if (isset($_GET["aside"])) {
+            $modulo = $_REQUEST["asideModulo"] . "/" . $_REQUEST["asideAccion"];
+        }
         $control = explode("/", $modulo)[0];
 
         if ($_SESSION["namespace"] != self::$namespace) {
@@ -721,7 +723,7 @@ HTML;
         }
     }
 
-    static function uploadFile( $FILE, array $path_array)
+    static function uploadFile($FILE, array $path_array)
     {
         $FILE = Globales::json_decode($FILE);
         $data = base64_decode($FILE['data']);
@@ -739,7 +741,7 @@ HTML;
      * @param bool $assoc
      * @return object|array
      */
-    static function json_decode( $json,  $assoc = true)
+    static function json_decode($json, $assoc = true)
     {
         $json = json_decode($json, $assoc);
         $error = json_last_error();
@@ -768,7 +770,7 @@ HTML;
      * @return mixed
      * @throws Exception
      */
-    static function curl($options,  $select = '',  $code_string = 'code')
+    static function curl($options, $select = '', $code_string = 'code')
     {
         $curl = curl_init();
 
