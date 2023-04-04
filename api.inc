@@ -1,6 +1,6 @@
 <?php
 session_start();
-list($modulo, $fn) = explode('/', trim(isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '', '/')) + [null, null];
+list($_, $modulo, $fn) = explode('/', trim(isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '', '/')) + [null, null];
 $_POST = [
         'modulo' => $modulo ?: $_SESSION['modulo'],
         'fn' => $fn,
