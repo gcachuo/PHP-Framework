@@ -75,4 +75,19 @@ FROM prod_serv WHERE clave_prod_serv='$clave_prod_serv'
 MySQL;
         return $this->siguiente_registro($this->consulta($sql));
     }
+
+    public function selectProdServFromId($id)
+    {
+        $sql = /** @lang MySQL */
+            <<<MySQL
+SELECT
+     id_prod_serv AS id,
+     clave_prod_serv AS clave,
+     descripcion_prod_serv AS nombre
+FROM prod_serv
+WHERE id_prod_serv = '$id'
+MySQL;
+
+        return (array)$this->siguiente_registro($this->consulta($sql));
+    }
 }
