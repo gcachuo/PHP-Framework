@@ -134,9 +134,9 @@ abstract class Conexion
     private $stmt;
     private $pdo;
 
-    public function fetch(): array
+    public function fetch(int $mode = PDO::FETCH_ASSOC): array
     {
-        return $this->stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        return $this->stmt->fetch($mode) ?: [];
     }
 
     public function fetchAll($fetch_style = null)
