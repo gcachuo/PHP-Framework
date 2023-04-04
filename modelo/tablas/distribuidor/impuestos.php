@@ -9,22 +9,23 @@
 namespace distribuidor;
 
 use cbizcontrol;
+use Exception;
+use mysqli_result;
 
 /**
  * Class TablaImpuestos
  * CREATE TABLE impuestos
-    * (
-        * id_impuesto bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-        * id_impuesto_sat varchar(255),
-        * nombre_impuesto varchar(100) NOT NULL,
-        * valor_impuesto decimal(12,2) NOT NULL
-    * );
+ * (id_impuesto bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+ * id_impuesto_sat varchar(255),
+ * nombre_impuesto varchar(100) NOT NULL,
+ * valor_impuesto decimal(12,2) NOT NULL
+ * );
  * CREATE UNIQUE INDEX impuestos_nombre_impuesto_uindex ON impuestos (nombre_impuesto);
  * @package distribuidor
  */
 class TablaImpuestos extends cbizcontrol
 {
-    function create_table(): string
+    function create_table()
     {
         return <<<sql
 CREATE TABLE e11_cbizcontrol.impuestos(
@@ -38,8 +39,8 @@ sql;
     }
 
     /**
-     * @return int|\mysqli_result
-     * @throws \Exception
+     * @return int|mysqli_result
+     * @throws Exception
      */
     function selectImpuestos()
     {
