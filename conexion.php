@@ -136,9 +136,9 @@ abstract class Conexion
     private $stmt;
     private $pdo;
 
-    public function fetch()
+    public function fetch($mode = PDO::FETCH_ASSOC)
     {
-        return $this->stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        return $this->stmt->fetch($mode) ?: [];
     }
 
     public function fetchAll($fetch_style = null)
@@ -146,7 +146,7 @@ abstract class Conexion
         return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
     }
 
-    public function fetchColumn( $column = 0)
+    public function fetchColumn($column = 0)
     {
         return $this->stmt->fetchColumn($column);
     }
@@ -365,7 +365,7 @@ abstract class Conexion
      * @return $this
      * @throws Exception
      */
-    public function consulta2( $sql, array $params = [])
+    public function consulta2($sql, array $params = [])
     {
         try {
             $host = self::$host;
