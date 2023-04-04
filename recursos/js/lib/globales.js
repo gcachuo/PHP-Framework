@@ -230,7 +230,7 @@ function aside(modulo, accion, post) {
     $("#rightBar").modal();
     $("#rightBarContent").html("<div class='loading'></div>");
     $.post(
-        `${modulo}/${accion}?aside=1`,
+        `index.php/${modulo}/${accion}?aside=1`,
         {
             asideModulo: modulo,
             asideAccion: accion,

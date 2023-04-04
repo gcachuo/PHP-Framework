@@ -13,18 +13,18 @@ use cbizcontrol;
 /**
  * Class TablaUnidades
  * CREATE TABLE unidades
-    * (
-        * id_unidad bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-        * clave_unidad varchar(255) NOT NULL,
-        * nombre_unidad varchar(255) NOT NULL
-    * );
+ * (
+ * id_unidad bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+ * clave_unidad varchar(255) NOT NULL,
+ * nombre_unidad varchar(255) NOT NULL
+ * );
  * CREATE UNIQUE INDEX unidades_clave_unidad_uindex ON unidades (clave_unidad);
  * CREATE UNIQUE INDEX unidades_nombre_unidad_uindex ON unidades (nombre_unidad);
  * @package distribuidor
  */
 class TablaUnidades extends cbizcontrol
 {
-    function create_table(): string
+    function create_table()
     {
         return <<<sql
 CREATE TABLE unidades(
