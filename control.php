@@ -425,20 +425,11 @@ HTML;
             $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
 
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
-            $this->script_module("recursos/js/{$modulo}.js");
+            $this->script("recursos/js/{$modulo}.js");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
             $this->$script(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js");
         elseif (file_exists("../framework/recursos/js/{$modulo}.js"))
             $this->$script("../framework/recursos/js/{$modulo}.js");
-    }
-
-    private function script_module($src)
-    {
-        $script = <<<HTML
-<script type="module" src="$src"></script>
-HTML;
-        $this->scripts .= $script;
-        return $script;
     }
 
     /**
@@ -831,7 +822,6 @@ HTML;
         return $html;
     }
 
-
     protected function buildListaEstados($idCiudad = null)
     {
         $idEstado = '';
@@ -886,6 +876,15 @@ HTML;
         }
 
         return compact('listaCiudades');
+    }
+
+    private function script_module($src)
+    {
+        $script = <<<HTML
+<script type="module" src="$src"></script>
+HTML;
+        $this->scripts .= $script;
+        return $script;
     }
 
     /**
