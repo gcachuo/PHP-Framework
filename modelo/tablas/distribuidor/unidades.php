@@ -90,4 +90,4 @@ MySQL;
 
         return (array)$this->siguiente_registro($this->consulta($sql));
     }
-}
+} 

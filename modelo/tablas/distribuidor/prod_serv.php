@@ -25,7 +25,7 @@ use cbizcontrol;
 class TablaProd_Serv extends cbizcontrol
 {
 
-    function create_table(): string
+    function create_table()
     {
         return <<<sql
 CREATE TABLE prod_serv(
