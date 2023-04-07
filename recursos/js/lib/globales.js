@@ -102,7 +102,7 @@ function cargarDropdown() {
 function cargarAcordeon() {
   $(".wizard > .box > a").click(function () {
     /*$(this).children("span").addClass("hidden");
-                                        $(this).parent().next().find("a span").removeClass("hidden");*/
+        $(this).parent().next().find("a span").removeClass("hidden");*/
     $(this)
       .siblings(".collapse")
       .collapse("show")
@@ -531,7 +531,7 @@ function cargarDropzone(idioma, numFiles, modulo, nombre, folder) {
                   editedFile.accepted = true;
 
                   /*var origFileIndex = myDropzone.files.indexOf(file);
-                                                                                                                                                                                         myDropzone.files[origFileIndex] = editedFile;*/
+                                         myDropzone.files[origFileIndex] = editedFile;*/
 
                   myDropzone.files.push(editedFile);
                   myDropzone.emit("addedFile", editedFile);
@@ -672,24 +672,24 @@ function initMap() {
               $("#cpCliente").val(place[i].long_name);
             }
             /*if(place[i].types[0] == 'administrative_area_level_1')
-                                                                                                                         {
-                                                                                                                         //ESTADO
-                                                                                                                         var txtEstado = place[i].long_name;
-                                                                                                                         }
-                                                                                                                         if(place[i].types[0] == 'locality')
-                                                                                                                         {
-                                                                                                                         //CIUDAD
-                                                                                                                         var txtCiudad = place[i].long_name;
-                                                                                                                         }
-                                                                                                                         if(place[i].types[0] == 'sublocality_level_1')
-                                                                                                                         {
-                                                                                                                         //COLONIA
-                                                                                                                         var txtColonia = place[i].long_name;
-                                                                                                                         }
-                                                                                                                         if(place[i].types[0] == 'country')
-                                                                                                                         {
-                                                                                                                         //document.getElementById('country').innerHTML =      long_name;
-                                                                                                                         }*/
+                         {
+                         //ESTADO
+                         var txtEstado = place[i].long_name;
+                         }
+                         if(place[i].types[0] == 'locality')
+                         {
+                         //CIUDAD
+                         var txtCiudad = place[i].long_name;
+                         }
+                         if(place[i].types[0] == 'sublocality_level_1')
+                         {
+                         //COLONIA
+                         var txtColonia = place[i].long_name;
+                         }
+                         if(place[i].types[0] == 'country')
+                         {
+                         //document.getElementById('country').innerHTML =      long_name;
+                         }*/
           }
 
           $("#latMap").val(marker.getPosition().lat());
@@ -758,24 +758,24 @@ function initMap() {
           $("#cpCliente").val(place.address_components[i].long_name);
         }
         /*if(place.address_components[i].types[0] == 'administrative_area_level_1')
-                                                                                 {
-                                                                                 //ESTADO
-                                                                                 var txtEstado = place.address_components[i].long_name;
-                                                                                 }
-                                                                                 if(place.address_components[i].types[0] == 'locality')
-                                                                                 {
-                                                                                 //CIUDAD
-                                                                                 var txtCiudad = place.address_components[i].long_name;
-                                                                                 }
-                                                                                 if(place.address_components[i].types[0] == 'sublocality_level_1')
-                                                                                 {
-                                                                                 //COLONIA
-                                                                                 var txtColonia = place.address_components[i].long_name;
-                                                                                 }
-                                                                                 if(place.address_components[i].types[0] == 'country')
-                                                                                 {
-                                                                                 //document.getElementById('country').innerHTML = place.address_components[i].long_name;
-                                                                                 }*/
+                 {
+                 //ESTADO
+                 var txtEstado = place.address_components[i].long_name;
+                 }
+                 if(place.address_components[i].types[0] == 'locality')
+                 {
+                 //CIUDAD
+                 var txtCiudad = place.address_components[i].long_name;
+                 }
+                 if(place.address_components[i].types[0] == 'sublocality_level_1')
+                 {
+                 //COLONIA
+                 var txtColonia = place.address_components[i].long_name;
+                 }
+                 if(place.address_components[i].types[0] == 'country')
+                 {
+                 //document.getElementById('country').innerHTML = place.address_components[i].long_name;
+                 }*/
       }
 
       /* Location details */
@@ -827,7 +827,7 @@ function cargarMultiDropzone(idioma, numFiles, modulo, nombre, folder) {
                   editedFile.accepted = true;
 
                   /*var origFileIndex = myDropzone.files.indexOf(file);
-                                                                                                                                                                                         myDropzone.files[origFileIndex] = editedFile;*/
+                                         myDropzone.files[origFileIndex] = editedFile;*/
 
                   myDropzone.files.push(editedFile);
                   myDropzone.emit("addedFile", editedFile);
@@ -1468,8 +1468,10 @@ function removeCommas(nStr) {
   return nStr;
 }
 
-function searchSelectGral(className, tipo, URL, numChr, txtSeach) {
+function searchSelectGral(className, tipo, URL, numChr, txtSeach, idSearch) {
   tipo = typeof tipo !== "undefined" ? tipo : ".";
+  idSearch = typeof idSearch !== "undefined" ? idSearch : "0";
+
   $(tipo + className).select2({
     width: "100%",
     placeholderOption: "first",
@@ -1492,8 +1494,9 @@ function searchSelectGral(className, tipo, URL, numChr, txtSeach) {
       url: URL,
       dataType: "json",
       quietMillis: 250,
-      data: function (term) {
-        return { q: term };
+      data: function (params) {
+        params["idSearch"] = idSearch;
+        return { q: params };
       },
       processResults: function (data) {
         var results;
@@ -1509,6 +1512,23 @@ function searchSelectGral(className, tipo, URL, numChr, txtSeach) {
       },
     },
   });
+}
+
+function actionExt(URL, action, id) {
+  var formData = new FormData();
+  formData.append("action", action);
+  formData.append("id", id);
+
+  $.ajax({
+    url: URL,
+    data: formData,
+    type: "POST",
+    contentType: false,
+    processData: false,
+  })
+    .done(function (result) {})
+    .fail(function (result) {})
+    .always(function (result) {});
 }
 
 function converToLocalTime(serverDate) {
