@@ -9,10 +9,16 @@
 namespace distribuidor;
 
 
-class TablaUsoCFDI extends \cbizcontrol
-{
+use cbizcontrol;
 
-    function selectUsosCFDI()
+class TablaUsoCFDI extends cbizcontrol
+{
+    public function create_table()
+    {
+        // TODO: Implement create_table() method.
+    }
+
+    public function selectUsosCFDI()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -25,7 +31,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function selectUsoCFDI($id_usocfdi)
+    public function selectUsoCFDI($id_usocfdi)
     {
         $sql = /** @lang MySQL */
             <<<MySQL

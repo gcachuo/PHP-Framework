@@ -9,8 +9,14 @@
 namespace distribuidor;
 
 
-class TablaMetodos_Pago extends \cbizcontrol
+use cbizcontrol;
+
+class TablaMetodos_Pago extends cbizcontrol
 {
+    function create_table()
+    {
+        // TODO: Implement create_table() method.
+    }
 
     public function selectMetodosPago()
     {
