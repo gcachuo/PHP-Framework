@@ -14,31 +14,29 @@ class Usuarios extends Control
 {
     protected $tablaUsuarios, $listaPerfiles, $usuario, $listaEspecialistas, $tutor;
 
-    function registrarUsuario()
+    public function registrarUsuario()
     {
         Globales::check_value_empty($_POST, ['nombre', 'usuario', 'password']);
-        [
-            'id' => $id,
-            'nombre' => $nombre,
-            'usuario' => $usuario,
-            'password' => $password,
-            'repass' => $repass,
-        ] = $_POST;
+        $id = $_POST['id'];
+        $nombre = $_POST['nombre'];
+        $usuario = $_POST['usuario'];
+        $password = $_POST['password'];
+        $repass = $_POST['repass'];
 
-        if (strpos($usuario, " ") !== false) {
-            Globales::mensaje_error("El usuario no debe contener espacios");
+        if (strpos($usuario, ' ') !== false) {
+            Globales::mensaje_error('El usuario no debe contener espacios');
         }
         if ($repass != $password) {
-            Globales::mensaje_error("Las contraseñas no coinciden");
+            Globales::mensaje_error('Las contraseñas no coinciden');
         }
 
         $password = Globales::crypt_blowfish_bydinvaders($password);
         $this->modelo->registrarUsuario($nombre, $usuario, $password, $_POST['email'], $_POST['perfil'], $id, $_POST['especialista']);
     }
 
-    function eliminarUsuario()
+    public function eliminarUsuario()
     {
-        $this->modelo->eliminarUsuario($_POST["idUsuario"]);
+        $this->modelo->eliminarUsuario($_POST['idUsuario']);
     }
 
     protected function cargarPrincipal()
@@ -50,9 +48,9 @@ class Usuarios extends Control
     /**
      * @return string
      */
-    function generarTablaUsuarios()
+    public function generarTablaUsuarios()
     {
-        $tablaUsuarios = "";
+        $tablaUsuarios = '';
         $usuarios = $this->modelo->usuarios->selectRegistrosUsuarios();
 
         foreach ($usuarios as $usuario) {
@@ -66,12 +64,12 @@ class Usuarios extends Control
             extract($usuario);
 
             $btnEditar = <<<HTML
-<a title="{$this->idioma->btnEditar}" class="btn btn-sm btn-default" onclick="navegar('usuarios', 'nuevo', {idUsuario: $usuario[id]});">
+<a title="{$this->idioma->btnEditar}" class="btn btn-sm btn-default" onclick="navegar('usuarios', 'nuevo', {idUsuario: $usuario[id]})">
     <i class="material-icons">edit</i>
 </a>
 HTML;
             $btnEliminar = <<<HTML
-<a title="{$this->idioma->btnEliminar}" class="btn btn-sm btn-default" onclick="btnEliminarUsuario($usuario[id]);">
+<a title="{$this->idioma->btnEliminar}" class="btn btn-sm btn-default" onclick="btnEliminarUsuario($usuario[id])">
     <i class="material-icons">delete</i>
 </a>
 HTML;
@@ -97,30 +95,28 @@ HTML;
         if (isset($_POST['tutor'])) {
             $this->tutor = true;
         }
-        if ($_POST['idUsuario'] ?? $_SESSION['id'] ?? null) {
-            $_SESSION['id'] = $_POST['idUsuario'] ?? $_SESSION['id'];
-            $this->usuario = $this->modelo->usuarios->selectUsuarioFromId($_SESSION["id"] ?? 'null');
+        if (
+            (
+            isset($_POST['idUsuario'])
+                ? $_POST['idUsuario']
+                : (
+            isset($_SESSION['id'])
+                ? $_SESSION['id']
+                : null
+            )
+            )
+        ) {
+            $_SESSION['id'] = isset($_POST['idUsuario']) ? $_POST['idUsuario'] : $_SESSION['id'];
+            $this->usuario = $this->modelo->usuarios->selectUsuarioFromId(isset($_SESSION['id']) ? $_SESSION['id'] : 'null');
         }
 
         $this->listaPerfiles .= $this->generarListaPerfiles();
         $this->generarListasEspecialistas();
     }
 
-    function generarListasEspecialistas()
+    public function generarListaPerfiles()
     {
-        $especialistas = $this->modelo->especialistas->selectEspecialistas();
-        foreach ($especialistas as $especialista) {
-            $selected = $this->usuario->idEspecialista == $especialista['id'] ? "selected" : "";
-            $this->listaEspecialistas .= <<<HTML
-<option $selected  value="$especialista[id]">$especialista[nombre]</option>
-HTML;
-
-        }
-    }
-
-    function generarListaPerfiles()
-    {
-        $listaPerfiles = "";
+        $listaPerfiles = '';
         /*if ($_SESSION['perfil'] == 0) {
             $selected = $this->usuario->perfil == 0 ? "selected" : "";
             $listaPerfiles = <<<HTML
@@ -132,11 +128,23 @@ HTML;
         if (isset($_POST['tutor']))
             $this->usuario->perfil = 3;
         foreach ($perfiles as $perfil) {
-            $selected = ($this->usuario->perfil ?? null) == $perfil['idPerfil'] ? "selected" : "";
+            $selected = (isset($this->usuario->perfil) ? $this->usuario->perfil : null) == $perfil['idPerfil'] ? 'selected' : '';
             $listaPerfiles .= <<<HTML
 <option $selected value="$perfil[idPerfil]">$perfil[nombrePerfil]</option>
 HTML;
         }
         return $listaPerfiles;
+    }
+
+    public function generarListasEspecialistas()
+    {
+        $especialistas = $this->modelo->especialistas->selectEspecialistas();
+        foreach ($especialistas as $especialista) {
+            $selected = $this->usuario->idEspecialista == $especialista['id'] ? 'selected' : '';
+            $this->listaEspecialistas .= <<<HTML
+<option $selected  value="$especialista[id]">$especialista[nombre]</option>
+HTML;
+
+        }
     }
 }
