@@ -23,12 +23,12 @@ class Perfiles extends Control
     /**
      * @throws Exception
      */
-    function guardarPerfil()
+    public function guardarPerfil()
     {
         $nombre = $_POST['nombre'];
-        if (empty($nombre)) Globales::mensaje_error("Ingrese un nombre para el perfil.");
+        if (empty($nombre)) Globales::mensaje_error('Ingrese un nombre para el perfil.');
 
-        $idPerfil = $this->modelo->perfiles->insertPerfil($nombre, $_SESSION["usuario"], $_POST['id'] ?: 'null');
+        $idPerfil = $this->modelo->perfiles->insertPerfil($nombre, $_SESSION['usuario'], $_POST['id'] ?: 'null');
         $this->modelo->guardarAcciones($idPerfil, $_POST['accion']);
     }
 
@@ -36,7 +36,7 @@ class Perfiles extends Control
      * @throws Exception
      * @deprecated usar funcion 'guardarPerfil'
      */
-    function editarPerfil()
+    public function editarPerfil()
     {
         /**
          * @var $modulos
@@ -44,7 +44,7 @@ class Perfiles extends Control
          * @var $nombre
          */
         extract($_POST);
-        if ($nombre == "") Globales::mensaje_error("Ingrese un nombre para el perfil.");
+        if ($nombre == '') Globales::mensaje_error('Ingrese un nombre para el perfil.');
 
         $this->modelo->editarNombrePerfil($idPerfil, $nombre);
         $this->modelo->eliminarAccionesPerfil($idPerfil);
@@ -56,9 +56,9 @@ class Perfiles extends Control
         }
     }
 
-    function eliminarPerfil()
+    public function eliminarPerfil()
     {
-        $this->modelo->eliminarPerfil($_POST["idPerfil"]);
+        $this->modelo->eliminarPerfil($_POST['idPerfil']);
     }
 
     protected function cargarPrincipal()
@@ -66,22 +66,22 @@ class Perfiles extends Control
         $this->generarTablaPerfiles();
     }
 
-    function generarTablaPerfiles()
+    public function generarTablaPerfiles()
     {
         $idioma = $this->idioma;
-        $permisos = $this->permisos->perfiles ?? [];
+        $permisos = isset($this->permisos->perfiles) ? $this->permisos->perfiles : [];
 
         $perfiles = $this->modelo->obtenerPerfiles();
 
         foreach ($perfiles as $perfil) {
 
             $btnEditar = <<<HTML
-<a title="$idioma->btnEditar" class="btn btn-sm btn-default" onclick="navegar('perfiles', 'nuevo', {id: $perfil[idPerfil]});">
+<a title="$idioma->btnEditar" class="btn btn-sm btn-default" onclick="navegar('perfiles', 'nuevo', {id: $perfil[idPerfil]})">
     <i class="material-icons">edit</i>
 </a>
 HTML;
             $btnEliminar = <<<HTML
-<a title="$idioma->btnEliminar" class="btn btn-sm btn-default" onclick="btnEliminar($perfil[idPerfil]);">
+<a title="$idioma->btnEliminar" class="btn btn-sm btn-default" onclick="btnEliminar($perfil[idPerfil])">
     <i class="material-icons">delete</i>
 </a>
 HTML;
@@ -99,28 +99,28 @@ HTML;
 
     protected function cargarAside()
     {
-        if (isset($_POST["id"])) {
-            $this->permisosPerfiles = $this->modelo->perfiles_acciones->selectAccionesFromPerfil($_POST["id"]);
-            $this->perfil = $this->modelo->obtenerPerfil($_POST["id"]);
+        if (isset($_POST['id'])) {
+            $this->permisosPerfiles = $this->modelo->perfiles_acciones->selectAccionesFromPerfil($_POST['id']);
+            $this->perfil = $this->modelo->obtenerPerfil($_POST['id']);
         }
         $this->arbolPermisos = $this->generarArbolPermisos();
     }
 
-    function generarArbolPermisos($padre = 0)
+    public function generarArbolPermisos($padre = 0)
     {
-        $arbol = "";
+        $arbol = '';
         $idioma = $this->idioma->modulos;
 
         $modulos = $this->control->modulos->selectModulosFromParent($padre);
         foreach ($modulos as $modulo) {
-            $acciones = $accesar = "";
+            $acciones = $accesar = '';
             $submodulos = $this->generarArbolPermisos($modulo['id']);
             $listaAcciones = $this->modelo->acciones->selectAccionesPerfilModulo($modulo['id']);
             if (!empty($modulo['navegarModulo'])) {
                 foreach ($listaAcciones as $accion) {
-                    $checked = !empty($this->permisosPerfiles[$accion['id']]) ? "checked" : "";
+                    $checked = !empty($this->permisosPerfiles[$accion['id']]) ? 'checked' : '';
                     $clasePadreModulo = $modulo['padreModulo'] != 0 ? $modulo['padreModulo'] : '';
-                    if ($accion['nombre'] == "accesar") {
+                    if ($accion['nombre'] == 'accesar') {
                         $clasePadreModulo .= $modulo['padreModulo'] != 0 ? ' child' : '';
                         $accesar = <<<HTML
 <span class="checkbox">
@@ -150,7 +150,7 @@ HTML;
 HTML;
                 }
             }
-            $chkAll = "";
+            $chkAll = '';
             if (!empty($submodulos))
                 $chkAll = <<<HTML
 <span class="checkbox">
