@@ -20,8 +20,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent">
     <link rel="apple-touch-icon"
-        <?php $ruta = HTTP_PATH_ROOT . "recursos/img/logo.png";
-        if (!file_exists($ruta)) $ruta = "../framework/recursos/img/logo.png"; ?>
+        <?php $ruta = HTTP_PATH_ROOT . 'recursos/img/logo.png';
+        if (!file_exists($ruta)) $ruta = '../framework/recursos/img/logo.png'; ?>
 
           href="<?= $ruta ?>">
     <meta name="apple-mobile-web-app-title" content="Flatkit">
@@ -83,7 +83,7 @@
     <fieldset id="loader" disabled>
         <link rel="shortcut icon" sizes="196x196" href="/recursos/plugins/flatkit/assets/images/logo.png">
         <div class="app" id="app">
-            <?php if ($vista != "login" and $vista != "registro"): ?>
+            <?php if ($vista != 'login' and $vista != 'registro'): ?>
             <!-- ############ LAYOUT START-->
             <!-- aside -->
             <div id="aside" class="app-aside modal fade nav-dropdown">
@@ -93,17 +93,19 @@
                         <!-- brand -->
                         <a class="navbar-brand" onclick="navegar('inicio')">
                             <?php
-                                $path = "usuario/$_SESSION[token]/config/{$this->configSistema->imagen}";
-                            $img = file_exists(APP_ROOT . $path) ? APP_ROOT . $path :(file_exists(HTTP_PATH_ROOT . $path)? HTTP_PATH_ROOT . $path:'../framework/'.$path);
-                            if(file_exists($img)):?>
-                                <img src="<?= $img ?>"alt="Logo">
+                            $path = "usuario/$_SESSION[token]/config/{$this->configSistema->imagen}";
+                            $img = file_exists(APP_ROOT . $path) ? APP_ROOT . $path : (file_exists(HTTP_PATH_ROOT . $path) ? HTTP_PATH_ROOT . $path : '../framework/' . $path);
+                            if (file_exists($img)):?>
+                                <img src="<?= $img ?>" alt="Logo">
                             <?php endif; ?>
 
-                            <span class="hidden-folded inline"><?= $this->configSistema->nombre ?></span>
+                            <span class="hidden-folded inline"
+                                  style="color: black"><?= $this->configSistema->nombre ?></span>
                         </a>
                         <div>
                             <a onclick="btnMiPerfil()">
-                                <span class="nombreUser hidden-folded inline text-muted nav-text"><?= $this->nombreUsuario ?></span></a>
+                                <span
+                                    class="nombreUser hidden-folded inline text-muted nav-text"><?= $this->nombreUsuario ?></span></a>
                         </div>
                         <!-- / brand -->
                     </div>
@@ -111,7 +113,7 @@
                         <nav class="scroll nav-light">
                             <ul class="nav" ui-nav style="text-transform: capitalize">
                                 <?= $this->modulos ?>
-                                <?php if ($_SESSION["namespace"] == "\\"): ?>
+                                <?php if ($_SESSION['namespace'] == "\\"): ?>
                                     <!--<li class="nav-header hidden-folded pagar">
                                     <span class="nav-icon">
                                     </span>
@@ -184,7 +186,8 @@
                                         <i class="material-icons">&#xe7f5;</i>
                                         <span class="label label-sm up warn"><?= $this->numNot ?></span>
                                     </a>
-                                    <div class="dropdown-menu pull-right w-xl animated fadeInUp no-bg no-border no-shadow">
+                                    <div
+                                        class="dropdown-menu pull-right w-xl animated fadeInUp no-bg no-border no-shadow">
                                         <?= $this->listNotifications ?>
                                     </div>
                                 </li>
@@ -194,8 +197,8 @@
                                    data-toggle="dropdown" role="button"
                                    aria-haspopup="true" aria-expanded="false">
                                     <span class="avatar w-32">
-                                        <?php $ruta = HTTP_PATH_ROOT . "recursos/img/user.png";
-                                        if (!file_exists($ruta)) $ruta = "../framework/recursos/img/user.png"; ?>
+                                        <?php $ruta = HTTP_PATH_ROOT . 'recursos/img/user.png';
+                                        if (!file_exists($ruta)) $ruta = '../framework/recursos/img/user.png'; ?>
                                         <img src="<?= $ruta ?>" alt="user">
                                         <i class="on b-white bottom"></i>
                                     </span>
@@ -205,7 +208,7 @@
                                        onclick="navegar('inicio')"><?= $this->idioma->topmenu->lblInicio ?></a>
                                     <a class="dropdown-item"
                                        onclick="btnMiPerfil()"><?= $this->idioma->topmenu->lblPerfil ?></a>
-                                    <?php if (!$_SESSION["app"]): ?>
+                                    <?php if (!$_SESSION['app']): ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item"
                                            onclick="cerrarSesion()"><?= $this->idioma->topmenu->lblCerrarSesion ?></a>
@@ -217,7 +220,9 @@
                             <div class="navbar-form form-inline pull-right pull-none-sm navbar-item v-m">
                                 <div class="form-group 1-h m-a-0">
                                     <div class="input-group">
-                                        <a title="Inicio" onclick="navegar('inicio')" class="nav-link btn btn-sm btn-outline b-primary text-primary b-2x" style="border-color:#c0ca33 !important" data-toggle="dropdown">
+                                        <a title="Inicio" onclick="navegar('inicio')"
+                                           class="nav-link btn btn-sm btn-outline b-primary text-primary b-2x"
+                                           style="border-color:#c0ca33 !important" data-toggle="dropdown">
                                             <i class="material-icons">home</i>
                                         </a>
                                     </div>
@@ -230,11 +235,11 @@
 
                     <?php
                     $namespace = Globales::$namespace;
-                    $floatingButton = HTTP_PATH_ROOT . "vista/floatingButton.phtml";
+                    $floatingButton = HTTP_PATH_ROOT . 'vista/floatingButton.phtml';
                     if (file_exists($floatingButton))
                         include_once $floatingButton;
                     else
-                        include_once "../framework/vista/floatingButton.phtml";
+                        include_once '../framework/vista/floatingButton.phtml';
                     ?>
                     <div class="hidden dropdown" id="divAcciones">
                         <a title="Reprogramar fecha"
@@ -253,7 +258,7 @@
 
                     <?= $this->page ?>
 
-                    <?php if ($vista != "login" and $vista != "registro"): ?>
+                    <?php if ($vista != 'login' and $vista != 'registro'): ?>
                 </div>
             </div>
             <!-- / -->
