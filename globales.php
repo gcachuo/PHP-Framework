@@ -52,29 +52,29 @@ use Mpdf\Mpdf;
  */
 class Globales
 {
-    static $modulo, $namespace;
-    static private $idioma, $permisos, $token;
+    public static $modulo, $namespace;
+    private static $idioma, $permisos, $token;
 
-    static function getVersion()
+    public static function getVersion()
     {
-        if (file_exists(HTTP_PATH_ROOT . "release.txt")) {
-            $file = HTTP_PATH_ROOT . "release.txt";
+        if (file_exists(HTTP_PATH_ROOT . 'release.txt')) {
+            $file = HTTP_PATH_ROOT . 'release.txt';
             $version = file_get_contents($file);
         } else {
-            $file = "../framework/version.txt";
-            if (file_exists("../.git/HEAD")) {
-                $head = file_get_contents("../.git/HEAD");
-                $explode = explode("/", $head);
+            $file = '../framework/version.txt';
+            if (file_exists('../.git/HEAD')) {
+                $head = file_get_contents('../.git/HEAD');
+                $explode = explode('/', $head);
                 $version = end($explode);
-                $type = str_replace("\n", "", $explode[2] == $version ? $version : $explode[2]);
+                $type = str_replace("\n", '', $explode[2] == $version ? $version : $explode[2]);
                 switch ($type) {
-                    case "":
-                    case "develop":
-                    case "feature":
-                    case "master":
+                    case '':
+                    case 'develop':
+                    case 'feature':
+                    case 'master':
                         $version = file_get_contents($file);
                         break;
-                    case "release":
+                    case 'release':
                         $version = trim(preg_replace('/\s\s+/', ' ', $version));
                         file_put_contents($file, $version);
                         break;
@@ -94,7 +94,7 @@ class Globales
      * @param string $modulo
      * @return array|object
      */
-    static function getIdioma($modulo)
+    public static function getIdioma($modulo)
     {
         return self::$idioma->$modulo;
     }
@@ -102,7 +102,7 @@ class Globales
     /**
      * @param array $idioma
      */
-    static function setIdioma($idioma)
+    public static function setIdioma($idioma)
     {
         self::$idioma = $idioma;
     }
@@ -110,7 +110,7 @@ class Globales
     /**
      * @param object $permisos
      */
-    static function setPermisos($permisos)
+    public static function setPermisos($permisos)
     {
         self::$permisos = $permisos;
     }
@@ -119,13 +119,13 @@ class Globales
      * @param string $modulo
      * @return object
      */
-    static function getPermisos($modulo)
+    public static function getPermisos($modulo)
     {
         if ($_SESSION[perfil] == 0)
-            $permisos = array("nuevo" => 1, "editar" => 1, "eliminar" => 1);
+            $permisos = array('nuevo' => 1, 'editar' => 1, 'eliminar' => 1);
         else {
-            $permisos = self::search_in_multi(self::$permisos, "modulo", $modulo);
-            $permisos = array_column($permisos, "estatus", "accion");
+            $permisos = self::search_in_multi(self::$permisos, 'modulo', $modulo);
+            $permisos = array_column($permisos, 'estatus', 'accion');
         }
         return (object)$permisos;
     }
@@ -136,7 +136,7 @@ class Globales
      * @param string $value
      * @return array
      */
-    static function search_in_multi($array, $key, $value)
+    public static function search_in_multi($array, $key, $value)
     {
         $results = array();
 
@@ -157,7 +157,7 @@ class Globales
      * @param array $array
      * @return false|string
      */
-    static function json_encode(array $array)
+    public static function json_encode(array $array)
     {
         $json = json_encode($array);
         $error = json_last_error();
@@ -180,15 +180,15 @@ class Globales
     }
 
     /** @var Exception $ex */
-    static function mostrar_exception($ex)
+    public static function mostrar_exception($ex)
     {
         $code = $ex->getCode() ?: 500;
         ini_set('log_errors', 1);
         $token = $_SESSION['token'];
         ini_set('error_log', "script_errors_$token.log");
         $trace = $ex->getTrace();
-        $error = addslashes($token . " " . $_SESSION['modulo'] . " " . $trace[2]['file'] . " " . $trace[2]['line'] . " " . $ex->getMessage());
-        $error2 = addslashes(preg_replace("/\r|\n/", "", print_r($ex, true)));
+        $error = addslashes($token . ' ' . $_SESSION['modulo'] . ' ' . $trace[2]['file'] . ' ' . $trace[2]['line'] . ' ' . $ex->getMessage());
+        $error2 = addslashes(preg_replace("/\r|\n/", '', print_r($ex, true)));
         error_log($error);
         http_response_code($code);
         if (isset($_POST['fn']) or (isset($_GET['aside']) ? $_GET['aside'] : null)) {
@@ -204,7 +204,7 @@ class Globales
                 ]
             ]));
         } else {
-            include "vista/error.phtml";
+            include 'vista/error.phtml';
         }
     }
 
@@ -212,12 +212,12 @@ class Globales
      * @param string $password
      * @return string
      */
-    static function crypt_blowfish_bydinvaders($password)
+    public static function crypt_blowfish_bydinvaders($password)
     {
         return password_hash($password, CRYPT_BLOWFISH);
     }
 
-    static function array2json($array)
+    public static function array2json($array)
     {
         $json = json_encode($array);
         return $json;
@@ -230,7 +230,7 @@ class Globales
      * @param string $format
      * @return string
      */
-    static function datetime_add($datetime, $time_add, $interval, $format)
+    public static function datetime_add($datetime, $time_add, $interval, $format)
     {
 
         switch ($interval) {
@@ -256,7 +256,7 @@ class Globales
                 $spec = "PT{$time_add}S";
                 break;
             default:
-                $spec = "PT";
+                $spec = 'PT';
                 break;
         }
 
@@ -270,7 +270,7 @@ class Globales
      * @return object
      * @deprecated
      */
-    static function query2object($consulta)
+    public static function query2object($consulta)
     {
         $array = array();
         foreach ($consulta as $item) {
@@ -288,7 +288,7 @@ class Globales
      * @return object
      * @deprecated
      */
-    static function query2twoLevelObject($consulta)
+    public static function query2twoLevelObject($consulta)
     {
         $object = (object)array();
         foreach ($consulta as $item) {
@@ -309,7 +309,7 @@ class Globales
      * @throws Exception
      * @deprecated usar formato_fecha2
      */
-    static function formato_fecha($formato, $fecha)
+    public static function formato_fecha($formato, $fecha)
     {
         try {
             if ($fecha == null) return null;
@@ -331,10 +331,10 @@ class Globales
      * @param null $sql
      * @throws Exception
      */
-    static function mensaje_error($mensaje, $code = 400, $sql = null)
+    public static function mensaje_error($mensaje, $code = 400, $sql = null)
     {
         if (!is_null($sql)) {
-            $sql = addslashes(preg_replace("/\r|\n/", "", $sql));
+            $sql = addslashes(preg_replace("/\r|\n/", '', $sql));
             echo "<script>console.log('$sql')</script>";
         }
         throw new Exception($mensaje, $code);
@@ -349,7 +349,7 @@ class Globales
      * @return string
      * @throws Exception
      */
-    static function formato_fecha2($formato, $fecha, $locale = false, $formatoOrig = 'Y-m-d', $time = false)
+    public static function formato_fecha2($formato, $fecha, $locale = false, $formatoOrig = 'Y-m-d', $time = false)
     {
         if ($time) $formatoOrig .= ' H:i:s';
         try {
@@ -358,7 +358,7 @@ class Globales
             if ($date != false and !$locale)
                 return $date->format($formato);
             else {
-                setlocale(LC_TIME, "es_ES");
+                setlocale(LC_TIME, 'es_ES');
                 $date = strtotime($fecha);
                 $formated = strftime($formato, $date);
                 return $formated;
@@ -368,56 +368,56 @@ class Globales
         }
     }
 
-    static function idioma_fecha($fecha, $hora = false)
+    public static function idioma_fecha($fecha, $hora = false)
     {
         $fecha = substr($fecha, 0, 10);
-        $time = $hora ? date('h:ia', strtotime($fecha)) : "";
+        $time = $hora ? date('h:ia', strtotime($fecha)) : '';
         $numeroDia = date('d', strtotime($fecha));
         $dia = date('l', strtotime($fecha));
         $mes = date('F', strtotime($fecha));
         $anio = date('Y', strtotime($fecha));
-        $dias_ES = array("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo");
-        $dias_EN = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+        $dias_ES = array('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+        $dias_EN = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
         $nombredia = str_replace($dias_EN, $dias_ES, $dia);
-        $meses_ES = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
-        $meses_EN = array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+        $meses_ES = array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');
+        $meses_EN = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
         $nombreMes = str_replace($meses_EN, $meses_ES, $mes);
         return "$nombreMes $numeroDia, $anio $time";
     }
 
-    static function idioma_fecha_comprimida($fecha)
+    public static function idioma_fecha_comprimida($fecha)
     {
         $fecha = substr($fecha, 0, 10);
         $numeroDia = date('d', strtotime($fecha));
         $dia = date('l', strtotime($fecha));
         $mes = date('F', strtotime($fecha));
         $anio = date('Y', strtotime($fecha));
-        $dias_ES = array("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo");
-        $dias_EN = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+        $dias_ES = array('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo');
+        $dias_EN = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
         $nombredia = str_replace($dias_EN, $dias_ES, $dia);
-        $meses_ES = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
-        $meses_EN = array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+        $meses_ES = array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');
+        $meses_EN = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
         $nombreMes = str_replace($meses_EN, $meses_ES, $mes);
         $nombredia = substr($nombredia, 0, 3);
         $nombreMes = substr($nombreMes, 0, 3);
-        return $nombredia . " " . $numeroDia . " " . $nombreMes;
+        return $nombredia . ' ' . $numeroDia . ' ' . $nombreMes;
     }
 
-    static function idioma_fecha_completa($fecha)
+    public static function idioma_fecha_completa($fecha)
     {
         $fecha = substr($fecha, 0, 10);
         $numeroDia = date('d', strtotime($fecha));
         $dia = date('l', strtotime($fecha));
         $mes = date('F', strtotime($fecha));
         $anio = date('Y', strtotime($fecha));
-        $dias_ES = array("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo");
-        $dias_EN = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+        $dias_ES = array('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo');
+        $dias_EN = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
         $nombredia = str_replace($dias_EN, $dias_ES, $dia);
-        $meses_ES = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
-        $meses_EN = array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+        $meses_ES = array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');
+        $meses_EN = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
         $nombreMes = str_replace($meses_EN, $meses_ES, $mes);
         $nombreMes = substr($nombreMes, 0, 3);
-        return $nombredia . " " . $numeroDia . " de " . $nombreMes . ".";
+        return $nombredia . ' ' . $numeroDia . ' de ' . $nombreMes . '.';
     }
 
     /**
@@ -426,7 +426,7 @@ class Globales
      * @param float|int $suma
      * @return string
      */
-    static function formato_moneda($simbolo, &$cantidad, $suma = 0)
+    public static function formato_moneda($simbolo, &$cantidad, $suma = 0)
     {
         $cantidad += $suma;
 
@@ -440,7 +440,7 @@ class Globales
         return $cantidad;
     }
 
-    static function setVista()
+    public static function setVista()
     {
         if ((isset($_POST['fn']) ? $_POST['fn'] : '') === 'loadFilePond') {
             $path = $_GET['file'];
@@ -452,14 +452,14 @@ class Globales
                 header('Content-Length: ' . filesize($path));
                 readfile($path);
             } else {
-                header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+                header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
             }
             exit;
         } else if (isset($_GET['file']) ? $_GET['file'] : null) {
             $folder = $_GET['folder'] ?: 'imagenes';
             $token = $_SESSION['token'];
             $path = "usuario/$token/$folder/$_GET[modulo]/";
-            $nombreImagen = self::subirImagenSimple($path, $_FILES["file"]);
+            $nombreImagen = self::subirImagenSimple($path, $_FILES['file']);
             if ($nombreImagen != false) echo $nombreImagen;
             exit;
         } else {
@@ -469,28 +469,28 @@ class Globales
                 $json = json_encode($_REQUEST, JSON_FORCE_OBJECT);
                 print "<script>getVars = $json;</script>";
             }
-            if (self::$modulo != "registro")
-                if (isset($_SESSION["usuario"]))
-                    self::$modulo = empty($_POST["vista"]) ? self::$modulo : $_POST["vista"];
+            if (self::$modulo != 'registro')
+                if (isset($_SESSION['usuario']))
+                    self::$modulo = empty($_POST['vista']) ? self::$modulo : $_POST['vista'];
                 else
-                    self::$modulo = "login";
+                    self::$modulo = 'login';
 
-            if (isset($_POST["vista"])) {
-                if (!empty($_POST["accion"])) {
-                    $vista = $_POST["accion"];
-                } elseif (empty($_POST["vista"])) {
-                    $vista = $_SESSION["modulo"];
+            if (isset($_POST['vista'])) {
+                if (!empty($_POST['accion'])) {
+                    $vista = $_POST['accion'];
+                } elseif (empty($_POST['vista'])) {
+                    $vista = $_SESSION['modulo'];
                 } else {
-                    $vista = $_POST["vista"];
+                    $vista = $_POST['vista'];
                 }
 
                 if (!empty($vista)) {
                     self::$modulo = $vista;
                 }
-                if (!empty($_POST["post"])) {
-                    $_SESSION["post"] = $_POST["post"];
+                if (!empty($_POST['post'])) {
+                    $_SESSION['post'] = $_POST['post'];
                 }
-                $_SESSION["modulo"] = self::$modulo;
+                $_SESSION['modulo'] = self::$modulo;
                 die(true);
             }
         }
@@ -501,15 +501,15 @@ class Globales
      * @param array $archivo
      * @return string
      */
-    static function subirImagenSimple($carpeta, array $archivo)
+    public static function subirImagenSimple($carpeta, array $archivo)
     {
         try {
             $debug = print_r($archivo, true);
-            if (is_null($archivo)) Globales::mensaje_error("No se subio el archivo " . $debug);
+            if (is_null($archivo)) Globales::mensaje_error('No se subio el archivo ' . $debug);
 
-            if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo["name"]), $_GET['nombre'], $archivo["name"]);
+            if (!empty($_GET['nombre'])) $name = str_replace(basename($archivo['name']), $_GET['nombre'], $archivo['name']);
             else
-                $name = $_SESSION['token'] . "_" . date('YmdHis') . "_" . basename($archivo["name"]);
+                $name = $_SESSION['token'] . '_' . date('YmdHis') . '_' . basename($archivo['name']);
             $carpeta = __DIR__ . '/' . APP_ROOT . trim($carpeta, '/') . '/';
             if (!file_exists($carpeta))
                 mkdir($carpeta, 0777, true);
@@ -530,7 +530,7 @@ class Globales
             }
             return $name;
         } catch (Exception $ex) {
-            ini_set("display_errors", 'On');
+            ini_set('display_errors', 'On');
             ini_set('error_log', 'script_errors.log');
             ini_set('log_errors', 'On');
             error_reporting(E_ALL);
@@ -543,7 +543,7 @@ class Globales
         }
     }
 
-    static function base64_to_jpeg($base64, $archivo_salida)
+    public static function base64_to_jpeg($base64, $archivo_salida)
     {
         $ifp = fopen($archivo_salida, 'wb');
 
@@ -556,7 +556,7 @@ class Globales
 
     }
 
-    static function getToken()
+    public static function getToken()
     {
         if (empty($_SESSION['token'])) {
             $config = self::getConfig();
@@ -567,13 +567,13 @@ class Globales
 
     public static function getConfig($object = true)
     {
-        $env = file_exists(__DIR__ . '/' . APP_ROOT . "config.dev.json") ? "dev" : "prod";
+        $env = file_exists(__DIR__ . '/' . APP_ROOT . 'config.dev.json') ? 'dev' : 'prod';
 
         $ruta = __DIR__ . '/' . APP_ROOT . "config.$env.json";
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "config.$env.json";
             if (!file_exists($ruta)) {
-                $ruta = __DIR__ . '/' . APP_ROOT . "config.json";
+                $ruta = __DIR__ . '/' . APP_ROOT . "config.$env.json";
                 if (!file_exists($ruta)) {
                     Globales::mensaje_error("No existe el archivo de configuración $ruta", 500);
                 }
@@ -592,7 +592,7 @@ class Globales
      * @return object
      * @throws Exception
      */
-    static function get_json_to_object($path)
+    public static function get_json_to_object($path)
     {
         if (!file_exists($path))
             self::mensaje_error("No existe el archivo $path");
@@ -604,7 +604,7 @@ class Globales
      * @param string $path
      * @return object
      */
-    static function get_json_to_array($path)
+    public static function get_json_to_array($path)
     {
         if (!file_exists($path))
             self::mensaje_error("No existe el archivo $path");
@@ -612,7 +612,7 @@ class Globales
         return json_decode($json, true);
     }
 
-    static function setToken($token)
+    public static function setToken($token)
     {
         self::$token = $token;
         $_SESSION['token'] = self::$token;
@@ -621,30 +621,30 @@ class Globales
     /**
      * @param string $modulo
      */
-    static function setControl($modulo = null)
+    public static function setControl($modulo = null)
     {
-        if (isset($_GET["aside"])) {
-            $modulo = $_REQUEST["asideModulo"] . "/" . $_REQUEST["asideAccion"];
+        if (isset($_GET['aside'])) {
+            $modulo = $_REQUEST['asideModulo'] . '/' . $_REQUEST['asideAccion'];
         }
-        $control = explode("/", $modulo)[0];
+        $control = explode('/', $modulo)[0];
 
-        if ($_SESSION["namespace"] != self::$namespace) {
+        if ($_SESSION['namespace'] != self::$namespace) {
             session_unset();
-            $_SESSION['modulo'] = "login";
-            $_SESSION["namespace"] = self::$namespace;
-            header("Refresh:0");
+            $_SESSION['modulo'] = 'login';
+            $_SESSION['namespace'] = self::$namespace;
+            header('Refresh:0');
             exit;
         }
 
         $namespace = Globales::$namespace;
-        $_SESSION["namespace"] = $namespace;
+        $_SESSION['namespace'] = $namespace;
         $clase = APP_NAMESPACE . $control;
 
         if (class_exists($clase)) new $clase();
         else new $control();
     }
 
-    static function generar_pdf($ruta, $stylesheets, $html, $watermark = false)
+    public static function generar_pdf($ruta, $stylesheets, $html, $watermark = false)
     {
         if (file_exists($ruta))
             unlink($ruta);
@@ -689,7 +689,7 @@ HTML;
     public static function utf8_encode($str)
     {
         $encoding = mb_detect_encoding($str);
-        if ($encoding != "UTF-8") {
+        if ($encoding != 'UTF-8') {
             $str = utf8_encode($str);
         }
         return $str;
@@ -723,7 +723,7 @@ HTML;
         }
     }
 
-    static function uploadFile($FILE, array $path_array)
+    public static function uploadFile($FILE, array $path_array)
     {
         $FILE = Globales::json_decode($FILE);
         $data = base64_decode($FILE['data']);
@@ -741,7 +741,7 @@ HTML;
      * @param bool $assoc
      * @return object|array
      */
-    static function json_decode($json, $assoc = true)
+    public static function json_decode($json, $assoc = true)
     {
         $json = json_decode($json, $assoc);
         $error = json_last_error();
@@ -770,7 +770,7 @@ HTML;
      * @return mixed
      * @throws Exception
      */
-    static function curl($options, $select = '', $code_string = 'code')
+    public static function curl($options, $select = '', $code_string = 'code')
     {
         $curl = curl_init();
 
@@ -859,15 +859,15 @@ HTML;
         return $isJson;
     }
 
-    function __destruct()
+    public function __destruct()
     {
-        self::setNamespace("");
+        self::setNamespace('');
     }
 
     /**
      * @param string $namespace
      */
-    static function setNamespace($namespace)
+    public static function setNamespace($namespace)
     {
         self::$namespace = $namespace . "\\";
     }

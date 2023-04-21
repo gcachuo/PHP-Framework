@@ -34,7 +34,7 @@ abstract class Control
      * @throws Exception
      * @internal param $vista
      */
-    function __construct($api = false)
+    public function __construct($api = false)
     {
         if ($api) return;
         $this->obtenerDiasRestantes();
@@ -42,27 +42,27 @@ abstract class Control
         $this->obtenerIdioma();
         $this->permisos = $this->permisosModulo();
         $this->nombreUsuario = $this->obtenerNombreUsuario();
-        define('MODULO', $this->control->modulos->selectIdFromNombre(explode("/", $_SESSION['modulo'])[0]) ?: 0);
-        if (isset($_SESSION["post"]) and empty($_POST["post"])) {
-            $_POST["post"] = $_SESSION["post"];
+        define('MODULO', $this->control->modulos->selectIdFromNombre(explode('/', $_SESSION['modulo'])[0]) ?: 0);
+        if (isset($_SESSION['post']) and empty($_POST['post'])) {
+            $_POST['post'] = $_SESSION['post'];
             unset($_SESSION['post']);
         }
-        if (isset($_POST["post"])) {
-            if (is_string($_POST["post"]))
-                $_POST["post"] = json_decode($_POST["post"], true);
-            $_POST = array_merge($_POST, isset($_POST["post"]) ? $_POST["post"] : []);
+        if (isset($_POST['post'])) {
+            if (is_string($_POST['post']))
+                $_POST['post'] = json_decode($_POST['post'], true);
+            $_POST = array_merge($_POST, isset($_POST['post']) ? $_POST['post'] : []);
         }
         if (isset($_POST['form']) or isset($_POST['aside'])) {
-            parse_str($_POST["form"], $_POST["form"]);
-            parse_str(isset($_POST["aside"]) ? $_POST["aside"] : '', $_POST["aside"]);
-            $_POST = array_merge($_POST, $_POST["form"]);
-            $_POST = array_merge($_POST, $_POST["aside"]);
-            unset($_POST["form"]);
-            unset($_POST["aside"]);
+            parse_str($_POST['form'], $_POST['form']);
+            parse_str(isset($_POST['aside']) ? $_POST['aside'] : '', $_POST['aside']);
+            $_POST = array_merge($_POST, $_POST['form']);
+            $_POST = array_merge($_POST, $_POST['aside']);
+            unset($_POST['form']);
+            unset($_POST['aside']);
         }
         $_SESSION['id'] = isset($_POST['id']) ? $_POST['id'] : (isset($_SESSION['id']) ? $_SESSION['id'] : null);
-        if (isset($_POST["fn"]) and !isset($_GET['aside'])) {
-            $data = $this->{$_POST["fn"]}();
+        if (isset($_POST['fn']) and !isset($_GET['aside'])) {
+            $data = $this->{$_POST['fn']}();
             if (!is_array($data)) {
                 $response = [
                     'code' => 200,
@@ -76,18 +76,18 @@ abstract class Control
         } else {
 
             $this->obtenerDatos();
-            if (isset($_GET["aside"]) or strpos($_SESSION["modulo"], "/")) $this->cargarAside();
+            if (isset($_GET['aside']) or strpos($_SESSION['modulo'], '/')) $this->cargarAside();
             else $this->cargarPrincipal();
 
             $vista = $this->setVista();
             $this->getAssets();
 
-            if ($vista != "login" and $vista != "registro")
+            if ($vista != 'login' and $vista != 'registro')
                 $this->modulos = $this->buildModulos(0);
 
-            if (isset($_GET["aside"])) {
-                $vista = $_REQUEST["asideModulo"] . "/" . $_REQUEST["asideAccion"];
-                $file = $_REQUEST["asideModulo"] . "_" . $_REQUEST["asideAccion"];
+            if (isset($_GET['aside'])) {
+                $vista = $_REQUEST['asideModulo'] . '/' . $_REQUEST['asideAccion'];
+                $file = $_REQUEST['asideModulo'] . '_' . $_REQUEST['asideAccion'];
                 $this->addCustom($file, true);
                 $page = $this->buildAside($vista) . $this->customStylesheets . $this->customScripts;
             } else {
@@ -104,7 +104,7 @@ abstract class Control
         return;
     }
 
-    function buildListNotificacions()
+    public function buildListNotificacions()
     {
         $this->numNot = 0;
         if ($this->diasRestantes != -1) {
@@ -131,10 +131,10 @@ HTML;
     private function obtenerIdioma()
     {
         $config = Globales::getConfig();
-        if (!empty($_GET["lang"])) $selectIdioma = $_GET["lang"];
+        if (!empty($_GET['lang'])) $selectIdioma = $_GET['lang'];
         else $selectIdioma = $config->metadata->default_lang;
 
-        if (!defined('SYSTEM_LANG')) define("SYSTEM_LANG", $selectIdioma);
+        if (!defined('SYSTEM_LANG')) define('SYSTEM_LANG', $selectIdioma);
 
         if (!file_exists(APP_ROOT . "recursos/lang/$selectIdioma.json")) {
             Globales::mensaje_error("No existe el JSON de idioma: $selectIdioma", 500);
@@ -158,7 +158,7 @@ HTML;
      * @return object
      * @internal param string $modulo
      */
-    function permisosModulo()
+    public function permisosModulo()
     {
         $nombreModulo = $_SESSION['modulo'];
         if (!is_null($nombreModulo)) {
@@ -167,7 +167,7 @@ HTML;
         return (object)$permisos;
     }
 
-    function obtenerNombreUsuario()
+    public function obtenerNombreUsuario()
     {
         $usuario = (object)['nombre' => ''];
         $namespace = Globales::$namespace;
@@ -179,7 +179,7 @@ HTML;
         return $usuario->nombre;
     }
 
-    function obtenerDatos()
+    public function obtenerDatos()
     {
         $metadata = Globales::getConfig()->metadata;
         $botones = Globales::getConfig()->floating_button ?: [];
@@ -195,38 +195,38 @@ HTML;
         $this->cargarDatosSistema();
     }
 
-    function cargarDatosSistema()
+    public function cargarDatosSistema()
     {
         $token = Globales::getToken();
-        $file = "empresa.json";
+        $file = 'empresa.json';
         $path = APP_ROOT . "usuario/$token/config/";
         if (!file_exists($path . $file)) {
             $path = HTTP_PATH_ROOT . "usuario/$token/config/";
             if (!file_exists($path . $file)) {
                 $path = APP_ROOT . "usuario/$token/config/";
-                $empresa = array('nombre' => "Cbiz Admin", 'color' => "#2e3e4e", 'imagen' => "logo.png", 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0', 'ordenes' => '0', 'ticket' => '0', 'llegada' => '0', 'clientes' => '0');
+                $empresa = array('nombre' => 'Cbiz Admin', 'color' => '#2e3e4e', 'imagen' => 'logo.png', 'direccion' => '', 'correo' => '', 'telefono' => '', 'nota1' => '', 'nota2' => '', 'etiqueta' => '', 'recibos' => '0', 'ordenes' => '0', 'ticket' => '0', 'llegada' => '0', 'clientes' => '0');
                 $json_string = json_encode($empresa);
                 mkdir($path, 0777, true);
                 file_put_contents($path . $file, $json_string);
             }
         }
-        if (!file_exists($path . "logo.png")) {
+        if (!file_exists($path . 'logo.png')) {
             mkdir($path, 0777, true);
-            copy(HTTP_PATH_ROOT . "recursos/img/logo.png", $path . "logo.png");
+            copy(HTTP_PATH_ROOT . 'recursos/img/logo.png', $path . 'logo.png');
         }
         $datosSistema = file_get_contents($path . $file);
         $this->configSistema = json_decode($datosSistema);
     }
 
-    protected abstract function cargarAside();
+    abstract protected function cargarAside();
 
-    protected abstract function cargarPrincipal();
+    abstract protected function cargarPrincipal();
 
     private function setVista()
     {
-        if (!empty($_POST["accion"])) $vista = $_POST["accion"];
-        elseif (empty($_POST["vista"])) $vista = Globales::$modulo;
-        else $vista = $_POST["vista"];
+        if (!empty($_POST['accion'])) $vista = $_POST['accion'];
+        elseif (empty($_POST['vista'])) $vista = Globales::$modulo;
+        else $vista = $_POST['vista'];
 
         Globales::$modulo = $vista;
 
@@ -239,25 +239,25 @@ HTML;
      */
     private function getAssets()
     {
-        $plugins = "../framework/libs";
+        $plugins = '../framework/libs';
         if (!file_exists($plugins))
-            $plugins = "../../../framework/libs";
-        $CSSassets = "../framework/recursos/css/lib";
+            $plugins = '../../../framework/libs';
+        $CSSassets = '../framework/recursos/css/lib';
         if (!file_exists($CSSassets))
-            $CSSassets = "../../../framework/recursos/css/lib";
-        $JSassets = "../framework/recursos/js/lib";
+            $CSSassets = '../../../framework/recursos/css/lib';
+        $JSassets = '../framework/recursos/js/lib';
         if (!file_exists($JSassets))
-            $JSassets = "../../../framework/recursos/js/lib";
+            $JSassets = '../../../framework/recursos/js/lib';
 
         $this->stylesheet("$CSSassets/animate.css");
         $this->stylesheet("$plugins/glyphicons/glyphicons.css");
-        $this->stylesheet("//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css");
-        $this->stylesheet("https://fonts.googleapis.com/css2?family=Material+Icons");
+        $this->stylesheet('//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css');
+        $this->stylesheet('https://fonts.googleapis.com/css2?family=Material+Icons');
         $this->stylesheet("$CSSassets/font.css");
 
 
-        $this->script("https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js");
-        $this->script("https://cdn.jsdelivr.net/npm/jquery@3.6.0");
+        $this->script('https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js');
+        $this->script('https://cdn.jsdelivr.net/npm/jquery@3.6.0');
 
         $this->script("$plugins/tether/dist/js/tether.min.js");
 
@@ -266,23 +266,23 @@ HTML;
         //$this->stylesheet("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css");
         //$this->script("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js");
 
-        $this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
-        $this->script("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
+        $this->stylesheet('https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css');
+        $this->script('https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js');
 
         $google_maps_key = isset($this->configSistema->api_keys->google_maps) ? $this->configSistema->api_keys->google_maps : '';
         $this->script("https://maps.googleapis.com/maps/api/js?key=$google_maps_key");
-        $this->script("https://unpkg.com/location-picker@1.1.1/dist/location-picker.umd.js");
+        $this->script('https://unpkg.com/location-picker@1.1.1/dist/location-picker.umd.js');
 
-        $this->stylesheet("https://unpkg.com/filepond/dist/filepond.css");
-        $this->stylesheet("https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css");
-        $this->script("https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js");
-        $this->script("https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js");
-        $this->script("https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js");
-        $this->script("https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js");
-        $this->script("https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js");
-        $this->script("https://unpkg.com/filepond/dist/filepond.js");
+        $this->stylesheet('https://unpkg.com/filepond/dist/filepond.css');
+        $this->stylesheet('https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css');
+        $this->script('https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js');
+        $this->script('https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js');
+        $this->script('https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js');
+        $this->script('https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js');
+        $this->script('https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js');
+        $this->script('https://unpkg.com/filepond/dist/filepond.js');
 
-        $this->script("https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js");
+        $this->script('https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js');
 
         $this->minStylesheet("$CSSassets/app.css", "$CSSassets/app.min.css");
 
@@ -290,18 +290,18 @@ HTML;
         $this->script("$plugins/jQuery-Storage-API/jquery.storageapi.min.js");
         #$this->script("$libs/jquery/PACE/pace.min.js");
 
-        $this->stylesheet("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.css");
-        $this->stylesheet("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
-        $this->stylesheet("https://fonts.googleapis.com/css?family=Montserrat|Oleo+Script&display=swap");
-        $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.js");
-        $this->script("https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js");
-        $this->script("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.js");
-        $this->stylesheet("https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.css");
+        $this->stylesheet('https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.css');
+        $this->stylesheet('https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+        $this->stylesheet('https://fonts.googleapis.com/css?family=Montserrat|Oleo+Script&display=swap');
+        $this->script('https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/fullcalendar.js');
+        $this->script('https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js');
+        $this->script('https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.js');
+        $this->stylesheet('https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.css');
 
         //JQuery-UI
         $this->stylesheet("$plugins/jquery-ui/jquery-ui.css");
         $this->script("$plugins/jquery-ui/jquery-ui.js");
-        $this->script("https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1/ui/widget.js");
+        $this->script('https://cdn.jsdelivr.net/npm/jquery-ui@1.12.1/ui/widget.js');
 
         $this->stylesheet("$plugins/daterangepicker/daterangepicker.css");
         $this->script("$plugins/daterangepicker/daterangepicker.js");
@@ -324,10 +324,10 @@ HTML;
         $this->script("$plugins/jquery/jquery.wordexport.js");
         $this->script("$JSassets/ajax.js");
 
-        $this->stylesheet("https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.css");
-        $this->script("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js");
-        $this->script("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js");
-        $this->script("https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.js");
+        $this->stylesheet('https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.css');
+        $this->script('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js');
+        $this->script('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js');
+        $this->script('https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/fh-3.1.8/r-2.2.7/rr-1.2.7/sc-2.0.3/datatables.min.js');
         $this->script('https://cdn.datatables.net/plug-ins/1.10.25/filtering/type-based/accent-neutralise.js');
 
 
@@ -355,7 +355,7 @@ HTML;
 
         $this->script("$plugins/maskedinput/masked-input-1.4-min.js");
         $this->script("$plugins/jic/js/JIC.js");
-        
+
         $this->script("$JSassets/jquery.numeric.js");
         $this->script("$JSassets/facturama.api.multiemisor.js");
         /*$this->stylesheet("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css");
@@ -366,14 +366,14 @@ HTML;
 
         #Override
         $this->stylesheet("$CSSassets/wrap.css");
-        if (file_exists("recursos/css/lib/styles.css"))
-            $this->stylesheet("recursos/css/lib/styles.css");
+        if (file_exists('recursos/css/lib/styles.css'))
+            $this->stylesheet('recursos/css/lib/styles.css');
         else
             $this->stylesheet("$CSSassets/styles.css");
         $this->script("$JSassets/globales.js?" . uniqid());
         $this->script("$JSassets/app.js");
 
-        $modulo = str_replace("/", "_", Globales::$modulo);
+        $modulo = str_replace('/', '_', Globales::$modulo);
         $this->addCustom($modulo);
 
         $this->stylesheets .= $this->customStylesheets;
@@ -416,8 +416,8 @@ HTML;
 
     private function addCustom($modulo, $custom = false)
     {
-        $stylesheet = !$custom ? "stylesheet" : "customStylesheet";
-        $script = !$custom ? "script" : "customScript";
+        $stylesheet = !$custom ? 'stylesheet' : 'customStylesheet';
+        $script = !$custom ? 'script' : 'customScript';
         if (file_exists(APP_ROOT . "recursos/css/{$modulo}.css"))
             $this->$stylesheet(APP_ROOT . "recursos/css/{$modulo}.css");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/css/{$modulo}.css"))
@@ -443,47 +443,47 @@ HTML;
         $this->cargarDatosSistema();
         if ($this->diasRestantes == 0) return null;
         $idioma = $this->idioma->modulos;
-        $htmlModulos = "";
+        $htmlModulos = '';
         $modulos = $this->control->obtenerModulos($padre);
         foreach ($modulos as $modulo) {
-            if ($_SESSION['sistema'] == "admin") {
+            if ($_SESSION['sistema'] == 'admin') {
                 if (!$this->configSistema->llegada) {
-                    if ($modulo["idModulo"] == 2003)
+                    if ($modulo['idModulo'] == 2003)
                         continue;
                 }
                 if (!$this->configSistema->clientes) {
-                    if ($modulo["idModulo"] == 6007)
+                    if ($modulo['idModulo'] == 6007)
                         continue;
                 }
                 if (!$this->configSistema->clientes) {
-                    if ($modulo["idModulo"] == 2006)
+                    if ($modulo['idModulo'] == 2006)
                         continue;
                 }
             }
-            $nombre = isset($idioma->{$modulo["idModulo"]}[0]) ? $idioma->{$modulo["idModulo"]}[0] : null;
-            $navegar = mb_strtolower($modulo["navegarModulo"]);
-            $icono = !empty($modulo["iconoModulo"]) ? <<<HTML
+            $nombre = isset($idioma->{$modulo['idModulo']}[0]) ? $idioma->{$modulo['idModulo']}[0] : null;
+            $navegar = mb_strtolower($modulo['navegarModulo']);
+            $icono = !empty($modulo['iconoModulo']) ? <<<HTML
 <span class="nav-icon"><i class="material-icons">$modulo[iconoModulo]</i></span>
 HTML
-                : "";
+                : '';
 
             $submodulos = $this->buildModulos($modulo['idModulo']);
 
             $onclick = (empty($submodulos) and !empty($navegar)) ? <<<HTML
 onclick="navegar('$navegar');"
 HTML
-                : "";
+                : '';
             $flecha = !empty($submodulos) ? <<<HTML
 <span class="nav-caret">
 <i class="fa fa-caret-down"></i>
 </span>
 HTML
-                : "";
-            $disabled = "";
+                : '';
+            $disabled = '';
             if (empty($submodulos) and empty($navegar)) {
-                $disabled = "color: black;";
+                $disabled = 'color: black;';
                 if ($modulo['padreModulo'] == 0) {
-                    $disabled .= "display:none;";
+                    $disabled .= 'display:none;';
                 }
             }
             $htmlModulos .= <<<HTML
@@ -506,7 +506,7 @@ HTML;
     {
         ob_start();
         if (!file_exists(APP_ROOT . "vista/{$vista}.phtml")) {
-            if (!file_exists(HTTP_PATH_ROOT . "vista/{$vista}.phtml")) $vista = "404";
+            if (!file_exists(HTTP_PATH_ROOT . "vista/{$vista}.phtml")) $vista = '404';
             else
                 $ruta = HTTP_PATH_ROOT;
         } else {
@@ -535,9 +535,9 @@ HTML;
             $ruta = HTTP_PATH_ROOT;
             if (!file_exists(HTTP_PATH_ROOT . "vista/{$vista}.phtml")) {
 
-                $ruta = dirname(__FILE__) . "/";
+                $ruta = dirname(__FILE__) . '/';
                 if (!file_exists($ruta . "/vista/{$vista}.phtml")) {
-                    $vista = "404";
+                    $vista = '404';
                 }
             }
         } else {
@@ -546,32 +546,32 @@ HTML;
         require $ruta . "vista/{$vista}.phtml";
         $this->page = ob_get_contents();
         ob_end_clean();
-        if (!file_exists(APP_ROOT . "vista/wrap.phtml")) {
-            if (!file_exists(HTTP_PATH_ROOT . "vista/wrap.phtml")) {
-                $ruta = dirname(__FILE__) . "/vista/wrap.phtml";
+        if (!file_exists(APP_ROOT . 'vista/wrap.phtml')) {
+            if (!file_exists(HTTP_PATH_ROOT . 'vista/wrap.phtml')) {
+                $ruta = dirname(__FILE__) . '/vista/wrap.phtml';
                 if (!file_exists($ruta)) {
-                    $vista = "404";
-                } else $ruta = dirname(__FILE__) . "/";
+                    $vista = '404';
+                } else $ruta = dirname(__FILE__) . '/';
             } else
                 $ruta = HTTP_PATH_ROOT;
         } else {
             $ruta = APP_ROOT;
         }
-        require $ruta . "vista/wrap.phtml";
+        require $ruta . 'vista/wrap.phtml';
         $pagina = ob_get_contents();
         ob_end_clean();
         return $pagina;
     }
 
-    function showMessage()
+    public function showMessage()
     {
         if (isset($_SESSION['messages'])) {
-            $message = "";
-            $color = "";
+            $message = '';
+            $color = '';
             switch (true) {
                 case $_SESSION['messages']['transaccion']:
-                    $message = "Registrado correctamente";
-                    $color = "light-green-500";
+                    $message = 'Registrado correctamente';
+                    $color = 'light-green-500';
                     break;
             }
             echo "<script>showMessage('$message', '$color');</script>";
@@ -579,7 +579,7 @@ HTML;
         }
     }
 
-    function buildAcciones($acciones, $ancho)
+    public function buildAcciones($acciones, $ancho)
     {
         $this->acciones = isset($this->acciones) ? $this->acciones : (object)[];
         $this->acciones->ancho = $ancho;
@@ -595,27 +595,27 @@ HTML;
         }
     }
 
-    function getStylesheets()
+    public function getStylesheets()
     {
         $this->getAssets();
         return $this->stylesheets;
     }
 
-    function getScripts()
+    public function getScripts()
     {
         $this->getAssets();
         return $this->scripts . $this->customScripts;
     }
 
-    function __get($key)
+    public function __get($key)
     {
         try {
-            if ($key == "control") $modulo = $key;
-            elseif ($key == "modelo") {
-                $modulo = explode("/", Globales::$modulo)[0];
+            if ($key == 'control') $modulo = $key;
+            elseif ($key == 'modelo') {
+                $modulo = explode('/', Globales::$modulo)[0];
                 //if (isset($_POST["modulo"])) $modulo = $_POST["modulo"];
                 if ($modulo != get_class($this)) $modulo = get_class($this);
-                elseif ($_GET["aside"]) $modulo = $_REQUEST["asideModulo"];
+                elseif ($_GET['aside']) $modulo = $_REQUEST['asideModulo'];
             }
             $modelo = new ArchivoModelo();
             return $modelo->$modulo;
@@ -633,22 +633,22 @@ HTML;
      */
     protected function buildTabla($registros, array $acciones = [], $columns = [], $hide = [])
     {
-        $tabla = "";
-        if (get_class($registros) == "mysqli_result") {
+        $tabla = '';
+        if (get_class($registros) == 'mysqli_result') {
             $registros = $this->obtenerRegistros($registros);
         }
         foreach ($registros as $id => $cells) {
-            $rows = "";
+            $rows = '';
 
             $index = 0;
             foreach ($cells as $key => $cell) {
                 if (in_array($key, $hide)) continue;
-                $explode = explode("-", $columns[$index]);
-                $type = $explode[0] ?: $columns[$index]["type"];
+                $explode = explode('-', $columns[$index]);
+                $type = $explode[0] ?: $columns[$index]['type'];
                 switch ($type) {
-                    case "button":
+                    case 'button':
                         $accion = $explode[1];
-                        $onclick = "btn" . ucfirst($accion) . "($id)";
+                        $onclick = 'btn' . ucfirst($accion) . "($id)";
                         $button = $this->permisos->{$accion} ? <<<HTML
 <a onclick="$onclick" class="btn btn-default">$cell</a>
 HTML
@@ -657,7 +657,7 @@ HTML
 <td>$button</td>
 HTML;
                         break;
-                    case "input":
+                    case 'input':
                         $inputType = isset($explode[1]) ? $explode[1] : '';
                         $input = <<<HTML
 <input type="$inputType" class="form-control" id="{$key}_$id" name="{$key}[$id]" value="$cell">
@@ -667,9 +667,9 @@ HTML;
 HTML;
 
                         break;
-                    case "select":
+                    case 'select':
                         $table = $explode[1];
-                        $funcion = "selectLista" . ucfirst($table);
+                        $funcion = 'selectLista' . ucfirst($table);
                         $registros = $this->modelo->$table->$funcion();
                         $lista = $this->buildLista($registros, $cell);
                         $select = <<<HTML
@@ -683,66 +683,66 @@ HTML;
 <td>$select</td>
 HTML;
                         break;
-                    case "date":
-                        $cell = $cell != "0000-00-00"
+                    case 'date':
+                        $cell = $cell != '0000-00-00'
                             ? Globales::formato_fecha($this->idioma->formatoFecha, $cell)
-                            : "";
+                            : '';
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
                         break;
-                    case "expired":
+                    case 'expired':
                         $now = date('Y-m-d');
                         $label = $now > $cell
-                            ? "danger"
+                            ? 'danger'
                             : ($now == $cell
-                                ? "info"
-                                : "");
-                        $cell = $cell != "0000-00-00"
+                                ? 'info'
+                                : '');
+                        $cell = $cell != '0000-00-00'
                             ? Globales::formato_fecha($this->idioma->formatoFecha, $cell)
-                            : "";
+                            : '';
                         $rows .= <<<HTML
 <td><span class="label label-lg block $label">$cell</span></td>
 HTML;
                         break;
-                    case "datetime":
-                        $cell = ($cell != "0000-00-00" and $cell != "")
+                    case 'datetime':
+                        $cell = ($cell != '0000-00-00' and $cell != '')
                             ? Globales::formato_fecha($this->idioma->formatoFecha . ' H:ia', $cell)
-                            : "N/A";
+                            : 'N/A';
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
                         break;
-                    case "time":
-                        $cell = Globales::formato_fecha("h:ia", $cell);
+                    case 'time':
+                        $cell = Globales::formato_fecha('h:ia', $cell);
                         $rows .= <<<HTML
 <td>$cell</td>
 HTML;
                         break;
-                    case "age":
+                    case 'age':
                         $tz = new DateTimeZone(TIMEZONE);
-                        $age = ($cell != "0000-00-00" and !empty($cell)) ? DateTime::createFromFormat('Y-m-d', $cell, $tz)
+                        $age = ($cell != '0000-00-00' and !empty($cell)) ? DateTime::createFromFormat('Y-m-d', $cell, $tz)
                             ->diff(new DateTime('now', $tz))
-                            ->y : "";
+                            ->y : '';
                         $rows .= <<<HTML
 <td>$age</td>
 HTML;
                         break;
-                    case "estatus":
+                    case 'estatus':
                         $color = $columns[$index][$cell][0];
                         $cell = $columns[$index][$cell][1];
                         $rows .= <<<HTML
 <td><a onclick="btnCambiarEstatus($id)" class="label label-lg $color btn">$cell</a></td>
 HTML;
                         break;
-                    case "label":
+                    case 'label':
                         $color = $columns[$index][$cell][0];
                         $print = $columns[$index][$cell][1];
                         $rows .= <<<HTML
 <td><a class="label label-lg block $color">$print</a></td>
 HTML;
                         break;
-                    case "nada":
+                    case 'nada':
                         break;
                     default:
                         $rows .= <<<HTML
@@ -752,26 +752,26 @@ HTML;
                 }
                 $index++;
             }
-            $btnAcciones = "";
+            $btnAcciones = '';
             foreach ($acciones as $icono => $accion) {
                 if (is_array($accion)) continue;
                 $code = true;
-                foreach ($acciones["conditions"][$accion] as $column => $condition) {
+                foreach ($acciones['conditions'][$accion] as $column => $condition) {
                     $code = (($cells[$column] == $condition[0]) == $condition[1]);
                 }
                 $accion = htmlentities($accion);
                 $permiso = $this->permisos->{strtolower($accion)};
                 $title = $this->idioma->acciones->{strtolower($accion)};
-                $onclick = "btn" . ucfirst($accion) . "($id)";
+                $onclick = 'btn' . ucfirst($accion) . "($id)";
                 $btnAcciones .= ($permiso and $code) ? <<<HTML
 <a onclick="$onclick" title="$title" class="dropdown-item"><i class="material-icons">$icono</i></a>
 HTML
-                    : "";
+                    : '';
             }
             $rowAcciones = !empty($acciones) ? <<<html
 <td class="tdAcciones dropdown"><a class="nav-link dropdown-acciones" data-toggle="dropdown"><i class="material-icons md-18">more_vert</i></a><div class="dropdown-menu dropdown-menu-scale pull-right">$btnAcciones</div></td>
 html
-                : ($acciones === true ? "<td class='tdAcciones'></td>" : "");
+                : ($acciones === true ? "<td class='tdAcciones'></td>" : '');
             $tabla .= <<<HTML
 <tr>
 $rows
@@ -798,10 +798,10 @@ HTML;
 
     protected function buildLista($lista, $default = null, $disallowed = [])
     {
-        $html = "";
+        $html = '';
         foreach ($lista as $key => $item) {
-            $disabled = (in_array($key, $disallowed)) ? "disabled" : "";
-            $selected = $key == $default ? "selected" : "";
+            $disabled = (in_array($key, $disallowed)) ? 'disabled' : '';
+            $selected = $key == $default ? 'selected' : '';
             $item = ucwords(mb_strtolower($item));
             $html .= <<<HTML
 <option $selected $disabled value="$key">$item</option>
@@ -812,10 +812,10 @@ HTML;
 
     protected function buildDataList($lista, $default = null, $disallowed = [])
     {
-        $html = "";
+        $html = '';
         foreach ($lista as $key => $item) {
-            $disabled = (in_array($key, $disallowed)) ? "disabled" : "";
-            $selected = $key == $default ? "selected" : "";
+            $disabled = (in_array($key, $disallowed)) ? 'disabled' : '';
+            $selected = $key == $default ? 'selected' : '';
             $html .= <<<HTML
 <option $selected $disabled value="$item"></option>
 HTML;
@@ -826,7 +826,7 @@ HTML;
     protected function buildListaEstados($idCiudad = null)
     {
         $idEstado = '';
-        $listaEstados = "";
+        $listaEstados = '';
         $estados = $this->control->obtenerEstados();
         if (!is_null($idCiudad)) {
             $idEstado = $this->control->ciudades->selectEstadoFromCiudad($idCiudad);
@@ -847,12 +847,12 @@ HTML;
      */
     protected function buildListaCiudades($idCiudad = null)
     {
-        $listaCiudades = !empty($_POST['placeholder']) ? "<option selected disabled value='0'>$_POST[placeholder]</option>" : "";
+        $listaCiudades = !empty($_POST['placeholder']) ? "<option selected disabled value='0'>$_POST[placeholder]</option>" : '';
         $idEstado = null;
         $idCiudad = $idCiudad ?: $_POST['ciudad'];
-        if (isset($_POST["estado"])) {
-            $idEstado = $_POST["estado"];
-            if (strpos($idEstado, "(+)") !== false) return compact('listaCiudades');
+        if (isset($_POST['estado'])) {
+            $idEstado = $_POST['estado'];
+            if (strpos($idEstado, '(+)') !== false) return compact('listaCiudades');
         } elseif (!is_null($idCiudad)) {
             $idEstado = $this->control->ciudades->selectEstadoFromCiudad($idCiudad);
         }
@@ -913,11 +913,11 @@ HTML;
 
     private function getAssetsPDF()
     {
-        $modulo = str_replace("/", "_", Globales::$modulo);
+        $modulo = str_replace('/', '_', Globales::$modulo);
 
-        $plugins = HTTP_PATH_ROOT . "libs";
-        $js = HTTP_PATH_ROOT . "recursos/js";
-        $css = HTTP_PATH_ROOT . "recursos/css";
+        $plugins = HTTP_PATH_ROOT . 'libs';
+        $js = HTTP_PATH_ROOT . 'recursos/js';
+        $css = HTTP_PATH_ROOT . 'recursos/css';
 
         $assets = "$plugins/flatkit/assets";
         $libs = "$plugins/flatkit/libs";
@@ -988,7 +988,7 @@ HTML;
 
 
         #Override
-        $this->stylesheetPDF(HTTP_PATH_ROOT . "recursos/css/wrap.css");
+        $this->stylesheetPDF(HTTP_PATH_ROOT . 'recursos/css/wrap.css');
         $this->stylesheetPDF("$css/styles.css");
         $this->scriptPDF("$js/globales.js?" . uniqid());
 
@@ -1016,15 +1016,15 @@ HTML;
 
 class ArchivoModelo
 {
-    function __get($key)
+    public function __get($key)
     {
         try {
             $namespace = str_replace(' ', '_', APP_NAMESPACE);
-            $key = strtolower(str_replace($namespace, "", $key));
-            $ruta = __DIR__ . '/' . APP_ROOT . "modelo/{$key}Modelo.php";
+            $key = strtolower(str_replace($namespace, '', $key));
+            $ruta = __DIR__ . '/' . APP_ROOT . "/modelo/{$key}Modelo.php";
             if (!file_exists($ruta)) {
                 $ruta = HTTP_PATH_ROOT . "modelo/{$key}Modelo.php";
-                $namespace = "";
+                $namespace = '';
                 if (!file_exists($ruta)) {
                     $ruta = dirname(__FILE__) . "/modelo/{$key}Modelo.php";
                 }
@@ -1049,21 +1049,21 @@ class ArchivoModelo
  */
 class Modelo
 {
-    static private $token;
+    private static $token;
 
-    static function clearToken()
+    public static function clearToken()
     {
         unset($_SESSION['token']);
         self::$token = null;
     }
 
-    function __get($key)
+    public function __get($key)
     {
         self::getToken();
-        $key = ltrim($key, "_");
-        $namespace = Globales::$namespace == "\\" ? "" : Globales::$namespace;
-        $namespaceDir = str_replace("\\", "/", $namespace);
-        $ruta = __DIR__ . '/' . APP_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
+        $key = ltrim($key, '_');
+        $namespace = Globales::$namespace == "\\" ? '' : Globales::$namespace;
+        $namespaceDir = str_replace("\\", '/', $namespace);
+        $ruta = __DIR__ . '/' . APP_ROOT . "/modelo/tablas/{$namespaceDir}{$key}.php";
         if (!file_exists($ruta)) {
             $ruta = HTTP_PATH_ROOT . "modelo/tablas/{$namespaceDir}{$key}.php";
             if (!file_exists($ruta)) {
@@ -1079,13 +1079,13 @@ class Modelo
         return $tabla;
     }
 
-    static function getToken()
+    public static function getToken()
     {
         self::$token = isset($_SESSION['token']) ? $_SESSION['token'] : self::$token;
         return self::$token;
     }
 
-    static function setToken($token)
+    public static function setToken($token)
     {
         $token = $token ?: self::getToken();
         $_SESSION['token'] = $token;
@@ -1102,20 +1102,20 @@ class Modelo
     protected function obtenerNombrePadre($idPadre)
     {
         switch ($idPadre) {
-            case "I":
-                $nombrePadre = "Ingresos";
+            case 'I':
+                $nombrePadre = 'Ingresos';
                 break;
-            case "E":
-                $nombrePadre = "Gastos";
+            case 'E':
+                $nombrePadre = 'Gastos';
                 break;
-            case "P":
-                $nombrePadre = "Productos";
+            case 'P':
+                $nombrePadre = 'Productos';
                 break;
-            case "S":
-                $nombrePadre = "Servicios";
+            case 'S':
+                $nombrePadre = 'Servicios';
                 break;
             default:
-                $nombrePadre = "";
+                $nombrePadre = '';
                 break;
         }
         return $nombrePadre;
