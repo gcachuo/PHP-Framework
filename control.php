@@ -297,6 +297,7 @@ HTML;
         $this->script('https://cdn.jsdelivr.net/npm/fullcalendar@3.9.0/dist/locale/es.js');
         $this->script('https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.js');
         $this->stylesheet('https://cdn.jsdelivr.net/gh/jamesssooi/Croppr.js@2.3.0/dist/croppr.min.css');
+        $this->script('https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.4.26/sweetalert2.all.js');
 
         //JQuery-UI
         $this->stylesheet("$plugins/jquery-ui/jquery-ui.css");
