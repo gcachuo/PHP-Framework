@@ -1029,7 +1029,7 @@ class ArchivoModelo
             };
             if (file_exists($ruta)) {
                 require_once $ruta;
-                $modelo = "{$namespace}Modelo{$key}";
+                $modelo = "Modelo{$key}";
                 $class = new $modelo();
             } else {
                 throw new Exception(APP_ROOT . "modelo/{$key}Modelo.php", 500);
@@ -1069,7 +1069,10 @@ class Modelo
                 if (!file_exists($ruta))
                     Globales::mensaje_error("No existe el archivo. ($ruta)", 500);
             }
+        } else {
+            $namespace = APP_NAMESPACE;
         }
+
         require_once $ruta;
         $modelo = "{$namespace}Tabla{$key}";
         $tabla = new $modelo(self::$token);
