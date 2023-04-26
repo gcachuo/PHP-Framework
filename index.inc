@@ -9,7 +9,7 @@
 setcookie('XDEBUG_SESSION', 'PHPSTORM');
 ini_set('memory_limit', '300M');
 ini_set('max_execution_time', 300);
-ini_set("display_errors", 1);
+ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
 mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));//MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -22,10 +22,10 @@ spl_autoload_register('autoloader');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if (isset($_REQUEST["lang"]))
+if (isset($_REQUEST['lang']))
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 
-if ($_SESSION['modulo'] != 'login' and ((isset($_REQUEST["s"]) ? $_REQUEST["s"] : null) == "1" or TYPE_SYSTEM != $_SESSION['sistema'])) {
+if ($_SESSION['modulo'] != 'login' and ((isset($_REQUEST['s']) ? $_REQUEST['s'] : null) == '1' or TYPE_SYSTEM != $_SESSION['sistema'])) {
     session_unset();
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 }
@@ -33,9 +33,9 @@ header('Content-type: text/html; charset=utf-8');
 
 $_SESSION['sistema'] = TYPE_SYSTEM;
 
-require_once "globales.php";
-require_once dirname(__FILE__) . "/control.php";
-require_once "conexion.php";
+require_once 'globales.php';
+require_once dirname(__FILE__) . '/control.php';
+require_once 'conexion.php';
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 
 
@@ -55,7 +55,7 @@ ob_clean();
 
 function autoloader($class)
 {
-    $class = str_replace(APP_NAMESPACE, "", $class);
+    $class = str_replace(APP_NAMESPACE, '', $class);
     if (strpos($class, 'Modelo') !== false) {
         $class = strtolower(str_replace('Modelo', '', $class));
         $path = APP_ROOT . "modelo/{$class}Modelo.php";
@@ -105,7 +105,7 @@ HTML
 
         } elseif ($error && !defined('EXCEPTION')) {
             $file = addslashes($error['file']);
-            $message = addslashes(preg_replace("/\r|\n/", "", $error['message']));
+            $message = addslashes(preg_replace("/\r|\n/", '', $error['message']));
             $script = (<<<HTML
 <script>
 console.error('$message','$file',$error[line])

@@ -13,7 +13,7 @@ abstract class Tabla extends Conexion
     /**
      * cbiz constructor.
      */
-    function __construct()
+    public function __construct()
     {
         mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));
         $config = Globales::getConfig()->conexion;
@@ -28,7 +28,7 @@ abstract class Tabla extends Conexion
     public function __call($name, $arguments)
     {
         if (!method_exists($this, $name)) {
-            Globales::mensaje_error("La función $name en la clase " . get_class($this) . " no existe");
+            Globales::mensaje_error("La función $name en la clase " . get_class($this) . ' no existe');
         }
     }
 
@@ -38,21 +38,21 @@ abstract class Tabla extends Conexion
      * @return int|mysqli_result|null
      * @throws Exception
      */
-    function modify_table($tabla)
+    public function modify_table($tabla)
     {
         $tabla = strtolower($tabla);
         $consulta = null;
         $metadata = Globales::getConfig()->conexion;
         $create_table =
             str_replace(
-                "CREATE TABLE",
-                /** @lang text */ "CREATE TABLE IF NOT EXISTS",
-                str_replace($tabla, "temp_" . $tabla,
+                'CREATE TABLE',
+                /** @lang text */ 'CREATE TABLE IF NOT EXISTS',
+                str_replace($tabla, 'temp_' . $tabla,
                     $this->create_table()));
         $consulta_create = $this->multiconsulta($create_table);
         $verificar = !is_null($consulta_create);
         if (!$verificar)
-            Globales::mensaje_error("No se creo tabla temporal [modify_table]");
+            Globales::mensaje_error('No se creo tabla temporal [modify_table]');
         $sql = /** @lang MySQL */
             <<<MySQL
 SELECT
@@ -73,9 +73,9 @@ MySQL;
         $columnas = $this->query2array($this->consulta($sql));
 
         foreach ($columnas as $columna) {
-            $columna['defaultColumna'] = strpos($columna['tipo'], "varchar") === false ? $columna['defaultColumna'] : "'$columna[defaultColumna]'";
-            $default = !is_null($columna['defaultColumna']) ? "DEFAULT $columna[defaultColumna]" : "";
-            $notnull = $columna['nullable'] == "YES" ? "" : "NOT NULL";
+            $columna['defaultColumna'] = strpos($columna['tipo'], 'varchar') === false ? $columna['defaultColumna'] : "'$columna[defaultColumna]'";
+            $default = !is_null($columna['defaultColumna']) ? "DEFAULT $columna[defaultColumna]" : '';
+            $notnull = $columna['nullable'] == 'YES' ? '' : 'NOT NULL';
             $sql = /** @lang MySQL */
                 <<<MySQL
 ALTER TABLE $tabla
@@ -94,7 +94,7 @@ MySQL;
     /**
      * @return string regresar el texto de la consulta de la creacion de la tabla
      */
-    abstract function create_table();
+    abstract public function create_table();
 }
 
 abstract class cbizcontrol extends Conexion
@@ -102,11 +102,11 @@ abstract class cbizcontrol extends Conexion
     /**
      * cbizcontrol constructor.
      */
-    function __construct()
+    public function __construct()
     {
         mysqli_report(MYSQLI_REPORT_ALL ^ (MYSQLI_REPORT_INDEX));
         $config = Globales::getConfig()->conexion;
-        Conexion::$db = "e11_cbizcontrol";
+        Conexion::$db = 'e11_cbizcontrol';
         Conexion::$host = $config->host;
         Conexion::$user = $config->user;
         Conexion::$pass = $config->password;
@@ -115,7 +115,7 @@ abstract class cbizcontrol extends Conexion
     /**
      * @return string regresar el texto de la consulta de la creacion de la tabla
      */
-    abstract function create_table();
+    abstract public function create_table();
 }
 
 /**
@@ -123,9 +123,9 @@ abstract class cbizcontrol extends Conexion
  */
 abstract class Conexion
 {
-    static $host, $db, $user, $pass;
+    public static $host, $db, $user, $pass;
     /** @var mysqli $conexion */
-    static private $conexion;
+    private static $conexion;
     /** @var EMysqli $mysqli */
     private static $mysqli;
     private $retry;
@@ -141,8 +141,12 @@ abstract class Conexion
         return $this->stmt->fetch($mode) ?: [];
     }
 
-    public function fetchAll($fetch_style = null)
+    public function fetchAll($fetch_style = null, $column = null)
     {
+        if ($fetch_style == PDO::FETCH_COLUMN) {
+            return $this->stmt->fetchAll($fetch_style, $column);
+        }
+
         return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
     }
 
@@ -202,7 +206,7 @@ abstract class Conexion
             } catch (mysqli_sql_exception $ex) {
                 switch ($ex->getCode()) {
                     case 2002:
-                        Globales::mensaje_error("[2002] Error de conexion. Verifique si está conectado a internet.");
+                        Globales::mensaje_error('[2002] Error de conexion. Verifique si está conectado a internet.');
                         break;
                     default:
                         $this->handleErrors($ex, $sql);
@@ -241,18 +245,18 @@ abstract class Conexion
             case 1005:
                 $this->retry = false;
                 $token = strtolower($_SESSION['token']);
-                $message = str_replace("'", "", str_replace("Can't create table 'e11_$token.", "", $message));
-                $explode = explode(" (errno: ", $message);
+                $message = str_replace("'", '', str_replace("Can't create table 'e11_$token.", '', $message));
+                $explode = explode(' (errno: ', $message);
                 $table = $explode[0];
-                $errno = str_replace(")", "", $explode[1]);
+                $errno = str_replace(')', '', $explode[1]);
                 switch ($errno) {
                     case 150: #Foreign Key
-                        $foreignTable = explode("REFERENCES ", $sql);
+                        $foreignTable = explode('REFERENCES ', $sql);
                         unset($foreignTable[0]);
                         foreach ($foreignTable as $tabla) {
-                            $explode = explode(" ", $tabla);
-                            $tabla = str_replace("`", "", $explode[0]);
-                            $tabla = trim($tabla, "_");
+                            $explode = explode(' ', $tabla);
+                            $tabla = str_replace('`', '', $explode[0]);
+                            $tabla = trim($tabla, '_');
                             $namet = "Tabla$tabla";
                             $t = new $namet();
                             $sql = $t->create_table();
@@ -274,7 +278,7 @@ abstract class Conexion
                 $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $message), '.'), '.');
 
                 //Linea para evitar recursividad infinita
-                $recursive = strpos($sql, "CREATE TABLE") !== false ? true : false;
+                $recursive = strpos($sql, 'CREATE TABLE') !== false ? true : false;
                 if ($recursive) {
                     $this->retry = false;
                     return;
@@ -288,7 +292,7 @@ abstract class Conexion
                 } else $this->retry = true;
                 break;
             case 1054:
-                $table = strtolower(str_replace("distribuidor\\", "", str_replace("Tabla", "", get_class($this))));
+                $table = strtolower(str_replace("distribuidor\\", '', str_replace('Tabla', '', get_class($this))));
                 /** @var Tabla $this */
                 $consulta = $this->modify_table($table);
                 if (is_null($consulta)) {
@@ -311,7 +315,7 @@ abstract class Conexion
             case 2002:
                 /** Error de conexion */
                 $this->retry = true;
-                Globales::mensaje_error("[2002] Verifique su conexion.");
+                Globales::mensaje_error('[2002] Verifique su conexion.');
                 break;
             case 2006:
                 $this->retry = true;
@@ -468,13 +472,14 @@ abstract class Conexion
     /**
      * @param mysqli_result $consulta
      * @return null|object
+     * @deprecated
      */
     protected function siguiente_registro($consulta)
     {
         return mysqli_fetch_object($consulta);
     }
 
-    protected function query2array($result, $name = false, $index = "id")
+    protected function query2array($result, $name = false, $index = 'id')
     {
         $array = array();
         foreach ($result as $item) {

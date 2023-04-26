@@ -567,13 +567,13 @@ class Globales
 
     public static function getConfig($object = true)
     {
-        $env = file_exists(__DIR__ . '/' . APP_ROOT . 'config.dev.json') ? 'dev' : 'prod';
+        $env = file_exists(__DIR__ . '/' . APP_ROOT . 'config.dev.json') ? '.dev' : '';
 
-        $ruta = __DIR__ . '/' . APP_ROOT . "config.$env.json";
+        $ruta = __DIR__ . '/' . APP_ROOT . "config$env.json";
         if (!file_exists($ruta)) {
-            $ruta = HTTP_PATH_ROOT . "config.$env.json";
+            $ruta = HTTP_PATH_ROOT . "config$env.json";
             if (!file_exists($ruta)) {
-                $ruta = __DIR__ . '/' . APP_ROOT . "config.$env.json";
+                $ruta = __DIR__ . '/' . APP_ROOT . "config$env.json";
                 if (!file_exists($ruta)) {
                     Globales::mensaje_error("No existe el archivo de configuración $ruta", 500);
                 }
