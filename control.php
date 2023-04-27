@@ -1032,7 +1032,7 @@ class ArchivoModelo
             }
             if (file_exists($ruta)) {
                 require_once $ruta;
-                $modelo = "Modelo{$key}";
+                $modelo = "{$namespace}Modelo{$key}";
                 $class = new $modelo();
             } else {
                 throw new Exception(APP_ROOT . "modelo/{$key}Modelo.php", 500);
