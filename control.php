@@ -426,6 +426,7 @@ HTML;
         elseif (file_exists("../framework/recursos/css/{$modulo}.css"))
             $this->$stylesheet("../framework/recursos/css/{$modulo}.css");
 
+        $modulo = str_replace('/', '_', $modulo);
         if (file_exists(APP_ROOT . "recursos/js/{$modulo}.js"))
             $this->script("recursos/js/{$modulo}.js");
         elseif (file_exists(HTTP_PATH_ROOT . "recursos/js/{$modulo}.js"))
