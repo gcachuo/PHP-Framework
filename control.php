@@ -261,8 +261,8 @@ HTML;
 
         $this->script("$plugins/tether/dist/js/tether.min.js");
 
-        $this->stylesheet("$plugins/bootstrap/dist/css/bootstrap.min.css");
-        $this->script("$plugins/bootstrap/dist/js/bootstrap.js");
+        $this->stylesheet('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css');
+        $this->script('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js');
         //$this->stylesheet("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css");
         //$this->script("https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js");
 
