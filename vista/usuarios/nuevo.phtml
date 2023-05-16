@@ -17,7 +17,8 @@
                         <label for="txtNombre"
                                class="col-sm-2 form-control-label"><?= $this->idioma->lblNombre ?></label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" value="<?= $this->usuario->nombre ?? null ?>"
+                            <input type="text" class="form-control"
+                                   value="<?= isset($this->usuario->nombre) ? $this->usuario->nombre : null ?>"
                                    name="nombre" id="txtNombre" placeholder="<?= $this->idioma->lblNombre ?>">
                         </div>
                     </div>
@@ -26,7 +27,7 @@
                                class="col-sm-2 form-control-label"><?= $this->idioma->lblUsuario ?></label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control"
-                                   value="<?= $this->usuario->login ?? null ?>" <?= isset($this->usuario) ? "readonly" : "" ?>
+                                   value="<?= isset($this->usuario->login) ? $this->usuario->login : null ?>" <?= isset($this->usuario) ? 'readonly' : '' ?>
                                    name="usuario" id="txtUsuario" placeholder="<?= $this->idioma->lblUsuario ?>">
                         </div>
                     </div>
@@ -34,7 +35,8 @@
                         <label for="txtEmail"
                                class="col-sm-2 form-control-label"><?= $this->idioma->lblCorreo ?></label>
                         <div class="col-sm-10">
-                            <input type="email" class="form-control" value="<?= $this->usuario->correo ?? null ?>"
+                            <input type="email" class="form-control"
+                                   value="<?= isset($this->usuario->correo) ? $this->usuario->correo : null ?>"
                                    name="email" id="txtEmail" placeholder="<?= $this->idioma->lblCorreo ?>">
                         </div>
                     </div>
@@ -77,7 +79,7 @@
                             <a class="btn btn-danger col-md-5"
                                onclick="navegar('usuarios')"><?= $this->idioma->btnCancelar ?></a>
                             <a class="btn btn-primary col-md-5"
-                               onclick="btnGuardar(<?= $this->usuario->id ?? null ?>)"><?= $this->idioma->btnRegistrar ?></a>
+                               onclick="btnGuardar(<?= isset($this->usuario->id) ? $this->usuario->id : null ?>)"><?= $this->idioma->btnRegistrar ?></a>
                         </div>
                     </div>
                 </div>
