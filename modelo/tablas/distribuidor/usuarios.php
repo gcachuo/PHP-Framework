@@ -12,7 +12,7 @@ use cbizcontrol;
 
 class TablaUsuarios extends cbizcontrol
 {
-    function create_table(): string
+    public function create_table()
     {
         return <<<sql
 CREATE TABLE e11_cbizcontrol._usuarios (
@@ -29,7 +29,7 @@ sql;
 
     }
 
-    function selectUsuario($login, $password)
+    public function selectUsuario($login, $password)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -45,7 +45,7 @@ MySQL;
         return $registro;
     }
 
-    function selectUsuarioFromLogin($login)
+    public function selectUsuarioFromLogin($login)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -64,7 +64,7 @@ MySQL;
         return $registro;
     }
 
-    function insertUsuario($id_perfil, $nombre_usuario, $login_usuario, $password_usuario, $correo_usuario)
+    public function insertUsuario($id_perfil, $nombre_usuario, $login_usuario, $password_usuario, $correo_usuario)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -79,7 +79,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function updateEstatusUsuario($login_usuario)
+    public function updateEstatusUsuario($login_usuario)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
