@@ -66,6 +66,33 @@ $(function () {
     if (typeof filtrarTabla === "function") filtrarTabla();
     else console.log("No existe la funcion 'filtrarTabla' para este modulo");
   });
+  jQuery.extend(jQuery.validator.messages, {
+    required: "Este campo es requerido.",
+    remote: "Please fix this field.",
+    email: "Introduzca una dirección de correo electrónico válida.",
+    url: "Please enter a valid URL.",
+    date: "Please enter a valid date.",
+    dateISO: "Please enter a valid date (ISO).",
+    number: "Please enter a valid number.",
+    digits: "Please enter only digits.",
+    creditcard: "Please enter a valid credit card number.",
+    equalTo: "Please enter the same value again.",
+    accept: "Please enter a value with a valid extension.",
+    maxlength: jQuery.validator.format(
+      "Please enter no more than {0} characters."
+    ),
+    minlength: jQuery.validator.format("Please enter at least {0} characters."),
+    rangelength: jQuery.validator.format(
+      "Please enter a value between {0} and {1} characters long."
+    ),
+    range: jQuery.validator.format("Please enter a value between {0} and {1}."),
+    max: jQuery.validator.format(
+      "Please enter a value less than or equal to {0}."
+    ),
+    min: jQuery.validator.format(
+      "Please enter a value greater than or equal to {0}."
+    ),
+  });
 });
 
 function btnSearch(event, modulo) {
@@ -102,7 +129,7 @@ function cargarDropdown() {
 function cargarAcordeon() {
   $(".wizard > .box > a").click(function () {
     /*$(this).children("span").addClass("hidden");
-                                $(this).parent().next().find("a span").removeClass("hidden");*/
+                                                            $(this).parent().next().find("a span").removeClass("hidden");*/
     $(this)
       .siblings(".collapse")
       .collapse("show")
@@ -141,6 +168,9 @@ function btnCopiarTexto(inputId) {
 }
 
 function ajax(fn, post, modulo) {
+  if (!$("form:not(#frmAside)").valid()) {
+    return;
+  }
   $("a.btn").addClass("disabled");
   return $.post(
     `index.php/${modulo || 0}/${fn}`,
@@ -531,7 +561,7 @@ function cargarDropzone(idioma, numFiles, modulo, nombre, folder) {
                   editedFile.accepted = true;
 
                   /*var origFileIndex = myDropzone.files.indexOf(file);
-                                                                                                                                                     myDropzone.files[origFileIndex] = editedFile;*/
+                                                                                                                                                                                                                                                                                   myDropzone.files[origFileIndex] = editedFile;*/
 
                   myDropzone.files.push(editedFile);
                   myDropzone.emit("addedFile", editedFile);
@@ -672,24 +702,24 @@ function initMap() {
               $("#cpCliente").val(place[i].long_name);
             }
             /*if(place[i].types[0] == 'administrative_area_level_1')
-                                                                                                 {
-                                                                                                 //ESTADO
-                                                                                                 var txtEstado = place[i].long_name;
-                                                                                                 }
-                                                                                                 if(place[i].types[0] == 'locality')
-                                                                                                 {
-                                                                                                 //CIUDAD
-                                                                                                 var txtCiudad = place[i].long_name;
-                                                                                                 }
-                                                                                                 if(place[i].types[0] == 'sublocality_level_1')
-                                                                                                 {
-                                                                                                 //COLONIA
-                                                                                                 var txtColonia = place[i].long_name;
-                                                                                                 }
-                                                                                                 if(place[i].types[0] == 'country')
-                                                                                                 {
-                                                                                                 //document.getElementById('country').innerHTML =      long_name;
-                                                                                                 }*/
+                                                                                                                                                                                     {
+                                                                                                                                                                                     //ESTADO
+                                                                                                                                                                                     var txtEstado = place[i].long_name;
+                                                                                                                                                                                     }
+                                                                                                                                                                                     if(place[i].types[0] == 'locality')
+                                                                                                                                                                                     {
+                                                                                                                                                                                     //CIUDAD
+                                                                                                                                                                                     var txtCiudad = place[i].long_name;
+                                                                                                                                                                                     }
+                                                                                                                                                                                     if(place[i].types[0] == 'sublocality_level_1')
+                                                                                                                                                                                     {
+                                                                                                                                                                                     //COLONIA
+                                                                                                                                                                                     var txtColonia = place[i].long_name;
+                                                                                                                                                                                     }
+                                                                                                                                                                                     if(place[i].types[0] == 'country')
+                                                                                                                                                                                     {
+                                                                                                                                                                                     //document.getElementById('country').innerHTML =      long_name;
+                                                                                                                                                                                     }*/
           }
 
           $("#latMap").val(marker.getPosition().lat());
@@ -758,24 +788,24 @@ function initMap() {
           $("#cpCliente").val(place.address_components[i].long_name);
         }
         /*if(place.address_components[i].types[0] == 'administrative_area_level_1')
-                                                                 {
-                                                                 //ESTADO
-                                                                 var txtEstado = place.address_components[i].long_name;
-                                                                 }
-                                                                 if(place.address_components[i].types[0] == 'locality')
-                                                                 {
-                                                                 //CIUDAD
-                                                                 var txtCiudad = place.address_components[i].long_name;
-                                                                 }
-                                                                 if(place.address_components[i].types[0] == 'sublocality_level_1')
-                                                                 {
-                                                                 //COLONIA
-                                                                 var txtColonia = place.address_components[i].long_name;
-                                                                 }
-                                                                 if(place.address_components[i].types[0] == 'country')
-                                                                 {
-                                                                 //document.getElementById('country').innerHTML = place.address_components[i].long_name;
-                                                                 }*/
+                                                                                                                         {
+                                                                                                                         //ESTADO
+                                                                                                                         var txtEstado = place.address_components[i].long_name;
+                                                                                                                         }
+                                                                                                                         if(place.address_components[i].types[0] == 'locality')
+                                                                                                                         {
+                                                                                                                         //CIUDAD
+                                                                                                                         var txtCiudad = place.address_components[i].long_name;
+                                                                                                                         }
+                                                                                                                         if(place.address_components[i].types[0] == 'sublocality_level_1')
+                                                                                                                         {
+                                                                                                                         //COLONIA
+                                                                                                                         var txtColonia = place.address_components[i].long_name;
+                                                                                                                         }
+                                                                                                                         if(place.address_components[i].types[0] == 'country')
+                                                                                                                         {
+                                                                                                                         //document.getElementById('country').innerHTML = place.address_components[i].long_name;
+                                                                                                                         }*/
       }
 
       /* Location details */
@@ -827,7 +857,7 @@ function cargarMultiDropzone(idioma, numFiles, modulo, nombre, folder) {
                   editedFile.accepted = true;
 
                   /*var origFileIndex = myDropzone.files.indexOf(file);
-                                                                                                                                                     myDropzone.files[origFileIndex] = editedFile;*/
+                                                                                                                                                                                                                                                                                   myDropzone.files[origFileIndex] = editedFile;*/
 
                   myDropzone.files.push(editedFile);
                   myDropzone.emit("addedFile", editedFile);
