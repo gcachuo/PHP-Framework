@@ -35,21 +35,26 @@ abstract class Tabla extends Conexion
     /**
      * Agrega las columnas faltantes a partir de la plantilla de creacion de tabla
      * @param $tabla
-     * @return int|mysqli_result|null
+     * @return Tabla
      * @throws Exception
      */
-    public function modify_table($tabla)
+    public function modify_table($nombre)
     {
-        $tabla = strtolower($tabla);
+        $nombre = strtolower($nombre);
         $consulta = null;
         $metadata = Globales::getConfig()->conexion;
-        $create_table =
-            str_replace(
-                'CREATE TABLE',
-                /** @lang text */ 'CREATE TABLE IF NOT EXISTS',
-                str_replace($tabla, 'temp_' . $tabla,
-                    $this->create_table()));
-        $consulta_create = $this->multiconsulta($create_table);
+
+        $class = APP_NAMESPACE . 'Tabla' . $nombre;
+        $tabla = new $class();
+
+        $create_table = str_ireplace(
+            'CREATE TABLE',
+            /** @lang text */
+            'CREATE TABLE IF NOT EXISTS',
+            str_ireplace($nombre, 'temp_' . $nombre, $tabla->create_table())
+        );
+
+        $consulta_create = $this->consulta2($create_table);
         $verificar = !is_null($consulta_create);
         if (!$verificar)
             Globales::mensaje_error('No se creo tabla temporal [modify_table]');
@@ -62,15 +67,19 @@ SELECT
   COLUMN_COMMENT comment,
   IS_NULLABLE    nullable
 FROM information_schema.COLUMNS c1
-WHERE c1.table_name = 'temp_$tabla'
-      AND c1.table_schema = '{$metadata->prefix}$_SESSION[token]'
+WHERE c1.table_name = :c1_table_name
+      AND c1.table_schema = :table_schema
       AND COLUMN_NAME NOT IN (
   SELECT column_name
   FROM information_schema.COLUMNS
-  WHERE table_name = '$tabla'
-        AND table_schema = '{$metadata->prefix}$_SESSION[token]');
+  WHERE table_name = :table_name
+        AND table_schema = :table_schema);
 MySQL;
-        $columnas = $this->query2array($this->consulta($sql));
+        $columnas = $this->consulta2($sql, [
+            ':c1_table_name' => "temp_$nombre",
+            ':table_name' => $nombre,
+            ':table_schema' => "{$metadata->prefix}$_SESSION[token]"
+        ])->fetchAll();
 
         foreach ($columnas as $columna) {
             $columna['defaultColumna'] = strpos($columna['tipo'], 'varchar') === false ? $columna['defaultColumna'] : "'$columna[defaultColumna]'";
@@ -78,14 +87,14 @@ MySQL;
             $notnull = $columna['nullable'] == 'YES' ? '' : 'NOT NULL';
             $sql = /** @lang MySQL */
                 <<<MySQL
-ALTER TABLE $tabla
+ALTER TABLE $nombre
   ADD $columna[columna] $columna[tipo] $default
 COMMENT '$columna[comment]' $notnull;
 MySQL;
-            $consulta = $this->consulta($sql);
+            $consulta = $this->consulta2($sql);
         }
         if ($verificar) {
-            $drop = "drop table if exists temp_$tabla;";
+            $drop = "drop table if exists temp_$nombre;";
             $this->consulta2($drop);
         }
         return $consulta;
@@ -292,7 +301,17 @@ abstract class Conexion
                 } else $this->retry = true;
                 break;
             case 1054:
-                $table = strtolower(str_replace("distribuidor\\", '', str_replace('Tabla', '', get_class($this))));
+            case '42S22':
+                $pattern = "/Unknown column '([^']+)'/";
+                preg_match($pattern, $message, $matches);
+                $columnName = preg_quote($matches[1]);
+
+                // Buscar la parte de la consulta SQL que contiene el error
+                preg_match("/join\s+([^ ]+)\s+[^ ]+\s+on\s+$columnName/", str_replace(PHP_EOL, ' ', $sql), $matches);
+
+                // Obtener el nombre de la tabla capturado en el primer grupo
+                $table = isset($matches[1]) ? $matches[1] : '';
+
                 /** @var Tabla $this */
                 $consulta = $this->modify_table($table);
                 if (is_null($consulta)) {
