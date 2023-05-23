@@ -259,6 +259,7 @@ HTML;
         $this->script('https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js');
         $this->script('https://cdn.jsdelivr.net/npm/jquery@3.6.0');
         $this->script('https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js');
+        $this->script('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
 
         $this->script("$plugins/tether/dist/js/tether.min.js");
 
