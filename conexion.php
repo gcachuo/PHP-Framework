@@ -48,10 +48,10 @@ abstract class Tabla extends Conexion
         $tabla = new $class();
 
         $create_table = str_ireplace(
-            'CREATE TABLE',
+            "CREATE TABLE $nombre",
             /** @lang text */
-            'CREATE TABLE IF NOT EXISTS',
-            str_ireplace($nombre, 'temp_' . $nombre, $tabla->create_table())
+            "CREATE TABLE IF NOT EXISTS temp_$nombre",
+            $tabla->create_table()
         );
 
         $consulta_create = $this->consulta2($create_table);
@@ -284,7 +284,7 @@ abstract class Conexion
             case '42S02':
                 /** @var Tabla $table */
                 $token = strtolower($_SESSION['token']);
-                $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $message), '.'), '.');
+                $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $ex->errorInfo[2] ?: $message), '.'), '.');
 
                 //Linea para evitar recursividad infinita
                 $recursive = strpos($sql, 'CREATE TABLE') !== false ? true : false;
@@ -311,6 +311,10 @@ abstract class Conexion
 
                 // Obtener el nombre de la tabla capturado en el primer grupo
                 $table = isset($matches[1]) ? $matches[1] : '';
+
+                if (!$table) {
+                    $table = strtolower(str_replace([APP_NAMESPACE, 'Tabla'], '', get_class($this)));
+                }
 
                 /** @var Tabla $this */
                 $consulta = $this->modify_table($table);
