@@ -7,17 +7,19 @@
  * Time: 10:45 AM
  */
 
+use distribuidor\TablaCbiz_Cliente;
+
 /**
  * Class ModeloLogin
  * @property TablaUsuarios usuarios
- * @property \distribuidor\TablaCbiz_Cliente cbiz_cliente
+ * @property TablaCbiz_Cliente cbiz_cliente
  */
 class ModeloLogin extends Modelo
 {
-    function obtenerToken(&$correo)
+    public function obtenerToken(&$correo)
     {
-        if (strpos($correo, "|")) {
-            $explode = explode("|", $correo);
+        if (strpos($correo, '|')) {
+            $explode = explode('|', $correo);
             $correo = $explode[0];
             $token = $explode[1];
         } else {
@@ -32,21 +34,21 @@ class ModeloLogin extends Modelo
      * @param string $token
      * @return mixed
      */
-    function obtenerTipoSistema($token)
+    public function obtenerTipoSistema($token)
     {
         $tipo = $this->cbiz_cliente->selectTipoSistema($token);
         return strtolower($tipo);
     }
 
-    function obtenerEstatusSistema($token)
+    public function obtenerEstatusSistema($token)
     {
         $estatus = $this->cbiz_cliente->selectEstatusSistema($token);
         return strtolower($estatus);
     }
 
-    function registrarCliente($nombre, $apellidoP, $apellidoM, $lada, $telefono, $correo, &$tokenCbiz, $idDistribuidor = null,$id_tipo_cbiz)
+    public function registrarCliente($nombre, $apellidoP, $apellidoM, $lada, $telefono, $correo, &$tokenCbiz, $idDistribuidor = null, $id_tipo_cbiz)
     {
-        Globales::setNamespace("distribuidor");
+        Globales::setNamespace('distribuidor');
 
         $idCliente = $this->cliente->insertCliente("$nombre $apellidoP $apellidoM", $lada, $telefono, date('Y-m-d'), 1, $idDistribuidor ?: 1);
 
@@ -60,50 +62,59 @@ class ModeloLogin extends Modelo
             $num++;
         }
 
-        $this->cbiz_cliente->insertarCbizCliente($idCliente, $tokenCbiz, date('Y-m-d'), date('Y-m-d'), 0, date('Y-m-d'), date('Y-m-d'), 1,$id_tipo_cbiz);
+        $this->cbiz_cliente->insertarCbizCliente($idCliente, $tokenCbiz, date('Y-m-d'), date('Y-m-d'), 0, date('Y-m-d'), date('Y-m-d'), 1, $id_tipo_cbiz);
 
     }
 
-    function generarToken($nombre, $apellidoP, $apellidoM, $num, &$estatus)
+    public function generarToken($nombre, $apellidoP, $apellidoM, $num, &$estatus)
     {
         $token = mb_strtoupper(substr($nombre, 0, 1) . substr($apellidoP, 0, 1) . substr($apellidoM, 0, 1)) . str_pad($num, 3, '0', STR_PAD_LEFT);
         $estatus = !boolval($this->cbiz_cliente->selectTokenExistente($token));
         return $token;
     }
 
-    function registrarUsuario($token, $nombre, $email, $password, $reseller)
+    public function registrarUsuario($token, $nombre, $email, $password, $reseller)
     {
-        Globales::setNamespace("");
+        Globales::setNamespace('');
         parent::setToken($token);
         $_SESSION[usuario] = $this->usuarios->insertUsuario($nombre, $email, $password, $email, 1, $reseller);
     }
 
-    function crearDatabase($token)
+    public function crearDatabase($token)
     {
-        $ruta = HTTP_PATH_ROOT . "modelo/database/e11_cbizcontrol.php";
+        $ruta = HTTP_PATH_ROOT . 'modelo/database/e11_cbizcontrol.php';
         include_once $ruta;
         $db = new distribuidor\DbCbizControl();
         $db->createNewDatabase($token);
     }
 
-    function correoExistente($correo)
+    public function correoExistente($correo)
     {
-        Globales::setNamespace("distribuidor");
+        Globales::setNamespace('distribuidor');
         $existe = boolval($this->contacto_cliente->selectCountCorreo($correo));
         return $existe;
     }
 
-    function editarUsuario($email, $password)
+    public function editarUsuario($email, $password)
     {
         $usuario = $this->usuarios->selectUsuarioFromLogin($email);
 
         $this->usuarios->insertUsuario($usuario->nombre, $email, $password, $email, $usuario->perfil ?: 1, $usuario->id ?: 'null');
     }
 
-    function solicitarCambioPass($email)
+    public function solicitarCambioPass($email)
     {
         $usuario = $this->usuarios->selectUsuarioFromLogin($email);
 
         $this->usuarios->updateIdUserCreate($usuario->id, 1);
+    }
+
+    /**
+     * @param $token
+     * @return void
+     */
+    public function agregarLogin($token)
+    {
+        $this->cbiz_cliente->updateLogin($token);
     }
 }

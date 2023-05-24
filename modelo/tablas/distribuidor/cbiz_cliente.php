@@ -9,10 +9,11 @@
 namespace distribuidor;
 
 use cbizcontrol;
+use Exception;
 
 class TablaCbiz_Cliente extends cbizcontrol
 {
-    function create_table()
+    public function create_table()
     {
         return <<<sql
 CREATE TABLE e11_cbizcontrol.cbiz_cliente(
@@ -33,7 +34,7 @@ sql;
 
     }
 
-    function insertarCbizCliente($id_cliente, $token_cbiz_cliente, $fecha_inicial_cbiz_cliente, $fecha_prox_pago_cbiz_cliente, $monto_cbiz_cliente, $fecha_ultimo_pago_cbiz_cliente, $fecha_cbiz_cliente, $id_usuario, $id_tipo_cbiz)
+    public function insertarCbizCliente($id_cliente, $token_cbiz_cliente, $fecha_inicial_cbiz_cliente, $fecha_prox_pago_cbiz_cliente, $monto_cbiz_cliente, $fecha_ultimo_pago_cbiz_cliente, $fecha_cbiz_cliente, $id_usuario, $id_tipo_cbiz)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -45,7 +46,7 @@ MySQL;
         $this->consulta($sql);
     }
 
-    function selectTokenExistente($token_cbiz_cliente)
+    public function selectTokenExistente($token_cbiz_cliente)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -54,7 +55,7 @@ MySQL;
         return $this->siguiente_registro($this->consulta($sql))->existe;
     }
 
-    function selectTokenFromUser($correo_contacto_cliente)
+    public function selectTokenFromUser($correo_contacto_cliente)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -69,7 +70,7 @@ MySQL;
         return $registro->token;
     }
 
-    function selectTokenFromCliente($id_cliente)
+    public function selectTokenFromCliente($id_cliente)
     {
         $sql = <<<MySQL
 select token_cbiz_cliente tokenCbiz from e11_cbizcontrol.cbiz_cliente where id_cliente='$id_cliente';
@@ -78,7 +79,7 @@ MySQL;
         return $registro->tokenCbiz;
     }
 
-    function selectIdClienteFromToken($token_cbiz_cliente)
+    public function selectIdClienteFromToken($token_cbiz_cliente)
     {
         $sql = <<<MySQL
 select id_cliente idCliente from e11_cbizcontrol.cbiz_cliente where token_cbiz_cliente='$token_cbiz_cliente';
@@ -91,7 +92,7 @@ MySQL;
      * @param string $token_cbiz_cliente
      * @param bool $estatus_cbiz_cliente
      */
-    function updateEstatusCbiz($token_cbiz_cliente, $estatus_cbiz_cliente)
+    public function updateEstatusCbiz($token_cbiz_cliente, $estatus_cbiz_cliente)
     {
         $estatus_cbiz_cliente = $estatus_cbiz_cliente ? 1 : 0;
         $sql = <<<MySQL
@@ -100,7 +101,7 @@ MySQL;
         $this->consulta($sql);
     }
 
-    function selectFechaCreacion($id_cliente)
+    public function selectFechaCreacion($id_cliente)
     {
         $sql = <<<MySQL
 select fecha_inicial_cbiz_cliente fechaCreacion from e11_cbizcontrol.cbiz_cliente where id_cliente='$id_cliente'
@@ -109,7 +110,7 @@ MySQL;
         return $registro->fechaCreacion;
     }
 
-    function selectTipoSistema($token_cbiz_cliente)
+    public function selectTipoSistema($token_cbiz_cliente)
     {
         $sql = <<<sql
 SELECT 
@@ -123,7 +124,7 @@ sql;
         return $registro->tipo;
     }
 
-    function selectEstatusSistema($token_cbiz_cliente)
+    public function selectEstatusSistema($token_cbiz_cliente)
     {
         $sql = <<<sql
 SELECT 
@@ -135,5 +136,22 @@ sql;
 
         $registro = $this->siguiente_registro($this->consulta($sql, ['s', $token_cbiz_cliente])) ?: (object)['estatus' => null];
         return $registro->estatus;
+    }
+
+    /**
+     * @param $token_cbiz_cliente
+     * @return void
+     * @throws Exception
+     */
+    public function updateLogin($token_cbiz_cliente)
+    {
+        $sql = <<<sql
+UPDATE cbiz_cliente
+SET fecha_ultima_conexion_cliente = NOW()
+WHERE token_cbiz_cliente = :token_cbiz_cliente;
+sql;
+        $this->consulta2($sql, [
+            ':token_cbiz_cliente' => $token_cbiz_cliente
+        ]);
     }
 }

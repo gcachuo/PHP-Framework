@@ -169,6 +169,9 @@ class Login extends Control
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function iniciarSesion()
     {
         /**
@@ -218,7 +221,7 @@ class Login extends Control
         $usuario = $this->modelo->usuarios->selectUsuario($usuario);
 
         #Encripta la contraseña antes de mandarla al modelo
-        $password = password_verify($_POST["password"], $usuario->pass);
+        $password = password_verify($_POST['password'], $usuario->pass);
         unset($_POST['password']);
         unset($_REQUEST);
 

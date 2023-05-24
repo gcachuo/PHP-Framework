@@ -8,7 +8,7 @@
  */
 class TablaUsuarios extends Tabla
 {
-    function create_table()
+    public function create_table()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -36,7 +36,12 @@ MySQL;
         return $sql;
     }
 
-    function selectUsuario( $login)
+    /**
+     * @param $login
+     * @return stdClass
+     * @throws Exception
+     */
+    public function selectUsuario($login)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -56,11 +61,10 @@ MySQL;
             ':login_usuario' => $login,
             ':correo_usuario' => $login,
         ]);
-        $registro = $consulta->fetch();
-        return $registro;
+        return $consulta->fetch(PDO::FETCH_OBJ);
     }
 
-    function selectUsuarioFromId($id_usuario)
+    public function selectUsuarioFromId($id_usuario)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -80,7 +84,7 @@ MySQL;
         return $registro;
     }
 
-    function selectUsuarioAlumnos($id_usuario)
+    public function selectUsuarioAlumnos($id_usuario)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -100,7 +104,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function selectUsuarioFromLogin($login_usuario)
+    public function selectUsuarioFromLogin($login_usuario)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -120,7 +124,7 @@ MySQL;
         return $registro;
     }
 
-    function selectRegistrosUsuarios()
+    public function selectRegistrosUsuarios()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -139,7 +143,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function selectRegistrosUsuariosEducacion()
+    public function selectRegistrosUsuariosEducacion()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -159,7 +163,7 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function selectRegistrosUsuariosTutores()
+    public function selectRegistrosUsuariosTutores()
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -178,9 +182,9 @@ MySQL;
         return $this->consulta($sql);
     }
 
-    function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = null, $id_usuario_create = null, $id_especialista = null)
+    public function insertUsuario($nombre_usuario, $login_usuario, $password_usuario, $correo_usuario, $perfil_usuario, $id_usuario = null, $id_usuario_create = null, $id_especialista = null)
     {
-        if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION["usuario"];
+        if (is_null($id_usuario_create)) $id_usuario_create = $_SESSION['usuario'];
         $sql = /** @lang MySQL */
             <<<MySQL
 INSERT INTO
@@ -225,9 +229,9 @@ MySQL;
         return $id;
     }
 
-    function updateUsuario($id, $nombre, $login, $correo, $perfil, $password, $sucursal)
+    public function updateUsuario($id, $nombre, $login, $correo, $perfil, $password, $sucursal)
     {
-        if ($password != "") {
+        if ($password != '') {
             $sql = /**@lang MySQL */
                 <<<MySQL
 UPDATE _usuarios
@@ -255,7 +259,7 @@ MySQL;
         $this->consulta($sql);
     }
 
-    function updateEstatusUsuario($id)
+    public function updateEstatusUsuario($id)
     {
         $sql = /**@lang MySQL */
             <<<MySQL
@@ -266,7 +270,7 @@ MySQL;
         $this->consulta($sql);
     }
 
-    function selectPerfil($usuario)
+    public function selectPerfil($usuario)
     {
         $sql = /** @lang MySQL */
             <<<MySQL
@@ -280,7 +284,7 @@ MySQL;
         return $registro['perfil'];
     }
 
-    function updateIdUserCreate($id_usuario, $id_usuario_create)
+    public function updateIdUserCreate($id_usuario, $id_usuario_create)
     {
         $sql = <<<MySQL
 update _usuarios set id_usuario_create='$id_usuario_create' where id_usuario='$id_usuario';
