@@ -145,11 +145,20 @@ abstract class Conexion
     private $stmt;
     private $pdo;
 
+    /**
+     * @param $mode
+     * @return array|mixed
+     */
     public function fetch($mode = PDO::FETCH_ASSOC)
     {
         return $this->stmt->fetch($mode) ?: [];
     }
 
+    /**
+     * @param $fetch_style
+     * @param $column
+     * @return array|false
+     */
     public function fetchAll($fetch_style = null, $column = null)
     {
         if ($fetch_style == PDO::FETCH_COLUMN) {
@@ -159,16 +168,26 @@ abstract class Conexion
         return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $column
+     * @return mixed
+     */
     public function fetchColumn($column = 0)
     {
         return $this->stmt->fetchColumn($column);
     }
 
+    /**
+     * @return stdClass
+     */
     public function fetchObject()
     {
         return $this->stmt->fetchObject() ?: (object)[];
     }
 
+    /**
+     * @return mixed
+     */
     public function lastInsertId()
     {
         return $this->pdo->lastInsertId();
@@ -207,7 +226,7 @@ abstract class Conexion
                 } else {
                     $resultado = mysqli_query(self::$conexion, $sql);
 
-                    if (is_bool($resultado) and $resultado != false) {
+                    if (is_bool($resultado) and $resultado) {
                         $resultado = mysqli_insert_id(self::$conexion);
                     }
                 }
@@ -227,6 +246,10 @@ abstract class Conexion
         return $resultado;
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     protected function conectar()
     {
         try {
@@ -359,6 +382,7 @@ abstract class Conexion
      * @param $sql
      * @return bool|mysqli_result
      * @throws Exception
+     * @deprecated
      */
     protected function multiconsulta($sql)
     {
@@ -381,6 +405,9 @@ abstract class Conexion
         return $resultado;
     }
 
+    /**
+     * @return void
+     */
     protected function desconectar()
     {
         mysqli_close(self::$conexion);
@@ -431,6 +458,10 @@ abstract class Conexion
         }
     }
 
+    /**
+     * @param $val
+     * @return int
+     */
     private function parseValue(&$val)
     {
         $type = PDO::PARAM_STR;
@@ -453,6 +484,12 @@ abstract class Conexion
         return $type;
     }
 
+    /**
+     * @param $query
+     * @param $params
+     * @param $splice
+     * @return array|string|string[]|null
+     */
     private static function interpolate_query($query, $params, $splice = false)
     {
         if ($splice) {
@@ -502,12 +539,19 @@ abstract class Conexion
         return mysqli_fetch_object($consulta);
     }
 
+    /**
+     * @param $result
+     * @param $name
+     * @param $index
+     * @return array
+     * @deprecated
+     */
     protected function query2array($result, $name = false, $index = 'id')
     {
         $array = array();
         foreach ($result as $item) {
             if (!$name)
-                array_push($array, $item);
+                $array[] = $item;
             else
                 $array[$item[$index]] = $item[$name];
         }
@@ -517,10 +561,10 @@ abstract class Conexion
     /**
      * @param mysqli_result $consulta
      * @return array
+     * @deprecated
      */
     protected function query2multiarray($consulta)
     {
-        $results = mysqli_fetch_all($consulta, MYSQLI_ASSOC);
-        return $results;
+        return mysqli_fetch_all($consulta, MYSQLI_ASSOC);
     }
 }
