@@ -565,6 +565,11 @@ class Globales
         return self::$token;
     }
 
+    /**
+     * @param bool $object
+     * @return object
+     * @throws Exception
+     */
     public static function getConfig($object = true)
     {
         $env = file_exists(__DIR__ . '/' . APP_ROOT . 'config.dev.json') ? '.dev' : '';

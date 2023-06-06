@@ -18,7 +18,7 @@ date_default_timezone_set('America/Mexico_City');
 setlocale(LC_ALL, 'es_ES');
 set_exception_handler('exception');
 spl_autoload_register('autoloader');
-//register_shutdown_function('cierre');
+register_shutdown_function('cierre');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -88,7 +88,6 @@ function autoloader($class)
 
 function cierre()
 {
-    ob_clean();
     $error = error_get_last();
     if (!isset($_POST['fn'])) {
         if ($error['type'] === E_ERROR) {
@@ -106,7 +105,7 @@ HTML
         } elseif ($error && !defined('EXCEPTION')) {
             $file = addslashes($error['file']);
             $message = addslashes(preg_replace("/\r|\n/", '', $error['message']));
-            $script = (<<<HTML
+            echo(<<<HTML
 <script>
 console.error('$message','$file',$error[line])
 </script>
@@ -140,8 +139,11 @@ HTML
         http_response_code(200);
         ob_clean();
         die(JSON_RESPONSE);
-    } else if (defined('PAGE')) {
-        ob_clean();
+    } elseif (defined('PAGE') && !defined('PRINTED')) {
+        if (ob_get_length() > 0) {
+            ob_clean();
+        }
+        define('PRINTED', true);
         die(PAGE);
     }
 }

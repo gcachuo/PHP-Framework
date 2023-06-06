@@ -179,10 +179,14 @@ HTML;
         return $usuario->nombre;
     }
 
+    /**
+     * @throws Exception
+     */
     public function obtenerDatos()
     {
-        $metadata = Globales::getConfig()->metadata;
-        $botones = Globales::getConfig()->floating_button ?: [];
+        $config = Globales::getConfig();
+        $metadata = $config->metadata;
+        $botones = isset($config->floating_button) ? $config->floating_button : [];
         foreach ($botones as $nombre => $boton) {
             $this->floating_button .= <<<HTML
 <div class="row">
