@@ -102,12 +102,15 @@ message: $error[message]
 HTML
             );
 
-        } elseif ($error && !defined('EXCEPTION')) {
+        } elseif ($error && !defined('EXCEPTION') && $error['type'] !== E_NOTICE) {
             $file = addslashes($error['file']);
-            $message = addslashes(preg_replace("/\r|\n/", '', $error['message']));
-            echo(<<<HTML
+            $message = addslashes(preg_replace("/\r\n/", '', $error['message']));
+            define('EXCEPTION', $message);
+            print_r(<<<HTML
 <script>
-console.error('$message','$file',$error[line])
+    (()=>{
+        console.error('$message','$file','$error[line]');
+    })()
 </script>
 HTML
             );
