@@ -493,7 +493,7 @@ sup {
     -ms-transform: scale(1);
     transform: scale(1);
     pointer-events: auto;
-    display: block;
+    display: block !important;
 }
 
 .dropdown-header {
@@ -2261,7 +2261,7 @@ body {
 }
 
 .app-header ~ .app-body {
-    padding-top: 4.4rem;
+    padding-top: 3.5rem;
 }
 
 .app-header.navbar-md ~ .app-body {
