@@ -64,6 +64,9 @@ MySQL;
         return $consulta->fetch(PDO::FETCH_OBJ);
     }
 
+    /**
+     * @throws Exception
+     */
     public function selectUsuarioFromId($id_usuario)
     {
         $sql = /** @lang MySQL */
@@ -76,12 +79,12 @@ SELECT
       perfil_usuario perfil,
       id_especialista idEspecialista
 FROM _usuarios
-WHERE id_usuario=$id_usuario
+WHERE id_usuario=:id_usuario
 MySQL;
 
-        $consulta = $this->consulta($sql);
-        $registro = $this->siguiente_registro($consulta);
-        return $registro;
+        return $this->consulta2($sql, [
+            ':id_usuario' => $id_usuario
+        ])->fetch(PDO::FETCH_OBJ);
     }
 
     public function selectUsuarioAlumnos($id_usuario)
