@@ -97,6 +97,15 @@ $(function () {
   $("input[type='date'], input[type='time']").on("click", function () {
     this.showPicker();
   });
+
+  // hack to fix jquery 3.6 focus security patch that bugs auto search in select-2
+  $(document).on("select2:open", () => {
+    document.querySelector(".select2-search__field").focus();
+  });
+  $(document).on("select2:close", ($this) => {
+    console.log($this.target);
+    $this.target.focus();
+  });
 });
 
 function btnSearch(event, modulo) {
@@ -573,9 +582,6 @@ function cargarDropzone(idioma, numFiles, modulo, nombre, folder) {
                   editedFile.status = Dropzone.ADDED;
                   editedFile.accepted = true;
 
-                  /*var origFileIndex = myDropzone.files.indexOf(file);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                     myDropzone.files[origFileIndex] = editedFile;*/
-
                   myDropzone.files.push(editedFile);
                   myDropzone.emit("addedFile", editedFile);
                   myDropzone.createThumbnailFromUrl(editedFile);
@@ -714,25 +720,6 @@ function initMap() {
             if (place[i].types[0] == "postal_code") {
               $("#cpCliente").val(place[i].long_name);
             }
-            /*if(place[i].types[0] == 'administrative_area_level_1')
-                                                                                                                                                                                                                                                                                                 {
-                                                                                                                                                                                                                                                                                                 //ESTADO
-                                                                                                                                                                                                                                                                                                 var txtEstado = place[i].long_name;
-                                                                                                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                                                                                                 if(place[i].types[0] == 'locality')
-                                                                                                                                                                                                                                                                                                 {
-                                                                                                                                                                                                                                                                                                 //CIUDAD
-                                                                                                                                                                                                                                                                                                 var txtCiudad = place[i].long_name;
-                                                                                                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                                                                                                 if(place[i].types[0] == 'sublocality_level_1')
-                                                                                                                                                                                                                                                                                                 {
-                                                                                                                                                                                                                                                                                                 //COLONIA
-                                                                                                                                                                                                                                                                                                 var txtColonia = place[i].long_name;
-                                                                                                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                                                                                                 if(place[i].types[0] == 'country')
-                                                                                                                                                                                                                                                                                                 {
-                                                                                                                                                                                                                                                                                                 //document.getElementById('country').innerHTML =      long_name;
-                                                                                                                                                                                                                                                                                                 }*/
           }
 
           $("#latMap").val(marker.getPosition().lat());
@@ -800,25 +787,6 @@ function initMap() {
         if (place.address_components[i].types[0] == "postal_code") {
           $("#cpCliente").val(place.address_components[i].long_name);
         }
-        /*if(place.address_components[i].types[0] == 'administrative_area_level_1')
-                                                                                                                                                                                                 {
-                                                                                                                                                                                                 //ESTADO
-                                                                                                                                                                                                 var txtEstado = place.address_components[i].long_name;
-                                                                                                                                                                                                 }
-                                                                                                                                                                                                 if(place.address_components[i].types[0] == 'locality')
-                                                                                                                                                                                                 {
-                                                                                                                                                                                                 //CIUDAD
-                                                                                                                                                                                                 var txtCiudad = place.address_components[i].long_name;
-                                                                                                                                                                                                 }
-                                                                                                                                                                                                 if(place.address_components[i].types[0] == 'sublocality_level_1')
-                                                                                                                                                                                                 {
-                                                                                                                                                                                                 //COLONIA
-                                                                                                                                                                                                 var txtColonia = place.address_components[i].long_name;
-                                                                                                                                                                                                 }
-                                                                                                                                                                                                 if(place.address_components[i].types[0] == 'country')
-                                                                                                                                                                                                 {
-                                                                                                                                                                                                 //document.getElementById('country').innerHTML = place.address_components[i].long_name;
-                                                                                                                                                                                                 }*/
       }
 
       /* Location details */
@@ -868,9 +836,6 @@ function cargarMultiDropzone(idioma, numFiles, modulo, nombre, folder) {
                   editedFile.name = file.name;
                   editedFile.status = Dropzone.ADDED;
                   editedFile.accepted = true;
-
-                  /*var origFileIndex = myDropzone.files.indexOf(file);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                     myDropzone.files[origFileIndex] = editedFile;*/
 
                   myDropzone.files.push(editedFile);
                   myDropzone.emit("addedFile", editedFile);
