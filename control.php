@@ -76,8 +76,11 @@ abstract class Control
         } else {
 
             $this->obtenerDatos();
-            if (isset($_GET['aside']) or strpos($_SESSION['modulo'], '/')) $this->cargarAside();
-            else $this->cargarPrincipal();
+            if (isset($_GET['aside']) or strpos($_SESSION['modulo'], '/')) {
+                $this->cargarAside();
+            } else {
+                $this->cargarPrincipal();
+            }
 
             $vista = $this->setVista();
             $this->getAssets();
