@@ -1086,7 +1086,7 @@ class Modelo
             $namespace = APP_NAMESPACE;
         }
 
-        require_once $ruta;
+        require_once strtolower($ruta);
         $modelo = "{$namespace}Tabla{$key}";
         $tabla = new $modelo(self::$token);
 

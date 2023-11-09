@@ -269,7 +269,7 @@ abstract class Conexion
      */
     private function handleErrors($ex, $sql)
     {
-        $code = isset($ex->errorInfo[1]) ? $ex->errorInfo[1] : $ex->getCode() !== null ? $ex->getCode() : 0;
+        $code = isset($ex->errorInfo[1]) ? $ex->errorInfo[1] : ($ex->getCode() !== null ? $ex->getCode() : 0);
         $message = $ex->getMessage();
         $trace = $ex->getTrace();
         /** @var Tabla $this */
