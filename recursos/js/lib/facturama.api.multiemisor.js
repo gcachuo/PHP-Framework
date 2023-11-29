@@ -4,41 +4,6 @@ Soporte API Facturama
 	rafael@facturama.mx
 */
 
-/*var base = $("base").attr("href");
-if(base === "/cbiz-dev/admin/")
-{
-    var valuesFacturama =
-    {
-        token: "cHJ1ZWJhczpwcnVlYmFzMjAxMQ==",
-        usuario: "pruebas",
-        contraseña: "pruebas2011",
-        url: "https://apisandbox.facturama.mx/"
-    };
-}
-else
-{
-    debugger;
-    $.ajax
-    ({
-        url: '../../../../api/config.php',
-        cache: false,
-        contentType: false,
-        processData: false,
-        dataType: "json",
-        success: function (valData)
-        {
-            debugger;
-            var valuesFacturama =
-            {
-                token: "RWxldmVuVEk6MTEzbDN2M24xMQ==",
-                usuario: "ElevenTI",
-                contraseña: "113l3v3n11",
-                url: "https://api.facturama.mx/"
-            };
-        }
-    });
-}*/
-
 var valuesFacturama = {
   token: "RWxldmVuVEk6MTEzbDN2M24xMQ==",
   usuario: "ElevenTI",
@@ -55,16 +20,21 @@ $.ajaxSetup({
 
 (function (window) {
   function facturama() {
+    if ('https:' !== document.location.protocol) {
+      console.log('facturama no funciona sin ssl');
+      return;
+    }
+
     var settings = {
       url: valuesFacturama.url,
     };
 
     function retrieve(path, id, callback) {
       return jQuery.get(
-        settings.url + path + "/" + id,
-        undefined,
-        callback,
-        "json"
+          settings.url + path + "/" + id,
+          undefined,
+          callback,
+          "json"
       );
     }
 
@@ -74,10 +44,10 @@ $.ajaxSetup({
 
     function listWithParam(path, param, callback) {
       return jQuery.get(
-        settings.url + path + param,
-        undefined,
-        callback,
-        "json"
+          settings.url + path + param,
+          undefined,
+          callback,
+          "json"
       );
     }
 
@@ -147,10 +117,10 @@ $.ajaxSetup({
         },
         Cancel: function (params, callback, callbackError) {
           deleteSyncWithParam(
-            "api-lite/cfdis",
-            params,
-            callback,
-            callbackError
+              "api-lite/cfdis",
+              params,
+              callback,
+              callbackError
           );
         },
         Download: function (format, type, id, callback) {
@@ -172,10 +142,10 @@ $.ajaxSetup({
         },
         Update: function (param, data, callback, callbackError) {
           putSyncWithData(
-            "api-lite/csds/" + param,
-            data,
-            callback,
-            callbackError
+              "api-lite/csds/" + param,
+              data,
+              callback,
+              callbackError
           );
         },
         Remove: function (params, callback, callbackError) {
@@ -185,8 +155,8 @@ $.ajaxSetup({
       Catalogs: {
         States: function (country, callback) {
           return list(
-            "catalogs/municipalities?countryCode" + country,
-            callback
+              "catalogs/municipalities?countryCode" + country,
+              callback
           );
         },
         Municipalities: function (state, callback) {
@@ -197,14 +167,14 @@ $.ajaxSetup({
         },
         Neighborhoods: function (postalCode, callback) {
           return list(
-            "catalogs/neighborhoods?postalCode" + postalCode,
-            callback
+              "catalogs/neighborhoods?postalCode" + postalCode,
+              callback
           );
         },
         ProductsOrServices: function (keyword, callback) {
           return list(
-            "catalogs/ProductsOrServices?keyword=" + keyword,
-            callback
+              "catalogs/ProductsOrServices?keyword=" + keyword,
+              callback
           );
         },
         PostalCodes: function (keyword, callback) {
