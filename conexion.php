@@ -151,7 +151,9 @@ abstract class Conexion
      */
     public function fetch($mode = PDO::FETCH_ASSOC)
     {
-        return $this->stmt->fetch($mode) ?: [];
+        if (!empty($this->stmt)) {
+            return $this->stmt->fetch($mode) ?: [];
+        }
     }
 
     /**
@@ -161,11 +163,13 @@ abstract class Conexion
      */
     public function fetchAll($fetch_style = null, $column = null)
     {
-        if ($fetch_style == PDO::FETCH_COLUMN) {
-            return $this->stmt->fetchAll($fetch_style, $column);
-        }
+        if (!empty($this->stmt)) {
+            if ($fetch_style == PDO::FETCH_COLUMN) {
+                return $this->stmt->fetchAll($fetch_style, $column);
+            }
 
-        return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
+            return $this->stmt->fetchAll($fetch_style ?: PDO::FETCH_ASSOC);
+        }
     }
 
     /**
@@ -308,6 +312,7 @@ abstract class Conexion
                 /** @var Tabla $table */
                 $token = strtolower($_SESSION['token']);
                 $table = trim(strstr(preg_replace("/Table \'(.+)\' doesn\'t exist/", '$1', $ex->errorInfo[2] ?: $message), '.'), '.');
+                $table = trim(str_replace('SQLSTATE[42S02]: Base table or view not found: 1146 ', '', $table), '_');
 
                 //Linea para evitar recursividad infinita
                 $recursive = strpos($sql, 'CREATE TABLE') !== false ? true : false;
@@ -437,13 +442,12 @@ abstract class Conexion
                 $stmt->bindParam($key, $val, $type);
             }
 
-            $stmt->execute();
             $this->stmt = $stmt;
             $this->pdo = $pdo;
 
-            $interpolated = self::interpolate_query($sql, $params);
+            $stmt->execute();
 
-            return $this;
+            $interpolated = self::interpolate_query($sql, $params);
         } catch (PDOException $exception) {
             list($pdoerror, $code, $message) = $exception->errorInfo;
 
@@ -455,6 +459,8 @@ abstract class Conexion
             }
 
             $this->handleErrors($exception, $sql);
+        } finally {
+            return $this;
         }
     }
 

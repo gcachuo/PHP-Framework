@@ -337,6 +337,9 @@ class Globales
             $sql = addslashes(preg_replace("/\r|\n/", '', $sql));
             echo "<script>console.log('$sql')</script>";
         }
+        $mensaje = addslashes(preg_replace("/\r|\n/", '', $mensaje));
+        echo "<script>console.error('$code', '$mensaje')</script>";
+        error_log("[$_SESSION[modulo]] $mensaje");
         throw new Exception($mensaje, $code);
     }
 

@@ -22,6 +22,7 @@ register_shutdown_function('cierre');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+ini_set('error_log', "script_errors_$_SESSION[token].log");
 if (isset($_REQUEST['lang']))
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
 
