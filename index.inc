@@ -54,6 +54,9 @@ Globales::setControl($modulo);
 cierre();
 ob_clean();
 
+/**
+ * @throws Exception
+ */
 function autoloader($class)
 {
     $class = str_replace(APP_NAMESPACE, '', $class);
@@ -67,9 +70,9 @@ function autoloader($class)
         }
     } elseif (strpos($class, 'Tabla') !== false) {
         $class = strtolower(str_replace('Tabla', '', $class));
-        $path = APP_ROOT . "modelo/tablas/{$class}.php";
+        $path = APP_ROOT . "modelo/tablas/$class.php";
         if (!file_exists($path)) {
-            $path = HTTP_PATH_ROOT . "modelo/tablas/{$class}.php";
+            $path = HTTP_PATH_ROOT . "modelo/tablas/$class.php";
             if (!file_exists($path))
                 Globales::mensaje_error("No existe el archivo $path");
         }
@@ -87,6 +90,9 @@ function autoloader($class)
     require_once $path;
 }
 
+/**
+ * @return void
+ */
 function cierre()
 {
     $error = error_get_last();
@@ -125,7 +131,7 @@ HTML
         ob_end_clean();
         http_response_code(500);
         header('Content-Type: application/json');
-        die(json_encode([
+        die(Globales::json_encode([
             'type' => $error['type'],
             'code' => 500,
             'message' => $error['message'],
@@ -152,6 +158,10 @@ HTML
     }
 }
 
+/**
+ * @param $ex
+ * @return void
+ */
 function exception($ex)
 {
     define('EXCEPTION', true);
