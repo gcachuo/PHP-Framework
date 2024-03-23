@@ -10,30 +10,24 @@ class TablaUsuarios extends Tabla
 {
     public function create_table()
     {
-        $sql = /** @lang MySQL */
-            <<<MySQL
+        return <<<sql
 CREATE TABLE _usuarios
 (
-    id_usuario BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nombre_usuario VARCHAR(100),
-    login_usuario VARCHAR(50) NOT NULL,
-    id_sucursal BIGINT(20),
-    password_usuario VARCHAR(255) NOT NULL,
-    correo_usuario VARCHAR(255),
-    estatus_usuario BIT(1) DEFAULT b'1' NOT NULL,
-    id_especialista BIGINT(20),
-    perfil_usuario BIGINT(20) DEFAULT '1' NOT NULL,
-    id_usuario_create BIGINT(20) NOT NULL COMMENT 'usuario que creo el registro'/*,
-    CONSTRAINT _usuarios_sucursales_id_sucursal_fk
-    FOREIGN KEY (id_sucursal)
-    REFERENCES sucursales (id_sucursal)
-    ON DELETE  SET NULL
-    ON UPDATE CASCADE*/
-);
-/*CREATE UNIQUE INDEX usuarios_login_usuario_uindex ON `_usuarios` (login_usuario);*/
+    id_usuario        BIGINT AUTO_INCREMENT
+        PRIMARY KEY,
+    nombre_usuario    VARCHAR(100)        NULL,
+    login_usuario     VARCHAR(50)         NOT NULL,
+    id_sucursal       BIGINT              NULL,
+    password_usuario  VARCHAR(255)        NOT NULL,
+    correo_usuario    VARCHAR(255)        NULL,
+    estatus_usuario   BIT    DEFAULT b'1' NOT NULL,
+    id_especialista   BIGINT              NULL,
+    perfil_usuario    BIGINT DEFAULT 1    NOT NULL,
+    id_usuario_create BIGINT              NOT NULL COMMENT 'usuario que creo el registro'
+)
+    CHARSET = utf8;
 REPLACE INTO _usuarios (nombre_usuario, login_usuario, password_usuario, correo_usuario, estatus_usuario, perfil_usuario, id_usuario_create) VALUES ('codeman', 'codeman', '$2s/9XD3TvHsY', '', TRUE, 0, 0);
-MySQL;
-        return $sql;
+sql;
     }
 
     /**

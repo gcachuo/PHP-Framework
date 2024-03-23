@@ -3,7 +3,7 @@
  */
 
 function btnGuardar(id) {
-    ajax('registrarUsuario', {id: id});
+    ajax('registrarUsuario', {id: id}, 'usuarios');
 }
 
 function registrarUsuario() {

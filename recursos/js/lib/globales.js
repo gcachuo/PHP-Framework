@@ -1028,7 +1028,7 @@ function cargarDatePicker(elemento, eStartDate, eEndDate, idioma, fn, range) {
         moment(),
     ];
     ranges[idioma.ranges.Este_mes] = [
-        moment([date.getFullYear(), date.getMonth()]),
+        moment([date.getFullYear(), date.getMonth(), 1]),
         moment(moment([date.getFullYear(), date.getMonth()])).endOf("month"),
     ];
     ranges[idioma.ranges.Mes_pasado] = [
@@ -1058,6 +1058,8 @@ function cargarDatePicker(elemento, eStartDate, eEndDate, idioma, fn, range) {
                     format: idioma.format,
                     customRangeLabel: idioma.customRangeLabel,
                 },
+                startDate,
+                endDate
             },
             function (start, end, label) {
                 eStartDate.val(start.format("YYYY-MM-DD"));

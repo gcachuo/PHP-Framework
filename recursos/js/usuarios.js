@@ -1,22 +1,14 @@
 /**
  * Created by Memo on 23/feb/2017.
  */
-$(function () {
-    $.ajaxSetup({
-        beforeSend: function (jqXHR, settings) {
-            settings.url = 'index.php/' + settings.url;
-        }
-    });
-    ajax('obtenerIdioma');
+let idioma;
+$(async function () {
+    idioma = await ajax('obtenerIdioma');
+    cargarDatatable(idioma.datatable, null, null, -1);
 });
 
-function obtenerIdioma(idiom) {
-    idioma = idiom;
-    cargarDatatable(idioma.datatable, null, null, -1);
-}
-
 function btnEliminarUsuario(idUser) {
-    var usuarios = idioma.usuarios;
+    const usuarios = idioma.usuarios;
     if (confirm(usuarios.alertEliminar)) {
         ajax('eliminarUsuario', {idUsuario: idUser});
     }
